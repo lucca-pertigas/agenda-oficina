@@ -1,0 +1,30 @@
+package com.oficina.agenda.controller;
+
+import com.oficina.agenda.model.Tecnico;
+import com.oficina.agenda.service.TecnicoService;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/tecnicos")
+public class TecnicoController {
+
+    private final TecnicoService tecnicoService;
+
+    public TecnicoController(TecnicoService tecnicoService) {
+
+        this.tecnicoService = tecnicoService;
+    }
+
+    @GetMapping
+    public List<Tecnico> listarTodos() {
+        return tecnicoService.listarTodos();
+    }
+
+    @PostMapping
+    public Tecnico cadastrar(@RequestBody Tecnico tecnico) {
+        return tecnicoService.salvar(tecnico);
+    }
+}
+

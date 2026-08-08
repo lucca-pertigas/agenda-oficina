@@ -13,7 +13,6 @@ public class TecnicoController {
     private final TecnicoService tecnicoService;
 
     public TecnicoController(TecnicoService tecnicoService) {
-
         this.tecnicoService = tecnicoService;
     }
 
@@ -26,5 +25,29 @@ public class TecnicoController {
     public Tecnico cadastrar(@RequestBody Tecnico tecnico) {
         return tecnicoService.salvar(tecnico);
     }
-}
 
+    @GetMapping("/{id}")
+    public Tecnico buscarPorId(@PathVariable Long id) {
+        return tecnicoService.buscarPorId(id);
+    }
+
+    @PutMapping("/{id}")
+    public Tecnico atualizar(
+            @PathVariable Long id,
+            @RequestBody Tecnico tecnico) {
+
+        return tecnicoService.atualizar(id, tecnico);
+    }
+
+    @PutMapping("/{id}/desativar")
+    public Tecnico desativar(@PathVariable Long id) {
+
+        return tecnicoService.desativar(id);
+    }
+
+    @GetMapping("/ativos")
+    public List<Tecnico> listarAtivos() {
+
+        return tecnicoService.listarAtivos();
+    }
+}

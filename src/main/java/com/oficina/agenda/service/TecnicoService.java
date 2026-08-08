@@ -22,4 +22,30 @@ public class TecnicoService {
     public Tecnico salvar(Tecnico tecnico) {
         return tecnicoRepository.save(tecnico);
     }
+
+    public Tecnico buscarPorId(Long id) {
+        return tecnicoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Técnico não encontrado"));
+    }
+
+    public Tecnico atualizar(Long id, Tecnico tecnicoAtualizado) {
+        Tecnico tecnico = buscarPorId(id);
+
+        tecnico.setNome(tecnicoAtualizado.getNome());
+        tecnico.setAtivo(tecnicoAtualizado.getAtivo());
+
+        return tecnicoRepository.save(tecnico);
+    }
+
+    public Tecnico desativar (Long id) {
+        Tecnico tecnico = buscarPorId(id);
+
+        tecnico.setAtivo(false);
+
+        return tecnicoRepository.save(tecnico);
+    }
+
+    public List<Tecnico> listarAtivos() {
+        return tecnicoRepository.findByAtivoTrue();
+    }
 }

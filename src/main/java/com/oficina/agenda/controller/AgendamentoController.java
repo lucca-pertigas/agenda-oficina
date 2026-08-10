@@ -1,9 +1,9 @@
 package com.oficina.agenda.controller;
 
-import com.oficina.agenda.model.Agendamento;
+import com.oficina.agenda.dto.AgendamentoResponse;
 import com.oficina.agenda.service.AgendamentoService;
+import com.oficina.agenda.dto.AgendamentoRequest;
 import jakarta.validation.Valid;
-import jdk.jfr.DataAmount;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,35 +21,37 @@ public class AgendamentoController {
     }
 
     @GetMapping
-    public List<Agendamento> listarTodos() {
+    public List<AgendamentoResponse> listarTodos() {
         return agendamentoService.listarTodos();
     }
 
     @PostMapping
-    public Agendamento cadastrar(@Valid @RequestBody Agendamento agendamento) {
-        return agendamentoService.salvar(agendamento);
+    public AgendamentoResponse cadastrar(
+            @Valid @RequestBody AgendamentoRequest request) {
+
+        return agendamentoService.salvar(request);
     }
 
     @GetMapping("/{id}")
-    public Agendamento buscarPorId(@PathVariable Long id) {
-        return agendamentoService.buscarPorId(id);
+    public AgendamentoResponse buscarPorId(@PathVariable Long id) {
+        return agendamentoService.buscarResponsePorId(id);
     }
 
     @PutMapping("/{id}")
-    public Agendamento atualizar (
+    public AgendamentoResponse atualizar(
             @PathVariable Long id,
-            @Valid @RequestBody Agendamento agendamento
-    ) {
-        return agendamentoService.atualizar(id, agendamento);
+            @Valid @RequestBody AgendamentoRequest request) {
+
+        return agendamentoService.atualizar(id, request);
     }
 
     @PutMapping("/{id}/cancelar")
-    public Agendamento cancelar(@PathVariable Long id) {
+    public AgendamentoResponse cancelar(@PathVariable Long id) {
         return agendamentoService.cancelar(id);
     }
 
     @GetMapping("/periodo")
-    public List<Agendamento> listarPorPeriodo(
+    public List<AgendamentoResponse> listarPorPeriodo(
             @RequestParam
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
             LocalDateTime inicio,
@@ -61,26 +63,32 @@ public class AgendamentoController {
         return agendamentoService.listarPorPeriodo(inicio, fim);
     }
 
-    @GetMapping("/periodo/elevador/{elevadorID}")
-    public List<Agendamento> listarPorPeriodoEElevador (
-            @PathVariable Long elevadorID,
-            @PathVariable LocalDateTime inicio,
-            @PathVariable LocalDateTime fim) {
+    @GetMapping("/periodo/elevador/{elevadorId}")
+    public List<AgendamentoResponse> listarPorPeriodoEElevador(
+            @PathVariable Long elevadorId,
+
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime inicio,
+
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime fim) {
 
         return agendamentoService.listarPorPeriodoEElevador(
-                elevadorID,
+                elevadorId,
                 inicio,
                 fim
         );
     }
 
     @GetMapping("/cancelados")
-    public List<Agendamento> listarCancelados() {
+    public List<AgendamentoResponse> listarCancelados() {
         return agendamentoService.listarCancelados();
     }
 
     @PutMapping("/{id}/concluir")
-    public Agendamento concluir(@PathVariable Long id) {
+    public AgendamentoResponse concluir(@PathVariable Long id) {
         return agendamentoService.concluir(id);
     }
 }

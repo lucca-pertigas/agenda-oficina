@@ -6,7 +6,10 @@ import com.oficina.agenda.repository.AgendamentoRepository;
 import com.oficina.agenda.exception.RegraNegocioException;
 import com.oficina.agenda.exception.ConflitoAgendamentoException;
 import com.oficina.agenda.exception.RecursoNaoEncontradoException;
+import com.oficina.agenda.dto.AgendamentoRequest;
+import com.oficina.agenda.dto.AgendamentoResponse;
 import org.springframework.stereotype.Service;
+import com.oficina.agenda.websocket.AgendamentoWebSocketService;
 
 import java.util.List;
 import java.time.LocalDateTime;
@@ -18,21 +21,28 @@ public class AgendamentoService {
     private final TecnicoService tecnicoService;
     private final ElevadorService elevadorService;
     private final ServicoService servicoService;
+    private final AgendamentoWebSocketService agendamentoWebSocketService;
 
     public AgendamentoService(
             AgendamentoRepository agendamentoRepository,
             TecnicoService tecnicoService,
             ElevadorService elevadorService,
-            ServicoService servicoService) {
+            ServicoService servicoService,
+            AgendamentoWebSocketService agendamentoWebSocketService) {
 
         this.agendamentoRepository = agendamentoRepository;
         this.tecnicoService = tecnicoService;
         this.elevadorService = elevadorService;
         this.servicoService = servicoService;
+        this.agendamentoWebSocketService = agendamentoWebSocketService;
     }
 
-    public List<Agendamento> listarTodos() {
-        return agendamentoRepository.findAll();
+    public List<AgendamentoResponse> listarTodos() {
+
+        return agendamentoRepository.findAll()
+                .stream()
+                .map(this::converterParaResponse)
+                .toList();
     }
 
     public Agendamento buscarPorId(Long id) {
@@ -42,47 +52,49 @@ public class AgendamentoService {
                 ));
     }
 
-    public Agendamento salvar(Agendamento agendamento) {
+    public AgendamentoResponse salvar(AgendamentoRequest request) {
+
+        Agendamento agendamento = new Agendamento();
+
+        preencherDadosDoRequest(agendamento, request);
 
         prepararAgendamento(agendamento);
 
         validarConflitos(agendamento, null);
 
-        return agendamentoRepository.save(agendamento);
+        Agendamento salvo = agendamentoRepository.save(agendamento);
+
+        AgendamentoResponse response = converterParaResponse(salvo);
+
+        agendamentoWebSocketService.enviarAtualizacao(response);
+
+        return response;
     }
 
-    public Agendamento atualizar(
+    public AgendamentoResponse atualizar(
             Long id,
-            Agendamento agendamentoAtualizado) {
+            AgendamentoRequest request) {
 
         Agendamento agendamento = buscarPorId(id);
 
         validarPodeEditar(agendamento);
 
-        agendamento.setTecnico(
-                agendamentoAtualizado.getTecnico()
-        );
-
-        agendamento.setElevador(
-                agendamentoAtualizado.getElevador()
-        );
-
-        agendamento.setServico(
-                agendamentoAtualizado.getServico()
-        );
-
-        agendamento.setDataHoraInicio(
-                agendamentoAtualizado.getDataHoraInicio()
-        );
+        preencherDadosDoRequest(agendamento, request);
 
         prepararAgendamento(agendamento);
 
         validarConflitos(agendamento, id);
 
-        return agendamentoRepository.save(agendamento);
+        Agendamento salvo = agendamentoRepository.save(agendamento);
+
+        AgendamentoResponse response = converterParaResponse(salvo);
+
+        agendamentoWebSocketService.enviarAtualizacao(response);
+
+        return response;
     }
 
-    public Agendamento cancelar(Long id) {
+    public AgendamentoResponse cancelar(Long id) {
 
         Agendamento agendamento = buscarPorId(id);
 
@@ -100,50 +112,38 @@ public class AgendamentoService {
 
         agendamento.setStatus(StatusAgendamento.CANCELADO);
 
-        return agendamentoRepository.save(agendamento);
+        Agendamento salvo = agendamentoRepository.save(agendamento);
+
+        AgendamentoResponse response = converterParaResponse(salvo);
+
+        agendamentoWebSocketService.enviarAtualizacao(response);
+
+        return response;
     }
 
     private void prepararAgendamento(Agendamento agendamento) {
 
-        if (agendamento.getTecnico().getId() == null) {
-            throw new RegraNegocioException("ID do técnico é obrigatório");
-        }
-
-        if (agendamento.getElevador().getId() == null) {
-            throw new RegraNegocioException("ID do elevador é obrigatório");
-        }
-
-        if (agendamento.getServico().getId() == null) {
-            throw new RegraNegocioException("ID do serviço é obrigatório");
-        }
-
-        var tecnico = tecnicoService.buscarPorId(
-                agendamento.getTecnico().getId()
-        );
-
-        var elevador = elevadorService.buscarPorId(
-                agendamento.getElevador().getId()
-        );
-
-        var servico = servicoService.buscarPorId(
-                agendamento.getServico().getId()
-        );
+        var tecnico = agendamento.getTecnico();
+        var elevador = agendamento.getElevador();
+        var servico = agendamento.getServico();
 
         if (!tecnico.getAtivo()) {
-            throw new RegraNegocioException("Técnico está inativo");
+            throw new RegraNegocioException(
+                    "Técnico está inativo"
+            );
         }
 
         if (!elevador.getAtivo()) {
-            throw new RegraNegocioException("Elevador está inativo");
+            throw new RegraNegocioException(
+                    "Elevador está inativo"
+            );
         }
 
         if (!servico.getAtivo()) {
-            throw new RegraNegocioException("Serviço está inativo");
+            throw new RegraNegocioException(
+                    "Serviço está inativo"
+            );
         }
-
-        agendamento.setTecnico(tecnico);
-        agendamento.setElevador(elevador);
-        agendamento.setServico(servico);
 
         agendamento.setDataHoraFim(
                 agendamento.getDataHoraInicio()
@@ -151,7 +151,7 @@ public class AgendamentoService {
         );
     }
 
-    public List<Agendamento> listarPorPeriodo(
+    public List<AgendamentoResponse> listarPorPeriodo(
             LocalDateTime inicio,
             LocalDateTime fim) {
 
@@ -160,10 +160,13 @@ public class AgendamentoService {
                         StatusAgendamento.CANCELADO,
                         inicio,
                         fim
-                );
+                )
+                .stream()
+                .map(this::converterParaResponse)
+                .toList();
     }
 
-    public List<Agendamento> listarPorPeriodoEElevador(
+    public List<AgendamentoResponse> listarPorPeriodoEElevador(
             Long elevadorId,
             LocalDateTime inicio,
             LocalDateTime fim) {
@@ -174,25 +177,38 @@ public class AgendamentoService {
                         StatusAgendamento.CANCELADO,
                         inicio,
                         fim
-                );
+                )
+                .stream()
+                .map(this::converterParaResponse)
+                .toList();
     }
 
-    public List<Agendamento> listarCancelados() {
+    public List<AgendamentoResponse> listarCancelados() {
 
         return agendamentoRepository
                 .findByStatusOrderByDataHoraInicioAsc(
                         StatusAgendamento.CANCELADO
-                );
+                )
+                .stream()
+                .map(this::converterParaResponse)
+                .toList();
     }
 
-    public Agendamento concluir(Long id) {
+    public AgendamentoResponse concluir(Long id) {
+
         Agendamento agendamento = buscarPorId(id);
 
         validarPodeEditar(agendamento);
 
         agendamento.setStatus(StatusAgendamento.CONCLUIDO);
 
-        return agendamentoRepository.save(agendamento);
+        Agendamento salvo = agendamentoRepository.save(agendamento);
+
+        AgendamentoResponse response = converterParaResponse(salvo);
+
+        agendamentoWebSocketService.enviarAtualizacao(response);
+
+        return response;
     }
 
     private void validarConflitos(Agendamento agendamento, Long idIgnorado) {
@@ -271,5 +287,79 @@ public class AgendamentoService {
             );
         }
     }
+
+    private void preencherDadosDoRequest(
+            Agendamento agendamento,
+            AgendamentoRequest request) {
+
+        agendamento.setTecnico(
+                tecnicoService.buscarPorId(request.getTecnicoId())
+        );
+
+        agendamento.setElevador(
+                elevadorService.buscarPorId(request.getElevadorId())
+        );
+
+        agendamento.setServico(
+                servicoService.buscarPorId(request.getServicoId())
+        );
+
+        agendamento.setDataHoraInicio(
+                request.getDataHoraInicio()
+        );
+    }
+
+    private AgendamentoResponse converterParaResponse(Agendamento agendamento) {
+
+        AgendamentoResponse response = new AgendamentoResponse();
+
+        response.setId(agendamento.getId());
+
+        response.setTecnicoId(
+                agendamento.getTecnico().getId()
+        );
+
+        response.setTecnicoNome(
+                agendamento.getTecnico().getNome()
+        );
+
+        response.setElevadorId(
+                agendamento.getElevador().getId()
+        );
+
+        response.setElevadorNumero(
+                agendamento.getElevador().getNumero()
+        );
+
+        response.setServicoId(
+                agendamento.getServico().getId()
+        );
+
+        response.setServicoNome(
+                agendamento.getServico().getNome()
+        );
+
+        response.setDataHoraInicio(
+                agendamento.getDataHoraInicio()
+        );
+
+        response.setDataHoraFim(
+                agendamento.getDataHoraFim()
+        );
+
+        response.setStatus(
+                agendamento.getStatus()
+        );
+
+        return response;
+    }
+
+    public AgendamentoResponse buscarResponsePorId(Long id) {
+
+        Agendamento agendamento = buscarPorId(id);
+
+        return converterParaResponse(agendamento);
+    }
+
 
 }

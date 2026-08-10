@@ -1,6 +1,10 @@
 package com.oficina.agenda.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "servicos")
@@ -10,9 +14,13 @@ public class Servico {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Nome do serviço é obrigatório")
+    @Size(max = 100, message = "Nome do serviço deve ter no máximo 100 caracteres")
     @Column(nullable = false, length = 100)
     private String nome;
 
+    @NotNull(message = "Duração do serviço é obrigatória")
+    @Positive(message = "Duração do serviço deve ser maior que zero")
     @Column(nullable = false)
     private Integer duracaoMinutos;
 

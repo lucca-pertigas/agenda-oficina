@@ -2,6 +2,7 @@ package com.oficina.agenda.service;
 
 import com.oficina.agenda.model.Elevador;
 import com.oficina.agenda.repository.ElevadorRepository;
+import com.oficina.agenda.exception.RecursoNaoEncontradoException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,7 +30,9 @@ public class ElevadorService {
 
     public Elevador buscarPorId(Long id) {
         return elevadorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Elevador não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                        "Elevador não encontrado"
+                ));
     }
 
     public Elevador atualizar(Long id, Elevador elevadorAtualizado) {

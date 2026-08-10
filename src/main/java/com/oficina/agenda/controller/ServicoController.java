@@ -2,6 +2,7 @@ package com.oficina.agenda.controller;
 
 import com.oficina.agenda.model.Servico;
 import com.oficina.agenda.service.ServicoService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class ServicoController {
     }
 
     @PostMapping
-    public Servico cadastrar (@RequestBody Servico servico) {
+    public Servico cadastrar (@Valid @RequestBody Servico servico) {
         return servicoService.salvar(servico);
     }
 
@@ -34,7 +35,7 @@ public class ServicoController {
     @PutMapping("/{id}")
     public Servico atualizar (
             @PathVariable Long id,
-            @RequestBody Servico servico
+            @Valid @RequestBody Servico servico
     ) {
         return servicoService.atualizar(id, servico);
     }

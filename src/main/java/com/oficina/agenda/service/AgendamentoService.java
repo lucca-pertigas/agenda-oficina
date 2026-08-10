@@ -3,9 +3,10 @@ package com.oficina.agenda.service;
 import com.oficina.agenda.model.Agendamento;
 import com.oficina.agenda.model.StatusAgendamento;
 import com.oficina.agenda.repository.AgendamentoRepository;
-import org.springframework.http.HttpStatus;
+import com.oficina.agenda.exception.RegraNegocioException;
+import com.oficina.agenda.exception.ConflitoAgendamentoException;
+import com.oficina.agenda.exception.RecursoNaoEncontradoException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.time.LocalDateTime;
@@ -36,8 +37,7 @@ public class AgendamentoService {
 
     public Agendamento buscarPorId(Long id) {
         return agendamentoRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
+                .orElseThrow(() -> new RecursoNaoEncontradoException(
                         "Agendamento não encontrado"
                 ));
     }
@@ -46,37 +46,7 @@ public class AgendamentoService {
 
         prepararAgendamento(agendamento);
 
-        boolean conflitoElevador =
-                agendamentoRepository
-                        .existsByElevadorIdAndStatusNotAndDataHoraInicioLessThanAndDataHoraFimGreaterThan(
-                                agendamento.getElevador().getId(),
-                                StatusAgendamento.CANCELADO,
-                                agendamento.getDataHoraFim(),
-                                agendamento.getDataHoraInicio()
-                        );
-
-        if (conflitoElevador) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Elevador já possui agendamento neste horário"
-            );
-        }
-
-        boolean conflitoTecnico =
-                agendamentoRepository
-                        .existsByTecnicoIdAndStatusNotAndDataHoraInicioLessThanAndDataHoraFimGreaterThan(
-                                agendamento.getTecnico().getId(),
-                                StatusAgendamento.CANCELADO,
-                                agendamento.getDataHoraFim(),
-                                agendamento.getDataHoraInicio()
-                        );
-
-        if (conflitoTecnico) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Técnico já possui agendamento neste horário"
-            );
-        }
+        validarConflitos(agendamento, null);
 
         return agendamentoRepository.save(agendamento);
     }
@@ -87,19 +57,7 @@ public class AgendamentoService {
 
         Agendamento agendamento = buscarPorId(id);
 
-        if (agendamento.getStatus() == StatusAgendamento.CANCELADO) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Agendamento cancelado não pode ser editado"
-            );
-        }
-
-        if (agendamento.getStatus() == StatusAgendamento.CONCLUIDO) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Agendamento concluído não pode ser editado"
-            );
-        }
+        validarPodeEditar(agendamento);
 
         agendamento.setTecnico(
                 agendamentoAtualizado.getTecnico()
@@ -119,39 +77,7 @@ public class AgendamentoService {
 
         prepararAgendamento(agendamento);
 
-        boolean conflitoElevador =
-                agendamentoRepository
-                        .existsByElevadorIdAndIdNotAndStatusNotAndDataHoraInicioLessThanAndDataHoraFimGreaterThan(
-                                agendamento.getElevador().getId(),
-                                id,
-                                StatusAgendamento.CANCELADO,
-                                agendamento.getDataHoraFim(),
-                                agendamento.getDataHoraInicio()
-                        );
-
-        if (conflitoElevador) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Elevador já possui outro agendamento neste horário"
-            );
-        }
-
-        boolean conflitoTecnico =
-                agendamentoRepository
-                        .existsByTecnicoIdAndIdNotAndStatusNotAndDataHoraInicioLessThanAndDataHoraFimGreaterThan(
-                                agendamento.getTecnico().getId(),
-                                id,
-                                StatusAgendamento.CANCELADO,
-                                agendamento.getDataHoraFim(),
-                                agendamento.getDataHoraInicio()
-                        );
-
-        if (conflitoTecnico) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Técnico já possui outro agendamento neste horário"
-            );
-        }
+        validarConflitos(agendamento, id);
 
         return agendamentoRepository.save(agendamento);
     }
@@ -161,68 +87,34 @@ public class AgendamentoService {
         Agendamento agendamento = buscarPorId(id);
 
         if (agendamento.getStatus() == StatusAgendamento.CONCLUIDO) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Agendamento concluido não pode ser cancelado"
+            throw new RegraNegocioException(
+                    "Agendamento concluído não pode ser cancelado"
             );
         }
 
-        agendamento.setStatus(
-                StatusAgendamento.CANCELADO
-        );
+        if (agendamento.getStatus() == StatusAgendamento.CANCELADO) {
+            throw new RegraNegocioException(
+                    "Agendamento já está cancelado"
+            );
+        }
+
+        agendamento.setStatus(StatusAgendamento.CANCELADO);
 
         return agendamentoRepository.save(agendamento);
     }
 
-    private void prepararAgendamento(
-            Agendamento agendamento) {
-
-        if (agendamento.getServico() == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Serviço é obrigatório"
-            );
-        }
-
-        if (agendamento.getTecnico() == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Técnico é obrigatório"
-            );
-        }
-
-        if (agendamento.getElevador() == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Elevador é obrigatório"
-            );
-        }
-
-        if (agendamento.getDataHoraInicio() == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Data e hora de início são obrigatórias"
-            );
-        }
+    private void prepararAgendamento(Agendamento agendamento) {
 
         if (agendamento.getTecnico().getId() == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "ID do técnico é obrigatório"
-            );
+            throw new RegraNegocioException("ID do técnico é obrigatório");
         }
 
         if (agendamento.getElevador().getId() == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "ID do elevador é obrigatório"
-            );
+            throw new RegraNegocioException("ID do elevador é obrigatório");
         }
 
         if (agendamento.getServico().getId() == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "ID do serviço é obrigatório"
-            );
+            throw new RegraNegocioException("ID do serviço é obrigatório");
         }
 
         var tecnico = tecnicoService.buscarPorId(
@@ -238,24 +130,15 @@ public class AgendamentoService {
         );
 
         if (!tecnico.getAtivo()) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Técnico está inativo"
-            );
+            throw new RegraNegocioException("Técnico está inativo");
         }
 
         if (!elevador.getAtivo()) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Elevador está inativo"
-            );
+            throw new RegraNegocioException("Elevador está inativo");
         }
 
         if (!servico.getAtivo()) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Serviço está inativo"
-            );
+            throw new RegraNegocioException("Serviço está inativo");
         }
 
         agendamento.setTecnico(tecnico);
@@ -264,9 +147,7 @@ public class AgendamentoService {
 
         agendamento.setDataHoraFim(
                 agendamento.getDataHoraInicio()
-                        .plusMinutes(
-                                servico.getDuracaoMinutos()
-                        )
+                        .plusMinutes(servico.getDuracaoMinutos())
         );
     }
 
@@ -307,15 +188,88 @@ public class AgendamentoService {
     public Agendamento concluir(Long id) {
         Agendamento agendamento = buscarPorId(id);
 
-        if(agendamento.getStatus() == StatusAgendamento.CANCELADO) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Agendamento cancelado não pode ser concluido"
-            );
-        }
+        validarPodeEditar(agendamento);
 
         agendamento.setStatus(StatusAgendamento.CONCLUIDO);
 
         return agendamentoRepository.save(agendamento);
+    }
+
+    private void validarConflitos(Agendamento agendamento, Long idIgnorado) {
+
+        boolean conflitoElevador;
+
+        boolean conflitoTecnico;
+
+        if (idIgnorado == null) {
+
+            conflitoElevador =
+                    agendamentoRepository
+                            .existsByElevadorIdAndStatusNotAndDataHoraInicioLessThanAndDataHoraFimGreaterThan(
+                                    agendamento.getElevador().getId(),
+                                    StatusAgendamento.CANCELADO,
+                                    agendamento.getDataHoraFim(),
+                                    agendamento.getDataHoraInicio()
+                            );
+
+            conflitoTecnico =
+                    agendamentoRepository
+                            .existsByTecnicoIdAndStatusNotAndDataHoraInicioLessThanAndDataHoraFimGreaterThan(
+                                    agendamento.getTecnico().getId(),
+                                    StatusAgendamento.CANCELADO,
+                                    agendamento.getDataHoraFim(),
+                                    agendamento.getDataHoraInicio()
+                            );
+
+        } else {
+
+            conflitoElevador =
+                    agendamentoRepository
+                            .existsByElevadorIdAndIdNotAndStatusNotAndDataHoraInicioLessThanAndDataHoraFimGreaterThan(
+                                    agendamento.getElevador().getId(),
+                                    idIgnorado,
+                                    StatusAgendamento.CANCELADO,
+                                    agendamento.getDataHoraFim(),
+                                    agendamento.getDataHoraInicio()
+                            );
+
+            conflitoTecnico =
+                    agendamentoRepository
+                            .existsByTecnicoIdAndIdNotAndStatusNotAndDataHoraInicioLessThanAndDataHoraFimGreaterThan(
+                                    agendamento.getTecnico().getId(),
+                                    idIgnorado,
+                                    StatusAgendamento.CANCELADO,
+                                    agendamento.getDataHoraFim(),
+                                    agendamento.getDataHoraInicio()
+                            );
+        }
+
+        if (conflitoElevador) {
+            throw new ConflitoAgendamentoException(
+                    "Elevador já possui agendamento neste horário"
+            );
+        }
+
+        if (conflitoTecnico) {
+            throw new ConflitoAgendamentoException(
+                    "Técnico já possui agendamento neste horário"
+            );
+        }
+    }
+
+    private void validarPodeEditar(Agendamento agendamento) {
+
+        if (agendamento.getStatus() == StatusAgendamento.CANCELADO) {
+            throw new RegraNegocioException(
+                    "Agendamento cancelado não pode ser editado"
+            );
+        }
+
+        if (agendamento.getStatus() == StatusAgendamento.CONCLUIDO) {
+            throw new RegraNegocioException(
+                    "Agendamento concluído não pode ser editado"
+            );
+        }
     }
 
 }

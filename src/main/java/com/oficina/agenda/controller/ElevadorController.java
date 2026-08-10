@@ -3,6 +3,7 @@ package com.oficina.agenda.controller;
 import com.oficina.agenda.model.Elevador;
 import com.oficina.agenda.service.ElevadorService;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class ElevadorController {
     }
 
     @PostMapping
-    public Elevador cadastrar(@RequestBody Elevador elevador) {
+    public Elevador cadastrar(@Valid @RequestBody Elevador elevador) {
         return elevadorService.salvar(elevador);
     }
 
@@ -34,7 +35,7 @@ public class ElevadorController {
     @PutMapping("/{id}")
     public Elevador atualizar(
             @PathVariable Long id,
-            @RequestBody Elevador elevador) {
+            @Valid @RequestBody Elevador elevador) {
 
         return elevadorService.atualizar(id, elevador);
     }

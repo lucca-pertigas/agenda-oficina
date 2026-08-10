@@ -2,6 +2,7 @@ package com.oficina.agenda.service;
 
 import com.oficina.agenda.model.Servico;
 import com.oficina.agenda.repository.ServicoRepository;
+import com.oficina.agenda.exception.RecursoNaoEncontradoException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,7 +30,9 @@ public class ServicoService {
 
     public Servico buscarPorId(Long id) {
         return servicoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Servico não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                        "Serviço não encontrado"
+                ));
     }
 
     public Servico atualizar(Long id, Servico servicoAtualizado) {

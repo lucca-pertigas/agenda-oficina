@@ -1,6 +1,7 @@
 package com.oficina.agenda.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
@@ -14,16 +15,20 @@ public class Agendamento {
 
     @ManyToOne
     @JoinColumn(name = "tecnico_id", nullable = false)
+    @NotNull(message = "Técnico é obrigatório")
     private Tecnico tecnico;
 
     @ManyToOne
     @JoinColumn(name = "elevador_id", nullable = false)
+    @NotNull(message = "Elevador é obrigatório")
     private Elevador elevador;
 
     @ManyToOne
     @JoinColumn(name = "servico_id", nullable = false)
+    @NotNull(message = "Serviço é obrigatório")
     private Servico servico;
 
+    @NotNull(message = "Data e hora de início são obrigatórias")
     private LocalDateTime dataHoraInicio;
 
     private LocalDateTime dataHoraFim;

@@ -2,6 +2,7 @@ package com.oficina.agenda.controller;
 
 import com.oficina.agenda.model.Tecnico;
 import com.oficina.agenda.service.TecnicoService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +23,8 @@ public class TecnicoController {
     }
 
     @PostMapping
-    public Tecnico cadastrar(@RequestBody Tecnico tecnico) {
+    public Tecnico cadastrar(@Valid @RequestBody Tecnico tecnico) {
+
         return tecnicoService.salvar(tecnico);
     }
 
@@ -34,7 +36,7 @@ public class TecnicoController {
     @PutMapping("/{id}")
     public Tecnico atualizar(
             @PathVariable Long id,
-            @RequestBody Tecnico tecnico) {
+            @Valid @RequestBody Tecnico tecnico) {
 
         return tecnicoService.atualizar(id, tecnico);
     }

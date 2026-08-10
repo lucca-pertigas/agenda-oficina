@@ -2,6 +2,7 @@ package com.oficina.agenda.service;
 
 import com.oficina.agenda.model.Tecnico;
 import com.oficina.agenda.repository.TecnicoRepository;
+import com.oficina.agenda.exception.RecursoNaoEncontradoException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,7 +26,9 @@ public class TecnicoService {
 
     public Tecnico buscarPorId(Long id) {
         return tecnicoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Técnico não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                        "Técnico não encontrado"
+                ));
     }
 
     public Tecnico atualizar(Long id, Tecnico tecnicoAtualizado) {

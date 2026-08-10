@@ -2,6 +2,7 @@ package com.oficina.agenda.controller;
 
 import com.oficina.agenda.model.Agendamento;
 import com.oficina.agenda.service.AgendamentoService;
+import jakarta.validation.Valid;
 import jdk.jfr.DataAmount;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class AgendamentoController {
     }
 
     @PostMapping
-    public Agendamento cadastrar(@RequestBody Agendamento agendamento) {
+    public Agendamento cadastrar(@Valid @RequestBody Agendamento agendamento) {
         return agendamentoService.salvar(agendamento);
     }
 
@@ -37,7 +38,7 @@ public class AgendamentoController {
     @PutMapping("/{id}")
     public Agendamento atualizar (
             @PathVariable Long id,
-            @RequestBody Agendamento agendamento
+            @Valid @RequestBody Agendamento agendamento
     ) {
         return agendamentoService.atualizar(id, agendamento);
     }

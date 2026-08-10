@@ -1,6 +1,8 @@
 package com.oficina.agenda.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "tecnicos")
@@ -10,6 +12,8 @@ public class Tecnico {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Nome do tecnico é obrigatório")
+    @Size(max = 100, message = "Nome do tecnico deve ter no maximo 100 caracteres")
     @Column(nullable = false, length = 100)
     private String nome;
 

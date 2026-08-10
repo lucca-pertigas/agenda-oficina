@@ -1,6 +1,8 @@
 package com.oficina.agenda.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 @Entity
 @Table(name = "elevadores")
@@ -10,6 +12,8 @@ public class Elevador {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "Número do elevador é obrigatório")
+    @Positive(message = "Número do elevador deve ser maior que zero")
     @Column(nullable = false, unique = true)
     private Integer numero;
 

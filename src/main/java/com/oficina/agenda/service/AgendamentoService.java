@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.time.LocalDateTime;
 
 @Service
 public class AgendamentoService {
@@ -86,6 +87,20 @@ public class AgendamentoService {
 
         Agendamento agendamento = buscarPorId(id);
 
+        if (agendamento.getStatus() == StatusAgendamento.CANCELADO) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Agendamento cancelado não pode ser editado"
+            );
+        }
+
+        if (agendamento.getStatus() == StatusAgendamento.CONCLUIDO) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Agendamento concluído não pode ser editado"
+            );
+        }
+
         agendamento.setTecnico(
                 agendamentoAtualizado.getTecnico()
         );
@@ -144,6 +159,12 @@ public class AgendamentoService {
     public Agendamento cancelar(Long id) {
 
         Agendamento agendamento = buscarPorId(id);
+
+        if (agendamento.getStatus() == StatusAgendamento.CONCLUIDO) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Agendamento concluido não pode ser cancelado"
+            );
+        }
 
         agendamento.setStatus(
                 StatusAgendamento.CANCELADO
@@ -248,4 +269,53 @@ public class AgendamentoService {
                         )
         );
     }
+
+    public List<Agendamento> listarPorPeriodo(
+            LocalDateTime inicio,
+            LocalDateTime fim) {
+
+        return agendamentoRepository
+                .findByStatusNotAndDataHoraInicioBetweenOrderByDataHoraInicioAsc(
+                        StatusAgendamento.CANCELADO,
+                        inicio,
+                        fim
+                );
+    }
+
+    public List<Agendamento> listarPorPeriodoEElevador(
+            Long elevadorId,
+            LocalDateTime inicio,
+            LocalDateTime fim) {
+
+        return agendamentoRepository
+                .findByElevadorIdAndStatusNotAndDataHoraInicioBetweenOrderByDataHoraInicioAsc(
+                        elevadorId,
+                        StatusAgendamento.CANCELADO,
+                        inicio,
+                        fim
+                );
+    }
+
+    public List<Agendamento> listarCancelados() {
+
+        return agendamentoRepository
+                .findByStatusOrderByDataHoraInicioAsc(
+                        StatusAgendamento.CANCELADO
+                );
+    }
+
+    public Agendamento concluir(Long id) {
+        Agendamento agendamento = buscarPorId(id);
+
+        if(agendamento.getStatus() == StatusAgendamento.CANCELADO) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Agendamento cancelado não pode ser concluido"
+            );
+        }
+
+        agendamento.setStatus(StatusAgendamento.CONCLUIDO);
+
+        return agendamentoRepository.save(agendamento);
+    }
+
 }

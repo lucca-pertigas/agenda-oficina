@@ -5,6 +5,7 @@ import com.oficina.agenda.model.StatusAgendamento;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> {
 
@@ -36,5 +37,22 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
             StatusAgendamento status,
             LocalDateTime dataHoraFim,
             LocalDateTime dataHoraInicio
+    );
+
+    List<Agendamento> findByStatusNotAndDataHoraInicioBetweenOrderByDataHoraInicioAsc(
+            StatusAgendamento status,
+            LocalDateTime inicio,
+            LocalDateTime fim
+    );
+
+    List<Agendamento> findByElevadorIdAndStatusNotAndDataHoraInicioBetweenOrderByDataHoraInicioAsc(
+            Long elevadorId,
+            StatusAgendamento status,
+            LocalDateTime inicio,
+            LocalDateTime fim
+    );
+
+    List<Agendamento> findByStatusOrderByDataHoraInicioAsc(
+            StatusAgendamento status
     );
 }

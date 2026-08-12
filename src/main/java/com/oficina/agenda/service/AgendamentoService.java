@@ -1,72 +1,92 @@
 package com.oficina.agenda.service;
 
+import com.oficina.agenda.dto.AgendamentoRequest;
+import com.oficina.agenda.dto.AgendamentoResponse;
+import com.oficina.agenda.exception.ConflitoAgendamentoException;
+import com.oficina.agenda.exception.RecursoNaoEncontradoException;
+import com.oficina.agenda.exception.RegraNegocioException;
+import com.oficina.agenda.mapper.AgendamentoMapper;
 import com.oficina.agenda.model.Agendamento;
 import com.oficina.agenda.model.StatusAgendamento;
 import com.oficina.agenda.repository.AgendamentoRepository;
-import com.oficina.agenda.exception.RegraNegocioException;
-import com.oficina.agenda.exception.ConflitoAgendamentoException;
-import com.oficina.agenda.exception.RecursoNaoEncontradoException;
-import com.oficina.agenda.dto.AgendamentoRequest;
-import com.oficina.agenda.dto.AgendamentoResponse;
-import org.springframework.stereotype.Service;
 import com.oficina.agenda.websocket.AgendamentoWebSocketService;
+import com.oficina.agenda.websocket.TipoEventoAgendamento;
+import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class AgendamentoService {
 
     private final AgendamentoRepository agendamentoRepository;
-    private final TecnicoService tecnicoService;
-    private final ElevadorService elevadorService;
-    private final ServicoService servicoService;
     private final AgendamentoWebSocketService agendamentoWebSocketService;
+    private final AgendamentoMapper agendamentoMapper;
+    private final ConflitoAgendamentoService conflitoAgendamentoService;
+    private final AgendamentoValidator agendamentoValidator;
 
     public AgendamentoService(
             AgendamentoRepository agendamentoRepository,
-            TecnicoService tecnicoService,
-            ElevadorService elevadorService,
-            ServicoService servicoService,
-            AgendamentoWebSocketService agendamentoWebSocketService) {
+            AgendamentoWebSocketService agendamentoWebSocketService,
+            AgendamentoMapper agendamentoMapper,
+            ConflitoAgendamentoService conflitoAgendamentoService,
+            AgendamentoValidator agendamentoValidator) {
 
         this.agendamentoRepository = agendamentoRepository;
-        this.tecnicoService = tecnicoService;
-        this.elevadorService = elevadorService;
-        this.servicoService = servicoService;
         this.agendamentoWebSocketService = agendamentoWebSocketService;
+        this.agendamentoMapper = agendamentoMapper;
+        this.conflitoAgendamentoService = conflitoAgendamentoService;
+        this.agendamentoValidator = agendamentoValidator;
     }
 
     public List<AgendamentoResponse> listarTodos() {
 
         return agendamentoRepository.findAll()
                 .stream()
-                .map(this::converterParaResponse)
+                .map(agendamentoMapper::paraResponse)
                 .toList();
     }
 
     public Agendamento buscarPorId(Long id) {
+
         return agendamentoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException(
                         "Agendamento não encontrado"
                 ));
     }
 
+    public AgendamentoResponse buscarResponsePorId(Long id) {
+
+        Agendamento agendamento = buscarPorId(id);
+
+        return agendamentoMapper.paraResponse(agendamento);
+    }
+
     public AgendamentoResponse salvar(AgendamentoRequest request) {
 
         Agendamento agendamento = new Agendamento();
 
-        preencherDadosDoRequest(agendamento, request);
+        agendamentoMapper.preencherDados(
+                agendamento,
+                request
+        );
 
-        prepararAgendamento(agendamento);
+        agendamentoValidator.preparar(agendamento);
 
-        validarConflitos(agendamento, null);
+        conflitoAgendamentoService.validar(
+                agendamento,
+                null
+        );
+        Agendamento salvo =
+                agendamentoRepository.save(agendamento);
 
-        Agendamento salvo = agendamentoRepository.save(agendamento);
+        AgendamentoResponse response =
+                agendamentoMapper.paraResponse(salvo);
 
-        AgendamentoResponse response = converterParaResponse(salvo);
-
-        agendamentoWebSocketService.enviarAtualizacao(response);
+        agendamentoWebSocketService.enviarAtualizacao(
+                TipoEventoAgendamento.CRIADO,
+                response
+        );
 
         return response;
     }
@@ -79,17 +99,28 @@ public class AgendamentoService {
 
         validarPodeEditar(agendamento);
 
-        preencherDadosDoRequest(agendamento, request);
+        agendamentoMapper.preencherDados(
+                agendamento,
+                request
+        );
 
-        prepararAgendamento(agendamento);
+        agendamentoValidator.preparar(agendamento);
 
-        validarConflitos(agendamento, id);
+        conflitoAgendamentoService.validar(
+                agendamento,
+                id
+        );
 
-        Agendamento salvo = agendamentoRepository.save(agendamento);
+        Agendamento salvo =
+                agendamentoRepository.save(agendamento);
 
-        AgendamentoResponse response = converterParaResponse(salvo);
+        AgendamentoResponse response =
+                agendamentoMapper.paraResponse(salvo);
 
-        agendamentoWebSocketService.enviarAtualizacao(response);
+        agendamentoWebSocketService.enviarAtualizacao(
+                TipoEventoAgendamento.ATUALIZADO,
+                response
+        );
 
         return response;
     }
@@ -110,45 +141,46 @@ public class AgendamentoService {
             );
         }
 
-        agendamento.setStatus(StatusAgendamento.CANCELADO);
+        agendamento.setStatus(
+                StatusAgendamento.CANCELADO
+        );
 
-        Agendamento salvo = agendamentoRepository.save(agendamento);
+        Agendamento salvo =
+                agendamentoRepository.save(agendamento);
 
-        AgendamentoResponse response = converterParaResponse(salvo);
+        AgendamentoResponse response =
+                agendamentoMapper.paraResponse(salvo);
 
-        agendamentoWebSocketService.enviarAtualizacao(response);
+        agendamentoWebSocketService.enviarAtualizacao(
+                TipoEventoAgendamento.CANCELADO,
+                response
+        );
 
         return response;
     }
 
-    private void prepararAgendamento(Agendamento agendamento) {
+    public AgendamentoResponse concluir(Long id) {
 
-        var tecnico = agendamento.getTecnico();
-        var elevador = agendamento.getElevador();
-        var servico = agendamento.getServico();
+        Agendamento agendamento = buscarPorId(id);
 
-        if (!tecnico.getAtivo()) {
-            throw new RegraNegocioException(
-                    "Técnico está inativo"
-            );
-        }
+        validarPodeEditar(agendamento);
 
-        if (!elevador.getAtivo()) {
-            throw new RegraNegocioException(
-                    "Elevador está inativo"
-            );
-        }
-
-        if (!servico.getAtivo()) {
-            throw new RegraNegocioException(
-                    "Serviço está inativo"
-            );
-        }
-
-        agendamento.setDataHoraFim(
-                agendamento.getDataHoraInicio()
-                        .plusMinutes(servico.getDuracaoMinutos())
+        agendamento.setStatus(
+                StatusAgendamento.CONCLUIDO
         );
+
+        Agendamento salvo =
+                agendamentoRepository.save(agendamento);
+
+        AgendamentoResponse response =
+                agendamentoMapper.paraResponse(salvo);
+
+        agendamentoWebSocketService.enviarAtualizacao(
+                TipoEventoAgendamento.CONCLUIDO,
+                response
+        );
+
+        return response;
     }
 
     public List<AgendamentoResponse> listarPorPeriodo(
@@ -162,7 +194,7 @@ public class AgendamentoService {
                         fim
                 )
                 .stream()
-                .map(this::converterParaResponse)
+                .map(agendamentoMapper::paraResponse)
                 .toList();
     }
 
@@ -179,7 +211,7 @@ public class AgendamentoService {
                         fim
                 )
                 .stream()
-                .map(this::converterParaResponse)
+                .map(agendamentoMapper::paraResponse)
                 .toList();
     }
 
@@ -190,90 +222,23 @@ public class AgendamentoService {
                         StatusAgendamento.CANCELADO
                 )
                 .stream()
-                .map(this::converterParaResponse)
+                .map(agendamentoMapper::paraResponse)
                 .toList();
     }
 
-    public AgendamentoResponse concluir(Long id) {
+    public List<AgendamentoResponse> listarAgendados() {
 
-        Agendamento agendamento = buscarPorId(id);
-
-        validarPodeEditar(agendamento);
-
-        agendamento.setStatus(StatusAgendamento.CONCLUIDO);
-
-        Agendamento salvo = agendamentoRepository.save(agendamento);
-
-        AgendamentoResponse response = converterParaResponse(salvo);
-
-        agendamentoWebSocketService.enviarAtualizacao(response);
-
-        return response;
+        return agendamentoRepository
+                .findByStatusOrderByDataHoraInicioAsc(
+                        StatusAgendamento.AGENDADO
+                )
+                .stream()
+                .map(agendamentoMapper::paraResponse)
+                .toList();
     }
 
-    private void validarConflitos(Agendamento agendamento, Long idIgnorado) {
-
-        boolean conflitoElevador;
-
-        boolean conflitoTecnico;
-
-        if (idIgnorado == null) {
-
-            conflitoElevador =
-                    agendamentoRepository
-                            .existsByElevadorIdAndStatusNotAndDataHoraInicioLessThanAndDataHoraFimGreaterThan(
-                                    agendamento.getElevador().getId(),
-                                    StatusAgendamento.CANCELADO,
-                                    agendamento.getDataHoraFim(),
-                                    agendamento.getDataHoraInicio()
-                            );
-
-            conflitoTecnico =
-                    agendamentoRepository
-                            .existsByTecnicoIdAndStatusNotAndDataHoraInicioLessThanAndDataHoraFimGreaterThan(
-                                    agendamento.getTecnico().getId(),
-                                    StatusAgendamento.CANCELADO,
-                                    agendamento.getDataHoraFim(),
-                                    agendamento.getDataHoraInicio()
-                            );
-
-        } else {
-
-            conflitoElevador =
-                    agendamentoRepository
-                            .existsByElevadorIdAndIdNotAndStatusNotAndDataHoraInicioLessThanAndDataHoraFimGreaterThan(
-                                    agendamento.getElevador().getId(),
-                                    idIgnorado,
-                                    StatusAgendamento.CANCELADO,
-                                    agendamento.getDataHoraFim(),
-                                    agendamento.getDataHoraInicio()
-                            );
-
-            conflitoTecnico =
-                    agendamentoRepository
-                            .existsByTecnicoIdAndIdNotAndStatusNotAndDataHoraInicioLessThanAndDataHoraFimGreaterThan(
-                                    agendamento.getTecnico().getId(),
-                                    idIgnorado,
-                                    StatusAgendamento.CANCELADO,
-                                    agendamento.getDataHoraFim(),
-                                    agendamento.getDataHoraInicio()
-                            );
-        }
-
-        if (conflitoElevador) {
-            throw new ConflitoAgendamentoException(
-                    "Elevador já possui agendamento neste horário"
-            );
-        }
-
-        if (conflitoTecnico) {
-            throw new ConflitoAgendamentoException(
-                    "Técnico já possui agendamento neste horário"
-            );
-        }
-    }
-
-    private void validarPodeEditar(Agendamento agendamento) {
+    private void validarPodeEditar(
+            Agendamento agendamento) {
 
         if (agendamento.getStatus() == StatusAgendamento.CANCELADO) {
             throw new RegraNegocioException(
@@ -287,79 +252,4 @@ public class AgendamentoService {
             );
         }
     }
-
-    private void preencherDadosDoRequest(
-            Agendamento agendamento,
-            AgendamentoRequest request) {
-
-        agendamento.setTecnico(
-                tecnicoService.buscarPorId(request.getTecnicoId())
-        );
-
-        agendamento.setElevador(
-                elevadorService.buscarPorId(request.getElevadorId())
-        );
-
-        agendamento.setServico(
-                servicoService.buscarPorId(request.getServicoId())
-        );
-
-        agendamento.setDataHoraInicio(
-                request.getDataHoraInicio()
-        );
-    }
-
-    private AgendamentoResponse converterParaResponse(Agendamento agendamento) {
-
-        AgendamentoResponse response = new AgendamentoResponse();
-
-        response.setId(agendamento.getId());
-
-        response.setTecnicoId(
-                agendamento.getTecnico().getId()
-        );
-
-        response.setTecnicoNome(
-                agendamento.getTecnico().getNome()
-        );
-
-        response.setElevadorId(
-                agendamento.getElevador().getId()
-        );
-
-        response.setElevadorNumero(
-                agendamento.getElevador().getNumero()
-        );
-
-        response.setServicoId(
-                agendamento.getServico().getId()
-        );
-
-        response.setServicoNome(
-                agendamento.getServico().getNome()
-        );
-
-        response.setDataHoraInicio(
-                agendamento.getDataHoraInicio()
-        );
-
-        response.setDataHoraFim(
-                agendamento.getDataHoraFim()
-        );
-
-        response.setStatus(
-                agendamento.getStatus()
-        );
-
-        return response;
-    }
-
-    public AgendamentoResponse buscarResponsePorId(Long id) {
-
-        Agendamento agendamento = buscarPorId(id);
-
-        return converterParaResponse(agendamento);
-    }
-
-
 }

@@ -91,4 +91,9 @@ public class AgendamentoController {
     public AgendamentoResponse concluir(@PathVariable Long id) {
         return agendamentoService.concluir(id);
     }
+
+    @GetMapping("/agendados")
+    public List<AgendamentoResponse> listarAgendados() {
+        return agendamentoService.listarAgendados();
+    }
 }

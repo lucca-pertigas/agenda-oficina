@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Teste WebSocket</title>
+</head>
+<body>
+
+<h1>Teste WebSocket - Agenda</h1>
+
+<p id="status">Conectando...</p>
+
+<h2>Cadastrar dados básicos</h2>
+
+<button onclick="criarTecnico()">Criar técnico</button>
+<button onclick="criarElevador()">Criar elevador</button>
+<button onclick="criarServico()">Criar serviço</button>
+
+<p id="cadastros"></p>
+
+<pre id="mensagens"></pre>
+
+<h2>Criar agendamento de teste</h2>
+
+<input id="tecnico" type="number" placeholder="ID Técnico" value="1">
+<input id="elevador" type="number" placeholder="ID Elevador" value="1">
+<input id="servico" type="number" placeholder="ID Serviço" value="1">
+
+<input id="dataHora" type="datetime-local">
+
+<button onclick="criarAgendamento()">
+    Criar agendamento
+</button>
+
+<button onclick="cancelarAgendamento()">
+    Cancelar agendamento 1
+</button>
+
+<button onclick="concluirAgendamento()">
+    Concluir agendamento 2
+</button>
+
+<button onclick="atualizarAgendamento()">
+    Atualizar agendamento 2
+</button>
+
+<p id="resultado"></p>
+
+<script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js"></script>
+
+<script>
+    const status = document.getElementById("status");
+    const mensagens = document.getElementById("mensagens");
+
+    const client = new StompJs.Client({
+        brokerURL: "ws://localhost:9091/ws",
+
+        reconnectDelay: 5000,
+
+        onConnect: function () {
+            status.textContent = "WebSocket conectado";
+
+            client.subscribe("/topic/agendamentos", function (message) {
+
+                const evento = JSON.parse(message.body);
+
+                mensagens.textContent +=
+                    "\nTipo: " + evento.tipo +
+                    "\nAgendamento:\n" +
+                    JSON.stringify(evento.agendamento, null, 2) +
+                    "\n-----------------------------\n";
+            });
+        },
+
+        onStompError: function (frame) {
+            status.textContent = "Erro no WebSocket";
+
+            console.error(frame);
+        },
+
+        onWebSocketError: function (error) {
+            status.textContent = "Erro de conexão";
+
+            console.error(error);
+        }
+    });
+
+    async function criarAgendamento() {
+
+        const dados = {
+            tecnicoId: Number(document.getElementById("tecnico").value),
+            elevadorId: Number(document.getElementById("elevador").value),
+            servicoId: Number(document.getElementById("servico").value),
+            dataHoraInicio: document.getElementById("dataHora").value
+        };
+
+        const response = await fetch("/agendamentos", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(dados)
+        });
+
+        const resultado = await response.json();
+
+        document.getElementById("resultado").textContent =
+            JSON.stringify(resultado, null, 2);
+    }
+
+    async function criarTecnico() {
+        const response = await fetch("/tecnicos", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                nome: "Carlos",
+                ativo: true
+            })
+        });
+
+        const resultado = await response.json();
+
+        document.getElementById("cadastros").textContent =
+            JSON.stringify(resultado, null, 2);
+    }
+
+    async function criarElevador() {
+        const response = await fetch("/elevadores", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                numero: 1,
+                ativo: true
+            })
+        });
+
+        const resultado = await response.json();
+
+        document.getElementById("cadastros").textContent =
+            JSON.stringify(resultado, null, 2);
+    }
+
+    async function criarServico() {
+        const response = await fetch("/servicos", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                nome: "Troca de óleo",
+                duracaoMinutos: 60,
+                ativo: true
+            })
+        });
+
+        const resultado = await response.json();
+
+        document.getElementById("cadastros").textContent =
+            JSON.stringify(resultado, null, 2);
+    }
+
+    async function cancelarAgendamento() {
+
+        const response = await fetch("/agendamentos/1/cancelar", {
+            method: "PUT"
+        });
+
+        const resultado = await response.json();
+
+        document.getElementById("resultado").textContent =
+            JSON.stringify(resultado, null, 2);
+    }
+
+    async function concluirAgendamento() {
+
+        const response = await fetch("/agendamentos/2/concluir", {
+            method: "PUT"
+        });
+
+        const resultado = await response.json();
+
+        document.getElementById("resultado").textContent =
+            JSON.stringify(resultado, null, 2);
+    }
+
+    async function atualizarAgendamento() {
+
+        const dados = {
+            tecnicoId: 1,
+            elevadorId: 1,
+            servicoId: 1,
+            dataHoraInicio: "2026-08-13T14:00:00"
+        };
+
+        const response = await fetch("/agendamentos/2", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(dados)
+        });
+
+        const resultado = await response.json();
+
+        document.getElementById("resultado").textContent =
+            JSON.stringify(resultado, null, 1);
+    }
+
+    client.activate();
+</script>
+
+</body>
+</html>

@@ -1,26 +1,28 @@
 package com.oficina.agenda.dto;
 
+import com.oficina.agenda.websocket.TipoEventoAgendamento;
+
 public class AgendamentoEvento {
 
-    private String tipo;
+    private TipoEventoAgendamento tipo;
     private AgendamentoResponse agendamento;
 
     public AgendamentoEvento() {
     }
 
     public AgendamentoEvento(
-            String tipo,
+            TipoEventoAgendamento tipo,
             AgendamentoResponse agendamento) {
 
         this.tipo = tipo;
         this.agendamento = agendamento;
     }
 
-    public String getTipo() {
+    public TipoEventoAgendamento getTipo() {
         return tipo;
     }
 
-    public void setTipo(String tipo) {
+    public void setTipo(TipoEventoAgendamento tipo) {
         this.tipo = tipo;
     }
 

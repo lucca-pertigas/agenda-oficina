@@ -58,4 +58,18 @@ public class Servico {
     public void setAtivo(Boolean ativo) {
         this.ativo = ativo;
     }
+
+    public void atualizarDados(
+            String nome,
+            Integer duracaoMinutos,
+            Boolean ativo) {
+
+        this.nome = nome;
+        this.duracaoMinutos = duracaoMinutos;
+        this.ativo = ativo;
+    }
+
+    public void desativar() {
+        this.ativo = false;
+    }
 }

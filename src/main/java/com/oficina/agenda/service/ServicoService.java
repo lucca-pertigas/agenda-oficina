@@ -35,20 +35,26 @@ public class ServicoService {
                 ));
     }
 
-    public Servico atualizar(Long id, Servico servicoAtualizado) {
+    public Servico atualizar(
+            Long id,
+            Servico servicoAtualizado) {
+
         Servico servico = buscarPorId(id);
 
-        servico.setNome(servicoAtualizado.getNome());
-        servico.setDuracaoMinutos(servicoAtualizado.getDuracaoMinutos());
-        servico.setAtivo(servicoAtualizado.getAtivo());
+        servico.atualizarDados(
+                servicoAtualizado.getNome(),
+                servicoAtualizado.getDuracaoMinutos(),
+                servicoAtualizado.getAtivo()
+        );
 
         return servicoRepository.save(servico);
     }
 
     public Servico desativar(Long id) {
+
         Servico servico = buscarPorId(id);
 
-        servico.setAtivo(false);
+        servico.desativar();
 
         return servicoRepository.save(servico);
     }

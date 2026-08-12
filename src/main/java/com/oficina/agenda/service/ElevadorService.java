@@ -35,19 +35,25 @@ public class ElevadorService {
                 ));
     }
 
-    public Elevador atualizar(Long id, Elevador elevadorAtualizado) {
+    public Elevador atualizar(
+            Long id,
+            Elevador elevadorAtualizado) {
+
         Elevador elevador = buscarPorId(id);
 
-        elevador.setNumero(elevadorAtualizado.getNumero());
-        elevador.setAtivo(elevadorAtualizado.getAtivo());
+        elevador.atualizarDados(
+                elevadorAtualizado.getNumero(),
+                elevadorAtualizado.getAtivo()
+        );
 
         return elevadorRepository.save(elevador);
     }
 
     public Elevador desativar(Long id) {
+
         Elevador elevador = buscarPorId(id);
 
-        elevador.setAtivo(false);
+        elevador.desativar();
 
         return elevadorRepository.save(elevador);
     }

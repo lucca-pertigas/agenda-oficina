@@ -43,4 +43,13 @@ public class Elevador {
     public void setAtivo(Boolean ativo) {
         this.ativo = ativo;
     }
+
+    public void atualizarDados(Integer numero, Boolean ativo) {
+        this.numero = numero;
+        this.ativo = ativo;
+    }
+
+    public void desativar() {
+        this.ativo = false;
+    }
 }

@@ -2,15 +2,11 @@ package com.oficina.agenda.service;
 
 import com.oficina.agenda.dto.AgendamentoRequest;
 import com.oficina.agenda.dto.AgendamentoResponse;
-import com.oficina.agenda.exception.ConflitoAgendamentoException;
 import com.oficina.agenda.exception.RecursoNaoEncontradoException;
-import com.oficina.agenda.exception.RegraNegocioException;
 import com.oficina.agenda.mapper.AgendamentoMapper;
 import com.oficina.agenda.model.Agendamento;
 import com.oficina.agenda.model.StatusAgendamento;
 import com.oficina.agenda.repository.AgendamentoRepository;
-import com.oficina.agenda.websocket.AgendamentoWebSocketService;
-import com.oficina.agenda.websocket.TipoEventoAgendamento;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,23 +16,26 @@ import java.util.List;
 public class AgendamentoService {
 
     private final AgendamentoRepository agendamentoRepository;
-    private final AgendamentoWebSocketService agendamentoWebSocketService;
     private final AgendamentoMapper agendamentoMapper;
     private final ConflitoAgendamentoService conflitoAgendamentoService;
     private final AgendamentoValidator agendamentoValidator;
+    private final AgendamentoResourceService agendamentoResourceService;
+    private final AgendamentoEventoService agendamentoEventoService;
 
     public AgendamentoService(
             AgendamentoRepository agendamentoRepository,
-            AgendamentoWebSocketService agendamentoWebSocketService,
             AgendamentoMapper agendamentoMapper,
             ConflitoAgendamentoService conflitoAgendamentoService,
-            AgendamentoValidator agendamentoValidator) {
+            AgendamentoValidator agendamentoValidator,
+            AgendamentoResourceService agendamentoResourceService,
+            AgendamentoEventoService agendamentoEventoService) {
 
         this.agendamentoRepository = agendamentoRepository;
-        this.agendamentoWebSocketService = agendamentoWebSocketService;
         this.agendamentoMapper = agendamentoMapper;
         this.conflitoAgendamentoService = conflitoAgendamentoService;
         this.agendamentoValidator = agendamentoValidator;
+        this.agendamentoResourceService = agendamentoResourceService;
+        this.agendamentoEventoService = agendamentoEventoService;
     }
 
     public List<AgendamentoResponse> listarTodos() {
@@ -66,7 +65,7 @@ public class AgendamentoService {
 
         Agendamento agendamento = new Agendamento();
 
-        agendamentoMapper.preencherDados(
+        agendamentoResourceService.preencherRecursos(
                 agendamento,
                 request
         );
@@ -77,16 +76,14 @@ public class AgendamentoService {
                 agendamento,
                 null
         );
+
         Agendamento salvo =
                 agendamentoRepository.save(agendamento);
 
         AgendamentoResponse response =
                 agendamentoMapper.paraResponse(salvo);
 
-        agendamentoWebSocketService.enviarAtualizacao(
-                TipoEventoAgendamento.CRIADO,
-                response
-        );
+        agendamentoEventoService.criado(response);
 
         return response;
     }
@@ -97,9 +94,9 @@ public class AgendamentoService {
 
         Agendamento agendamento = buscarPorId(id);
 
-        validarPodeEditar(agendamento);
+        agendamento.validarPodeEditar();
 
-        agendamentoMapper.preencherDados(
+        agendamentoResourceService.preencherRecursos(
                 agendamento,
                 request
         );
@@ -117,10 +114,7 @@ public class AgendamentoService {
         AgendamentoResponse response =
                 agendamentoMapper.paraResponse(salvo);
 
-        agendamentoWebSocketService.enviarAtualizacao(
-                TipoEventoAgendamento.ATUALIZADO,
-                response
-        );
+        agendamentoEventoService.atualizado(response);
 
         return response;
     }
@@ -129,21 +123,7 @@ public class AgendamentoService {
 
         Agendamento agendamento = buscarPorId(id);
 
-        if (agendamento.getStatus() == StatusAgendamento.CONCLUIDO) {
-            throw new RegraNegocioException(
-                    "Agendamento concluído não pode ser cancelado"
-            );
-        }
-
-        if (agendamento.getStatus() == StatusAgendamento.CANCELADO) {
-            throw new RegraNegocioException(
-                    "Agendamento já está cancelado"
-            );
-        }
-
-        agendamento.setStatus(
-                StatusAgendamento.CANCELADO
-        );
+        agendamento.cancelar();
 
         Agendamento salvo =
                 agendamentoRepository.save(agendamento);
@@ -151,10 +131,7 @@ public class AgendamentoService {
         AgendamentoResponse response =
                 agendamentoMapper.paraResponse(salvo);
 
-        agendamentoWebSocketService.enviarAtualizacao(
-                TipoEventoAgendamento.CANCELADO,
-                response
-        );
+        agendamentoEventoService.cancelado(response);
 
         return response;
     }
@@ -163,11 +140,7 @@ public class AgendamentoService {
 
         Agendamento agendamento = buscarPorId(id);
 
-        validarPodeEditar(agendamento);
-
-        agendamento.setStatus(
-                StatusAgendamento.CONCLUIDO
-        );
+        agendamento.concluir();
 
         Agendamento salvo =
                 agendamentoRepository.save(agendamento);
@@ -175,10 +148,7 @@ public class AgendamentoService {
         AgendamentoResponse response =
                 agendamentoMapper.paraResponse(salvo);
 
-        agendamentoWebSocketService.enviarAtualizacao(
-                TipoEventoAgendamento.CONCLUIDO,
-                response
-        );
+        agendamentoEventoService.concluido(response);
 
         return response;
     }
@@ -235,21 +205,5 @@ public class AgendamentoService {
                 .stream()
                 .map(agendamentoMapper::paraResponse)
                 .toList();
-    }
-
-    private void validarPodeEditar(
-            Agendamento agendamento) {
-
-        if (agendamento.getStatus() == StatusAgendamento.CANCELADO) {
-            throw new RegraNegocioException(
-                    "Agendamento cancelado não pode ser editado"
-            );
-        }
-
-        if (agendamento.getStatus() == StatusAgendamento.CONCLUIDO) {
-            throw new RegraNegocioException(
-                    "Agendamento concluído não pode ser editado"
-            );
-        }
     }
 }

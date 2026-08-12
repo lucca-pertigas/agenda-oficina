@@ -2,11 +2,12 @@ package com.oficina.agenda.websocket;
 
 import com.oficina.agenda.dto.AgendamentoEvento;
 import com.oficina.agenda.dto.AgendamentoResponse;
+import com.oficina.agenda.notification.NotificadorAgendamento;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AgendamentoWebSocketService {
+public class AgendamentoWebSocketService implements NotificadorAgendamento{
 
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -16,7 +17,8 @@ public class AgendamentoWebSocketService {
         this.messagingTemplate = messagingTemplate;
     }
 
-    public void enviarAtualizacao(
+    @Override
+    public void notificar(
             TipoEventoAgendamento tipo,
             AgendamentoResponse agendamento) {
 

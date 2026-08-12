@@ -43,4 +43,13 @@ public class Tecnico {
     public void setAtivo(Boolean ativo) {
         this.ativo = ativo;
     }
+
+    public void desativar() {
+        this.ativo = false;
+    }
+
+    public void atualizarDados(String nome, Boolean ativo) {
+        this.nome = nome;
+        this.ativo = ativo;
+    }
 }

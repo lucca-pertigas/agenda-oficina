@@ -2,6 +2,7 @@ package com.oficina.agenda.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import com.oficina.agenda.exception.RegraNegocioException;
 
 import java.time.LocalDateTime;
 
@@ -90,5 +91,44 @@ public class Agendamento {
 
     public void setStatus(StatusAgendamento status) {
         this.status = status;
+    }
+
+    public void validarPodeEditar() {
+
+        if (status == StatusAgendamento.CANCELADO) {
+            throw new RegraNegocioException(
+                    "Agendamento cancelado não pode ser editado"
+            );
+        }
+
+        if (status == StatusAgendamento.CONCLUIDO) {
+            throw new RegraNegocioException(
+                    "Agendamento concluído não pode ser editado"
+            );
+        }
+    }
+
+    public void cancelar() {
+
+        if (status == StatusAgendamento.CONCLUIDO) {
+            throw new RegraNegocioException(
+                    "Agendamento concluído não pode ser cancelado"
+            );
+        }
+
+        if (status == StatusAgendamento.CANCELADO) {
+            throw new RegraNegocioException(
+                    "Agendamento já está cancelado"
+            );
+        }
+
+        this.status = StatusAgendamento.CANCELADO;
+    }
+
+    public void concluir() {
+
+        validarPodeEditar();
+
+        this.status = StatusAgendamento.CONCLUIDO;
     }
 }

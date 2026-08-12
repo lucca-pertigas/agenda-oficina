@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Agenda da Oficina</title>
+
+  <link rel="stylesheet" th:href="@{/css/agenda.css}">
+</head>
+
+<body>
+
+<header>
+
+  <div>
+    <h1>Agenda da Oficina</h1>
+    <p>Gerenciamento de agendamentos</p>
+  </div>
+
+  <button type="button">
+    + Novo Agendamento
+  </button>
+
+</header>
+
+
+<main>
+
+  <!-- Navegação da agenda -->
+  <section>
+
+    <a th:href="@{/agenda(data=${dataAnterior})}">
+      <button type="button">
+        &larr;
+      </button>
+    </a>
+
+    <a th:href="@{/agenda}">
+      <button type="button">
+        Hoje
+      </button>
+    </a>
+
+    <a th:href="@{/agenda(data=${dataProxima})}">
+      <button type="button">
+        &rarr;
+      </button>
+    </a>
+
+    <h2 th:text="${#temporals.format(data, 'dd/MM/yyyy')}">
+      12/08/2026
+    </h2>
+
+  </section>
+
+
+  <!-- Agenda -->
+  <section>
+
+    <table>
+
+      <thead>
+
+      <tr>
+
+        <th>
+          Horário
+        </th>
+
+        <th th:each="elevador : ${elevadores}">
+          Elevador
+          <span th:text="${elevador.numero}">
+                        1
+                    </span>
+        </th>
+
+      </tr>
+
+      </thead>
+
+
+      <tbody>
+
+      <tr th:each="horario : ${horarios}">
+
+        <!-- Horário -->
+        <td th:text="${#temporals.format(horario, 'HH:mm')}">
+          08:00
+        </td>
+
+        <!-- Uma célula para cada elevador -->
+        <td th:each="elevador : ${elevadores}">
+        </td>
+
+      </tr>
+
+      </tbody>
+
+    </table>
+
+  </section>
+
+</main>
+
+</body>
+
+</html>

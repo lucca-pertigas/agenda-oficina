@@ -1,8 +1,8 @@
 package com.oficina.agenda.service;
 
+import com.oficina.agenda.exception.RecursoNaoEncontradoException;
 import com.oficina.agenda.model.Tecnico;
 import com.oficina.agenda.repository.TecnicoRepository;
-import com.oficina.agenda.exception.RecursoNaoEncontradoException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,8 +20,8 @@ public class TecnicoService {
         return tecnicoRepository.findAll();
     }
 
-    public Tecnico salvar(Tecnico tecnico) {
-        return tecnicoRepository.save(tecnico);
+    public List<Tecnico> listarAtivos() {
+        return tecnicoRepository.findByAtivoTrue();
     }
 
     public Tecnico buscarPorId(Long id) {
@@ -31,24 +31,30 @@ public class TecnicoService {
                 ));
     }
 
-    public Tecnico atualizar(Long id, Tecnico tecnicoAtualizado) {
+    public Tecnico salvar(Tecnico tecnico) {
+        return tecnicoRepository.save(tecnico);
+    }
+
+    public Tecnico atualizar(
+            Long id,
+            Tecnico tecnicoAtualizado) {
+
         Tecnico tecnico = buscarPorId(id);
 
-        tecnico.setNome(tecnicoAtualizado.getNome());
-        tecnico.setAtivo(tecnicoAtualizado.getAtivo());
+        tecnico.atualizarDados(
+                tecnicoAtualizado.getNome(),
+                tecnicoAtualizado.getAtivo()
+        );
 
         return tecnicoRepository.save(tecnico);
     }
 
-    public Tecnico desativar (Long id) {
+    public Tecnico desativar(Long id) {
+
         Tecnico tecnico = buscarPorId(id);
 
-        tecnico.setAtivo(false);
+        tecnico.desativar();
 
         return tecnicoRepository.save(tecnico);
-    }
-
-    public List<Tecnico> listarAtivos() {
-        return tecnicoRepository.findByAtivoTrue();
     }
 }

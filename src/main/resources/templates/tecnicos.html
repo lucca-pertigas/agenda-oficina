@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Técnicos | Agenda da Oficina</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/tecnicos.css}">
+</head>
+
+<body>
+
+<header class="topo">
+
+    <div>
+        <h1>Técnicos</h1>
+        <p>Gerenciamento da equipe técnica</p>
+    </div>
+
+    <a th:href="@{/agenda}"
+       class="btn btn-secondary">
+        Voltar para Agenda
+    </a>
+
+</header>
+
+
+<main class="container">
+
+    <section class="barra-acoes">
+
+        <div>
+            <h2>Equipe Técnica</h2>
+
+            <p>
+                Cadastre, edite e controle os técnicos disponíveis.
+            </p>
+        </div>
+
+        <button
+                type="button"
+                class="btn btn-primary"
+                onclick="abrirModalNovoTecnico()">
+
+            + Novo Técnico
+
+        </button>
+
+    </section>
+
+
+    <section class="card-tabela">
+
+        <table>
+
+            <thead>
+
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            <tr th:each="tecnico : ${tecnicos}">
+
+                <td th:text="${tecnico.id}">
+                    1
+                </td>
+
+                <td th:text="${tecnico.nome}">
+                    Carlos
+                </td>
+
+                <td>
+
+                    <span
+                            class="status"
+                            th:classappend="${tecnico.ativo}
+                                ? ' status-ativo'
+                                : ' status-inativo'"
+
+                            th:text="${tecnico.ativo}
+                                ? 'Ativo'
+                                : 'Inativo'">
+
+                        Ativo
+
+                    </span>
+
+                </td>
+
+                <td>
+
+                    <div class="acoes">
+
+                        <button
+                                type="button"
+                                class="btn btn-small btn-secondary"
+
+                                th:attr="
+                                    data-id=${tecnico.id},
+                                    data-nome=${tecnico.nome},
+                                    data-ativo=${tecnico.ativo}
+                                "
+
+                                onclick="abrirModalEditarTecnico(this)">
+
+                            Editar
+
+                        </button>
+
+
+                        <button
+                                type="button"
+                                class="btn btn-small btn-danger"
+
+                                th:if="${tecnico.ativo}"
+
+                                th:attr="
+                                    data-id=${tecnico.id}
+                                "
+
+                                onclick="desativarTecnico(this)">
+
+                            Desativar
+
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+
+            <tr th:if="${#lists.isEmpty(tecnicos)}">
+
+                <td colspan="4"
+                    class="sem-registros">
+
+                    Nenhum técnico cadastrado.
+
+                </td>
+
+            </tr>
+
+            </tbody>
+
+        </table>
+
+    </section>
+
+</main>
+
+
+<!-- MODAL NOVO -->
+
+<div
+        id="modalNovoTecnico"
+        class="modal-overlay">
+
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <h2>Novo Técnico</h2>
+
+            <button
+                    type="button"
+                    onclick="fecharModalNovoTecnico()">
+                ×
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <label for="novoNomeTecnico">
+                Nome
+            </label>
+
+            <input
+                    id="novoNomeTecnico"
+                    type="text"
+                    maxlength="100"
+                    placeholder="Digite o nome do técnico">
+
+
+            <p
+                    id="mensagemNovoTecnico"
+                    class="mensagem">
+            </p>
+
+
+            <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="salvarNovoTecnico()">
+
+                Salvar Técnico
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- MODAL EDITAR -->
+
+<div
+        id="modalEditarTecnico"
+        class="modal-overlay">
+
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <h2>Editar Técnico</h2>
+
+            <button
+                    type="button"
+                    onclick="fecharModalEditarTecnico()">
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <input
+                    type="hidden"
+                    id="editarTecnicoId">
+
+
+            <label for="editarNomeTecnico">
+                Nome
+            </label>
+
+            <input
+                    id="editarNomeTecnico"
+                    type="text"
+                    maxlength="100">
+
+
+            <label class="checkbox-area">
+
+                <input
+                        id="editarTecnicoAtivo"
+                        type="checkbox">
+
+                Técnico ativo
+
+            </label>
+
+
+            <p
+                    id="mensagemEditarTecnico"
+                    class="mensagem">
+            </p>
+
+
+            <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="salvarEdicaoTecnico()">
+
+                Salvar Alterações
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script th:src="@{/js/tecnicos.js}"></script>
+
+</body>
+
+</html>

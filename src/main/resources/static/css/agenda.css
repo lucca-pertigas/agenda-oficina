@@ -1,0 +1,546 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+
+    background: #f4f6f8;
+    color: #1f2937;
+}
+
+
+/* ===================================== */
+/* TOPO */
+/* ===================================== */
+
+.topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 20px 30px;
+
+    background: #ffffff;
+
+    border-bottom: 1px solid #dcdfe4;
+}
+
+.topo h1 {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.topo p {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+
+/* ===================================== */
+/* BOTÕES */
+/* ===================================== */
+
+.btn {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 9px 14px;
+
+    border: none;
+    border-radius: 6px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: #2563eb;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+
+.btn-secondary {
+    background: white;
+    color: #374151;
+
+    border: 1px solid #d1d5db;
+}
+
+.btn-secondary:hover {
+    background: #f3f4f6;
+}
+
+.btn-success {
+    background: #16a34a;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #15803d;
+}
+
+.btn-danger {
+    background: #dc2626;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #b91c1c;
+}
+
+
+/* ===================================== */
+/* CONTEÚDO */
+/* ===================================== */
+
+main {
+    padding: 25px 30px;
+}
+
+
+/* ===================================== */
+/* NAVEGAÇÃO */
+/* ===================================== */
+
+.navegacao-agenda {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 20px;
+}
+
+.navegacao-agenda h2 {
+    margin-left: 15px;
+
+    font-size: 18px;
+}
+
+
+/* ===================================== */
+/* GRID */
+/* ===================================== */
+
+.agenda-grid {
+    display: grid;
+
+    grid-template-columns:
+        90px
+        repeat(
+            var(--quantidade-elevadores),
+            minmax(180px, 1fr)
+        );
+
+    background: white;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 8px;
+
+    overflow: visible;
+
+    min-width: max-content;
+}
+
+
+section:has(.agenda-grid) {
+    overflow-x: auto;
+
+    padding-bottom: 20px;
+}
+
+
+/* ===================================== */
+/* CABEÇALHO */
+/* ===================================== */
+
+.agenda-cabecalho {
+    padding: 14px;
+
+    text-align: center;
+
+    font-weight: bold;
+
+    background: #f1f5f9;
+
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+
+/* ===================================== */
+/* HORÁRIO */
+/* ===================================== */
+
+.agenda-horario {
+    min-height: 70px;
+
+    padding: 8px;
+
+    display: flex;
+
+    align-items: flex-start;
+    justify-content: center;
+
+    font-weight: bold;
+
+    font-size: 13px;
+
+    background: #f8fafc;
+
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+
+/* ===================================== */
+/* CÉLULA */
+/* ===================================== */
+
+.agenda-celula {
+    position: relative;
+
+    min-height: 70px;
+
+    padding: 4px;
+
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+
+/* ===================================== */
+/* CARD */
+/* ===================================== */
+
+.agendamento-card {
+    position: absolute;
+
+    left: 4px;
+    right: 4px;
+
+    padding: 10px;
+
+    border-left: 4px solid #2563eb;
+
+    border-radius: 6px;
+
+    font-size: 13px;
+
+    overflow: hidden;
+
+    z-index: 2;
+
+    cursor: pointer;
+
+    box-shadow:
+            0 1px 3px rgba(0, 0, 0, 0.08);
+
+    transition:
+            transform 0.15s ease,
+            filter 0.15s ease;
+}
+
+.agendamento-card:hover {
+    filter: brightness(0.97);
+
+    transform: translateY(-1px);
+
+    z-index: 3;
+}
+
+.agendamento-card strong {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #1e3a8a;
+}
+
+.agendamento-card span {
+    display: block;
+
+    color: #374151;
+}
+
+.agendamento-card small {
+    display: block;
+
+    margin-top: 5px;
+
+    color: #6b7280;
+}
+
+
+/* ===================================== */
+/* STATUS */
+/* ===================================== */
+
+.status-agendado {
+    background: #dbeafe;
+
+    border-left-color: #2563eb;
+}
+
+.status-concluido {
+    background: #dcfce7;
+
+    border-left-color: #16a34a;
+}
+
+.status-concluido strong {
+    color: #166534;
+}
+
+.status-cancelado {
+    background: #fee2e2;
+
+    border-left-color: #dc2626;
+
+    opacity: 0.75;
+}
+
+
+/* ===================================== */
+/* MODAIS */
+/* ===================================== */
+
+.modal-overlay {
+    display: none;
+
+    position: fixed;
+
+    inset: 0;
+
+    background:
+            rgba(15, 23, 42, 0.55);
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    z-index: 1000;
+}
+
+.modal-overlay.ativo {
+    display: flex;
+}
+
+.modal {
+    width: 100%;
+
+    max-width: 500px;
+
+    background: white;
+
+    border-radius: 10px;
+
+    box-shadow:
+            0 15px 40px rgba(0, 0, 0, 0.25);
+
+    overflow: hidden;
+
+    animation:
+            abrirModal 0.18s ease-out;
+}
+
+@keyframes abrirModal {
+
+    from {
+        opacity: 0;
+
+        transform:
+                translateY(-10px)
+                scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+                translateY(0)
+                scale(1);
+    }
+}
+
+
+/* ===================================== */
+/* HEADER DO MODAL */
+/* ===================================== */
+
+.modal-header {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 16px 20px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h2 {
+    font-size: 20px;
+}
+
+.modal-header button {
+    border: none;
+
+    background: transparent;
+
+    color: #6b7280;
+
+    font-size: 26px;
+
+    cursor: pointer;
+}
+
+.modal-header button:hover {
+    color: #111827;
+}
+
+
+/* ===================================== */
+/* BODY DO MODAL */
+/* ===================================== */
+
+.modal-body {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+    padding: 20px;
+}
+
+.modal-body label {
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.modal-body select,
+.modal-body input {
+    width: 100%;
+
+    padding: 10px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 6px;
+
+    font-size: 14px;
+
+    background: white;
+}
+
+.modal-body select:focus,
+.modal-body input:focus {
+    outline: none;
+
+    border-color: #2563eb;
+
+    box-shadow:
+            0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+
+/* ===================================== */
+/* DETALHES */
+/* ===================================== */
+
+.detalhes-agendamento p {
+    padding: 8px 0;
+
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.detalhes-agendamento p strong {
+    display: inline-block;
+
+    width: 90px;
+}
+
+
+/* ===================================== */
+/* AÇÕES */
+/* ===================================== */
+
+.acoes-agendamento {
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 15px;
+}
+
+.acoes-agendamento .btn {
+    flex: 1;
+}
+
+
+/* ===================================== */
+/* MENSAGENS */
+/* ===================================== */
+
+.mensagem-formulario {
+    margin-top: 5px;
+
+    min-height: 18px;
+
+    font-size: 14px;
+
+    color: #dc2626;
+}
+
+
+/* ===================================== */
+/* RESPONSIVO */
+/* ===================================== */
+
+@media (max-width: 700px) {
+
+    .topo {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 15px;
+    }
+
+    main {
+        padding: 20px 15px;
+    }
+
+    .navegacao-agenda {
+        flex-wrap: wrap;
+    }
+
+    .navegacao-agenda h2 {
+        width: 100%;
+
+        margin-left: 0;
+
+        margin-top: 5px;
+    }
+
+    .acoes-agendamento {
+        flex-direction: column;
+    }
+}

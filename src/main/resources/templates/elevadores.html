@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Elevadores | Agenda da Oficina</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/elevadores.css}">
+</head>
+
+<body>
+
+<header class="topo">
+
+    <div>
+        <h1>Elevadores</h1>
+        <p>Gerenciamento dos elevadores da oficina</p>
+    </div>
+
+    <a th:href="@{/agenda}"
+       class="btn btn-secondary">
+        Voltar para Agenda
+    </a>
+
+</header>
+
+<main class="container">
+
+    <section class="barra-acoes">
+
+        <div>
+            <h2>Elevadores</h2>
+            <p>Cadastre e controle os elevadores disponíveis.</p>
+        </div>
+
+        <button type="button"
+                class="btn btn-primary"
+                onclick="abrirModalNovoElevador()">
+            + Novo Elevador
+        </button>
+
+    </section>
+
+    <section class="card-tabela">
+
+        <table>
+
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Número</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+            </thead>
+
+            <tbody>
+
+            <tr th:each="elevador : ${elevadores}">
+
+                <td th:text="${elevador.id}">
+                    1
+                </td>
+
+                <td th:text="${elevador.numero}">
+                    1
+                </td>
+
+                <td>
+
+                    <span class="status"
+                          th:classappend="${elevador.ativo}
+                            ? ' status-ativo'
+                            : ' status-inativo'"
+                          th:text="${elevador.ativo}
+                            ? 'Ativo'
+                            : 'Inativo'">
+
+                        Ativo
+
+                    </span>
+
+                </td>
+
+                <td>
+
+                    <div class="acoes">
+
+                        <button type="button"
+                                class="btn btn-small btn-secondary"
+                                th:attr="
+                                    data-id=${elevador.id},
+                                    data-numero=${elevador.numero},
+                                    data-ativo=${elevador.ativo}
+                                "
+                                onclick="abrirModalEditarElevador(this)">
+
+                            Editar
+
+                        </button>
+
+                        <button type="button"
+                                class="btn btn-small btn-danger"
+                                th:if="${elevador.ativo}"
+                                th:attr="data-id=${elevador.id}"
+                                onclick="desativarElevador(this)">
+
+                            Desativar
+
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(elevadores)}">
+                <td colspan="4"
+                    class="sem-registros">
+                    Nenhum elevador cadastrado.
+                </td>
+            </tr>
+
+            </tbody>
+
+        </table>
+
+    </section>
+
+</main>
+
+<!-- MODAL NOVO -->
+
+<div id="modalNovoElevador"
+     class="modal-overlay">
+
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <h2>Novo Elevador</h2>
+
+            <button type="button"
+                    onclick="fecharModalNovoElevador()">
+                ×
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <label for="novoNumeroElevador">
+                Número
+            </label>
+
+            <input id="novoNumeroElevador"
+                   type="number"
+                   min="1"
+                   placeholder="Ex: 1">
+
+            <p id="mensagemNovoElevador"
+               class="mensagem"></p>
+
+            <button type="button"
+                    class="btn btn-primary"
+                    onclick="salvarNovoElevador()">
+
+                Salvar Elevador
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- MODAL EDITAR -->
+
+<div id="modalEditarElevador"
+     class="modal-overlay">
+
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <h2>Editar Elevador</h2>
+
+            <button type="button"
+                    onclick="fecharModalEditarElevador()">
+                ×
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <input type="hidden"
+                   id="editarElevadorId">
+
+            <label for="editarNumeroElevador">
+                Número
+            </label>
+
+            <input id="editarNumeroElevador"
+                   type="number"
+                   min="1">
+
+            <label class="checkbox-area">
+
+                <input id="editarElevadorAtivo"
+                       type="checkbox">
+
+                Elevador ativo
+
+            </label>
+
+            <p id="mensagemEditarElevador"
+               class="mensagem"></p>
+
+            <button type="button"
+                    class="btn btn-primary"
+                    onclick="salvarEdicaoElevador()">
+
+                Salvar Alterações
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script th:src="@{/js/elevadores.js}"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>Serviços | Agenda da Oficina</title>
+
+  <link rel="stylesheet"
+        th:href="@{/css/servicos.css}">
+</head>
+
+<body>
+
+<header class="topo">
+
+  <div>
+    <h1>Serviços</h1>
+    <p>Gerenciamento dos serviços da oficina</p>
+  </div>
+
+  <a th:href="@{/agenda}"
+     class="btn btn-secondary">
+    Voltar para Agenda
+  </a>
+
+</header>
+
+
+<main class="container">
+
+  <section class="barra-acoes">
+
+    <div>
+      <h2>Serviços</h2>
+
+      <p>
+        Cadastre os serviços e defina a duração de cada atendimento.
+      </p>
+    </div>
+
+    <button type="button"
+            class="btn btn-primary"
+            onclick="abrirModalNovoServico()">
+
+      + Novo Serviço
+
+    </button>
+
+  </section>
+
+
+  <section class="card-tabela">
+
+    <table>
+
+      <thead>
+
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Duração</th>
+        <th>Status</th>
+        <th>Ações</th>
+      </tr>
+
+      </thead>
+
+
+      <tbody>
+
+      <tr th:each="servico : ${servicos}">
+
+        <td th:text="${servico.id}">
+          1
+        </td>
+
+        <td th:text="${servico.nome}">
+          Troca de óleo
+        </td>
+
+        <td>
+                    <span th:text="${servico.duracaoMinutos}">
+                        60
+                    </span>
+          min
+        </td>
+
+        <td>
+
+                    <span class="status"
+                          th:classappend="${servico.ativo}
+                            ? ' status-ativo'
+                            : ' status-inativo'"
+                          th:text="${servico.ativo}
+                            ? 'Ativo'
+                            : 'Inativo'">
+
+                        Ativo
+
+                    </span>
+
+        </td>
+
+        <td>
+
+          <div class="acoes">
+
+            <button type="button"
+                    class="btn btn-small btn-secondary"
+                    th:attr="
+                                    data-id=${servico.id},
+                                    data-nome=${servico.nome},
+                                    data-duracao=${servico.duracaoMinutos},
+                                    data-ativo=${servico.ativo}
+                                "
+                    onclick="abrirModalEditarServico(this)">
+
+              Editar
+
+            </button>
+
+
+            <button type="button"
+                    class="btn btn-small btn-danger"
+                    th:if="${servico.ativo}"
+                    th:attr="data-id=${servico.id}"
+                    onclick="desativarServico(this)">
+
+              Desativar
+
+            </button>
+
+          </div>
+
+        </td>
+
+      </tr>
+
+
+      <tr th:if="${#lists.isEmpty(servicos)}">
+
+        <td colspan="5"
+            class="sem-registros">
+
+          Nenhum serviço cadastrado.
+
+        </td>
+
+      </tr>
+
+      </tbody>
+
+    </table>
+
+  </section>
+
+</main>
+
+
+<!-- MODAL NOVO SERVIÇO -->
+
+<div id="modalNovoServico"
+     class="modal-overlay">
+
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <h2>Novo Serviço</h2>
+
+      <button type="button"
+              onclick="fecharModalNovoServico()">
+        ×
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <label for="novoNomeServico">
+        Nome
+      </label>
+
+      <input id="novoNomeServico"
+             type="text"
+             maxlength="100"
+             placeholder="Ex: Troca de óleo">
+
+
+      <label for="novaDuracaoServico">
+        Duração em minutos
+      </label>
+
+      <input id="novaDuracaoServico"
+             type="number"
+             min="1"
+             placeholder="Ex: 60">
+
+
+      <p id="mensagemNovoServico"
+         class="mensagem">
+      </p>
+
+
+      <button type="button"
+              class="btn btn-primary"
+              onclick="salvarNovoServico()">
+
+        Salvar Serviço
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- MODAL EDITAR SERVIÇO -->
+
+<div id="modalEditarServico"
+     class="modal-overlay">
+
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <h2>Editar Serviço</h2>
+
+      <button type="button"
+              onclick="fecharModalEditarServico()">
+        ×
+      </button>
+
+    </div>
+
+
+    <div class="modal-body">
+
+      <input type="hidden"
+             id="editarServicoId">
+
+
+      <label for="editarNomeServico">
+        Nome
+      </label>
+
+      <input id="editarNomeServico"
+             type="text"
+             maxlength="100">
+
+
+      <label for="editarDuracaoServico">
+        Duração em minutos
+      </label>
+
+      <input id="editarDuracaoServico"
+             type="number"
+             min="1">
+
+
+      <label class="checkbox-area">
+
+        <input id="editarServicoAtivo"
+               type="checkbox">
+
+        Serviço ativo
+
+      </label>
+
+
+      <p id="mensagemEditarServico"
+         class="mensagem">
+      </p>
+
+
+      <button type="button"
+              class="btn btn-primary"
+              onclick="salvarEdicaoServico()">
+
+        Salvar Alterações
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script th:src="@{/js/servicos.js}"></script>
+
+</body>
+
+</html>

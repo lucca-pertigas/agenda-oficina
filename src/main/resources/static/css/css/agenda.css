@@ -1,0 +1,317 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    color: #1f2937;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 20px 30px;
+
+    background: #ffffff;
+    border-bottom: 1px solid #dcdfe4;
+}
+
+header h1 {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+header p {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+header button {
+    background: #2563eb;
+    color: white;
+
+    border: none;
+    border-radius: 6px;
+
+    padding: 10px 16px;
+
+    cursor: pointer;
+}
+
+main {
+    padding: 25px 30px;
+}
+
+main section:first-child {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-bottom: 20px;
+}
+
+main section:first-child h2 {
+    margin-left: 15px;
+    font-size: 18px;
+}
+
+main section:first-child button {
+    padding: 8px 12px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 5px;
+
+    background: white;
+
+    cursor: pointer;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+
+    background: white;
+
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+thead {
+    background: #f1f5f9;
+}
+
+th {
+    padding: 14px;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+}
+
+td {
+    height: 70px;
+    padding: 8px;
+    border: 1px solid #e5e7eb;
+    vertical-align: top;
+}
+
+td:first-child {
+    width: 90px;
+    text-align: center;
+    font-weight: bold;
+    background: #f8fafc;
+}
+
+.agendamento-card {
+    position: absolute;
+
+    left: 4px;
+    right: 4px;
+
+    background: #dbeafe;
+    border-left: 4px solid #2563eb;
+    border-radius: 6px;
+
+    padding: 10px;
+
+    font-size: 13px;
+
+    overflow: hidden;
+
+    z-index: 2;
+}
+
+.agendamento-card strong {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #1e3a8a;
+}
+
+.agendamento-card span {
+    color: #374151;
+}
+
+.agendamento-card small {
+    color: #6b7280;
+}
+
+.agenda-grid {
+    display: grid;
+
+    grid-template-columns:
+        90px
+        repeat(var(--quantidade-elevadores), 1fr);
+
+    background: white;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+
+    overflow: visible;
+}
+
+.agenda-cabecalho {
+    padding: 14px;
+
+    text-align: center;
+    font-weight: bold;
+
+    background: #f1f5f9;
+
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.agenda-horario {
+    min-height: 70px;
+
+    padding: 8px;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+
+    font-weight: bold;
+
+    background: #f8fafc;
+
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.agenda-celula {
+    min-height: 70px;
+    position: relative;
+
+    padding: 4px;
+
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.status-agendado {
+    background: #dbeafe;
+    border-left-color: #2563eb;
+}
+
+.status-concluido {
+    background: #dcfce7;
+    border-left-color: #16a34a;
+}
+
+.status-cancelado {
+    background: #fee2e2;
+    border-left-color: #dc2626;
+    opacity: 0.75;
+}
+
+.modal-overlay {
+    display: none;
+
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.45);
+
+    align-items: center;
+    justify-content: center;
+
+    z-index: 1000;
+}
+
+.modal-overlay.ativo {
+    display: flex;
+}
+
+.modal {
+    width: 100%;
+    max-width: 500px;
+
+    background: white;
+
+    border-radius: 10px;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 16px 20px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h2 {
+    font-size: 20px;
+}
+
+.modal-header button {
+    border: none;
+    background: transparent;
+
+    font-size: 24px;
+
+    cursor: pointer;
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    padding: 20px;
+}
+
+.modal-body label {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.modal-body select,
+.modal-body input {
+    width: 100%;
+
+    padding: 10px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+
+    font-size: 14px;
+}
+
+.modal-body > button {
+    margin-top: 10px;
+
+    padding: 11px;
+
+    border: none;
+    border-radius: 6px;
+
+    background: #2563eb;
+    color: white;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.modal-body > button:hover {
+    background: #1d4ed8;
+}
+
+#mensagemFormulario {
+    margin-top: 5px;
+
+    font-size: 14px;
+}

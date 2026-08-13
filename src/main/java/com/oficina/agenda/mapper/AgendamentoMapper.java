@@ -50,6 +50,14 @@ public class AgendamentoMapper {
                 agendamento.getStatus()
         );
 
+        response.setDuracaoMinutos(
+                agendamento.getServico().getDuracaoMinutos()
+        );
+
+        response.setMinutoInicio(
+                agendamento.getDataHoraInicio().getMinute()
+        );
+
         return response;
     }
 }

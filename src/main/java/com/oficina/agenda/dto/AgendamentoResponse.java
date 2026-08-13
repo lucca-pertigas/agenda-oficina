@@ -22,6 +22,9 @@ public class AgendamentoResponse {
 
     private StatusAgendamento status;
 
+    private Integer duracaoMinutos;
+    private Integer minutoInicio;
+
     public Long getId() {
         return id;
     }
@@ -100,5 +103,21 @@ public class AgendamentoResponse {
 
     public void setStatus(StatusAgendamento status) {
         this.status = status;
+    }
+
+    public Integer getDuracaoMinutos() {
+        return duracaoMinutos;
+    }
+
+    public void setDuracaoMinutos(Integer duracaoMinutos) {
+        this.duracaoMinutos = duracaoMinutos;
+    }
+
+    public Integer getMinutoInicio() {
+        return minutoInicio;
+    }
+
+    public void setMinutoInicio(Integer minutoInicio) {
+        this.minutoInicio = minutoInicio;
     }
 }

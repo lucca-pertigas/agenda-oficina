@@ -3,107 +3,230 @@
       xmlns:th="http://www.thymeleaf.org">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Agenda da Oficina</title>
+    <title>Agenda da Oficina</title>
 
-  <link rel="stylesheet" th:href="@{/css/agenda.css}">
+    <link rel="stylesheet" th:href="@{/css/css/agenda.css}">
 </head>
 
 <body>
 
 <header>
 
-  <div>
-    <h1>Agenda da Oficina</h1>
-    <p>Gerenciamento de agendamentos</p>
-  </div>
+    <div>
+        <h1>Agenda da Oficina</h1>
+        <p>Gerenciamento de agendamentos</p>
+    </div>
 
-  <button type="button">
-    + Novo Agendamento
-  </button>
-
+    <button type="button" onclick="abrirFormulario()">
+        + Novo Agendamento
+    </button>
 </header>
+
+<div id="modalAgendamento" class="modal-overlay">
+
+    <div class="modal">
+
+        <div class="modal-header">
+            <h2>Novo Agendamento</h2>
+
+            <button type="button" onclick="fecharFormulario()">
+                ×
+            </button>
+        </div>
+
+        <div class="modal-body">
+
+            <label for="tecnico">Técnico</label>
+
+            <select id="tecnico">
+                <option value="">
+                    Selecione
+                </option>
+
+                <option th:each="tecnico : ${tecnicos}"
+                        th:value="${tecnico.id}"
+                        th:text="${tecnico.nome}">
+                </option>
+            </select>
+
+
+            <label for="elevador">Elevador</label>
+
+            <select id="elevador">
+                <option value="">
+                    Selecione
+                </option>
+
+                <option th:each="elevador : ${elevadores}"
+                        th:value="${elevador.id}"
+                        th:text="'Elevador ' + ${elevador.numero}">
+                </option>
+            </select>
+
+
+            <label for="servico">Serviço</label>
+
+            <select id="servico">
+                <option value="">
+                    Selecione
+                </option>
+
+                <option th:each="servico : ${servicos}"
+                        th:value="${servico.id}"
+                        th:text="${servico.nome}">
+                </option>
+            </select>
+
+
+            <label for="dataHoraInicio">
+                Data e horário
+            </label>
+
+            <input
+                    id="dataHoraInicio"
+                    type="datetime-local">
+
+
+            <button type="button"
+                    onclick="salvarAgendamento()">
+
+                Salvar Agendamento
+
+            </button>
+
+            <p id="mensagemFormulario"></p>
+
+        </div>
+
+    </div>
+
+</div>
 
 
 <main>
 
-  <!-- Navegação da agenda -->
-  <section>
+    <!-- Navegação da agenda -->
+    <section>
 
-    <a th:href="@{/agenda(data=${dataAnterior})}">
-      <button type="button">
-        &larr;
-      </button>
-    </a>
+        <a th:href="@{/agenda(data=${dataAnterior})}">
+            <button type="button">
+                &larr;
+            </button>
+        </a>
 
-    <a th:href="@{/agenda}">
-      <button type="button">
-        Hoje
-      </button>
-    </a>
+        <a th:href="@{/agenda}">
+            <button type="button">
+                Hoje
+            </button>
+        </a>
 
-    <a th:href="@{/agenda(data=${dataProxima})}">
-      <button type="button">
-        &rarr;
-      </button>
-    </a>
+        <a th:href="@{/agenda(data=${dataProxima})}">
+            <button type="button">
+                &rarr;
+            </button>
+        </a>
 
-    <h2 th:text="${#temporals.format(data, 'dd/MM/yyyy')}">
-      12/08/2026
-    </h2>
+        <h2 th:text="${#temporals.format(data, 'dd/MM/yyyy')}">
+            12/08/2026
+        </h2>
 
-  </section>
-
-
-  <!-- Agenda -->
-  <section>
-
-    <table>
-
-      <thead>
-
-      <tr>
-
-        <th>
-          Horário
-        </th>
-
-        <th th:each="elevador : ${elevadores}">
-          Elevador
-          <span th:text="${elevador.numero}">
-                        1
-                    </span>
-        </th>
-
-      </tr>
-
-      </thead>
+    </section>
 
 
-      <tbody>
+    <!-- Grade da agenda -->
+    <section>
 
-      <tr th:each="horario : ${horarios}">
+        <div class="agenda-grid"
+             th:style="'--quantidade-elevadores:' + ${#lists.size(elevadores)}">
 
-        <!-- Horário -->
-        <td th:text="${#temporals.format(horario, 'HH:mm')}">
-          08:00
-        </td>
+            <!-- Cabeçalho da coluna de horário -->
+            <div class="agenda-cabecalho horario-coluna">
+                Horário
+            </div>
 
-        <!-- Uma célula para cada elevador -->
-        <td th:each="elevador : ${elevadores}">
-        </td>
+            <!-- Cabeçalhos dos elevadores -->
+            <div class="agenda-cabecalho"
+                 th:each="elevador : ${elevadores}">
 
-      </tr>
+                Elevador
+                <span th:text="${elevador.numero}">
+                    1
+                </span>
 
-      </tbody>
+            </div>
 
-    </table>
 
-  </section>
+            <!-- Linhas da agenda -->
+            <th:block th:each="horario : ${horarios}">
+
+                <!-- Horário -->
+                <div class="agenda-horario"
+                     th:text="${#temporals.format(horario, 'HH:mm')}">
+                    08:00
+                </div>
+
+                <!-- Uma célula para cada elevador -->
+                <div class="agenda-celula"
+                     th:each="elevador : ${elevadores}">
+
+                    <!-- Agendamentos da célula -->
+                    <div class="agendamento-card"
+                         th:classappend="${agendamento.status.name() == 'AGENDADO'} ? ' status-agendado' :
+                          (${agendamento.status.name() == 'CONCLUIDO'} ? ' status-concluido' :
+                            ' status-cancelado')"
+                         th:each="agendamento : ${agendamentos}"
+                         th:if="${agendamento.elevadorId == elevador.id
+                            and !agendamento.dataHoraInicio.toLocalTime().isBefore(horario)
+                            and agendamento.dataHoraInicio.toLocalTime().isBefore(horario.plusMinutes(30))}"
+                         th:style="
+                        'height:' + (${agendamento.duracaoMinutos} / 30.0 * 70) + 'px;' +
+                        'top:' + ((${agendamento.minutoInicio} % 30) / 30.0 * 70) + 'px;'
+                    ">
+
+                        <strong th:text="${agendamento.servicoNome}">
+                            Serviço
+                        </strong>
+
+                        <span th:text="${agendamento.tecnicoNome}">
+                            Técnico
+                        </span>
+
+                        <small>
+
+                            <span th:text="${#temporals.format(
+                                    agendamento.dataHoraInicio,
+                                    'HH:mm'
+                            )}">
+                                08:00
+                            </span>
+
+                            -
+
+                            <span th:text="${#temporals.format(
+                                    agendamento.dataHoraFim,
+                                    'HH:mm'
+                            )}">
+                                09:00
+                            </span>
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </th:block>
+
+        </div>
+
+    </section>
 
 </main>
+
+<script th:src="@{/css/js/agenda.js}"></script>
 
 </body>
 

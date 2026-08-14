@@ -27,6 +27,10 @@ public class Servico {
     @Column(nullable = false)
     private Boolean ativo = true;
 
+    @NotNull(message = "Código é obrigatório")
+    @Column(unique = true, nullable = false)
+    private Integer codigo;
+
     public Long getId() {
         return id;
     }
@@ -59,17 +63,27 @@ public class Servico {
         this.ativo = ativo;
     }
 
-    public void atualizarDados(
-            String nome,
-            Integer duracaoMinutos,
-            Boolean ativo) {
+    public Integer getCodigo() {
+        return codigo;
+    }
 
-        this.nome = nome;
-        this.duracaoMinutos = duracaoMinutos;
-        this.ativo = ativo;
+    public void setCodigo(Integer codigo) {
+        this.codigo = codigo;
     }
 
     public void desativar() {
         this.ativo = false;
+    }
+
+    public void atualizarDados(
+            Integer codigo,
+            String nome,
+            Integer duracaoMinutos,
+            Boolean ativo) {
+
+        this.codigo = codigo;
+        this.nome = nome;
+        this.duracaoMinutos = duracaoMinutos;
+        this.ativo = ativo;
     }
 }

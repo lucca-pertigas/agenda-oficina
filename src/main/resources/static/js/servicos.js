@@ -1,6 +1,10 @@
 function abrirModalNovoServico() {
 
     document
+        .getElementById("novoCodigoServico")
+        .value = "";
+
+    document
         .getElementById("novoNomeServico")
         .value = "";
 
@@ -28,6 +32,11 @@ function fecharModalNovoServico() {
 
 async function salvarNovoServico() {
 
+    const codigo =
+        document
+            .getElementById("novoCodigoServico")
+            .value;
+
     const nome =
         document
             .getElementById("novoNomeServico")
@@ -44,6 +53,15 @@ async function salvarNovoServico() {
             .getElementById("mensagemNovoServico");
 
 
+    if (!codigo || Number(codigo) <= 0) {
+
+        mensagem.textContent =
+            "Informe um código válido.";
+
+        return;
+    }
+
+
     if (!nome) {
 
         mensagem.textContent =
@@ -53,7 +71,8 @@ async function salvarNovoServico() {
     }
 
 
-    if (!duracaoMinutos || Number(duracaoMinutos) <= 0) {
+    if (!duracaoMinutos ||
+        Number(duracaoMinutos) <= 0) {
 
         mensagem.textContent =
             "Informe uma duração válida.";
@@ -77,6 +96,7 @@ async function salvarNovoServico() {
 
                     body:
                         JSON.stringify({
+                            codigo: Number(codigo),
                             nome: nome,
                             duracaoMinutos:
                                 Number(duracaoMinutos),
@@ -120,6 +140,9 @@ function abrirModalEditarServico(botao) {
     const id =
         botao.dataset.id;
 
+    const codigo =
+        botao.dataset.codigo;
+
     const nome =
         botao.dataset.nome;
 
@@ -133,6 +156,11 @@ function abrirModalEditarServico(botao) {
     document
         .getElementById("editarServicoId")
         .value = id;
+
+
+    document
+        .getElementById("editarCodigoServico")
+        .value = codigo;
 
 
     document
@@ -176,6 +204,11 @@ async function salvarEdicaoServico() {
             .getElementById("editarServicoId")
             .value;
 
+    const codigo =
+        document
+            .getElementById("editarCodigoServico")
+            .value;
+
     const nome =
         document
             .getElementById("editarNomeServico")
@@ -197,6 +230,15 @@ async function salvarEdicaoServico() {
             .getElementById("mensagemEditarServico");
 
 
+    if (!codigo || Number(codigo) <= 0) {
+
+        mensagem.textContent =
+            "Informe um código válido.";
+
+        return;
+    }
+
+
     if (!nome) {
 
         mensagem.textContent =
@@ -206,13 +248,23 @@ async function salvarEdicaoServico() {
     }
 
 
-    if (!duracaoMinutos || Number(duracaoMinutos) <= 0) {
+    if (!duracaoMinutos ||
+        Number(duracaoMinutos) <= 0) {
 
         mensagem.textContent =
             "Informe uma duração válida.";
 
         return;
     }
+
+
+    const dados = {
+        codigo: Number(codigo),
+        nome: nome,
+        duracaoMinutos:
+            Number(duracaoMinutos),
+        ativo: ativo
+    };
 
 
     try {
@@ -229,12 +281,7 @@ async function salvarEdicaoServico() {
                     },
 
                     body:
-                        JSON.stringify({
-                            nome: nome,
-                            duracaoMinutos:
-                                Number(duracaoMinutos),
-                            ativo: ativo
-                        })
+                        JSON.stringify(dados)
                 }
             );
 
@@ -258,7 +305,7 @@ async function salvarEdicaoServico() {
     } catch (erro) {
 
         console.error(
-            "Erro ao editar serviço:",
+            "Erro ao atualizar serviço:",
             erro
         );
 

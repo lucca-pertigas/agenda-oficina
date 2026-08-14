@@ -8,8 +8,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import java.time.LocalDate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -61,23 +61,45 @@ public class AgendaViewController {
 
         List<LocalTime> horarios = new ArrayList<>();
 
-        LocalTime inicio = LocalTime.of(8, 0);
-        LocalTime fim = LocalTime.of(18, 0);
+        LocalTime horario = LocalTime.of(8, 0);
+        LocalTime fechamento = LocalTime.of(17, 0);
 
-        while (!inicio.isAfter(fim)) {
-            horarios.add(inicio);
-            inicio = inicio.plusMinutes(30);
+        while (horario.isBefore(fechamento)) {
+
+            horarios.add(horario);
+
+            horario = horario.plusMinutes(30);
         }
 
-        model.addAttribute("horarios", horarios);
+        model.addAttribute(
+                "horarios",
+                horarios
+        );
 
-        model.addAttribute("data", data);
-        model.addAttribute("dataAnterior", data.minusDays(1));
-        model.addAttribute("dataProxima", data.plusDays(1));
+        model.addAttribute(
+                "data",
+                data
+        );
 
-        LocalDateTime inicioDia = data.atStartOfDay();
+        model.addAttribute(
+                "dataAnterior",
+                data.minusDays(1)
+        );
 
-        LocalDateTime fimDia = data.atTime(23, 59, 59);
+        model.addAttribute(
+                "dataProxima",
+                data.plusDays(1)
+        );
+
+        LocalDateTime inicioDia =
+                data.atStartOfDay();
+
+        LocalDateTime fimDia =
+                data.atTime(
+                        23,
+                        59,
+                        59
+                );
 
         model.addAttribute(
                 "agendamentos",

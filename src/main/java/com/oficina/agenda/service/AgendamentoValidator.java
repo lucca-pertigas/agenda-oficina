@@ -1,39 +1,33 @@
 package com.oficina.agenda.service;
 
-import com.oficina.agenda.exception.RegraNegocioException;
 import com.oficina.agenda.model.Agendamento;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 public class AgendamentoValidator {
 
-    public void preparar(Agendamento agendamento) {
+    private final HorarioFuncionamentoService horarioFuncionamentoService;
 
-        var tecnico = agendamento.getTecnico();
-        var elevador = agendamento.getElevador();
-        var servico = agendamento.getServico();
+    public AgendamentoValidator(
+            HorarioFuncionamentoService horarioFuncionamentoService) {
 
-        if (!tecnico.getAtivo()) {
-            throw new RegraNegocioException(
-                    "Técnico está inativo"
-            );
-        }
+        this.horarioFuncionamentoService =
+                horarioFuncionamentoService;
+    }
 
-        if (!elevador.getAtivo()) {
-            throw new RegraNegocioException(
-                    "Elevador está inativo"
-            );
-        }
+    public void preparar(
+            Agendamento agendamento) {
 
-        if (!servico.getAtivo()) {
-            throw new RegraNegocioException(
-                    "Serviço está inativo"
-            );
-        }
+        Integer duracaoMinutos =
+                agendamento
+                        .getServico()
+                        .getDuracaoMinutos();
 
         agendamento.setDataHoraFim(
-                agendamento.getDataHoraInicio()
-                        .plusMinutes(servico.getDuracaoMinutos())
+                horarioFuncionamentoService.calcularFim(
+                        agendamento.getDataHoraInicio(),
+                        duracaoMinutos
+                )
         );
     }
 }

@@ -543,4 +543,19 @@ section:has(.agenda-grid) {
     .acoes-agendamento {
         flex-direction: column;
     }
+
+    .menu-principal {
+        width: 100%;
+
+        display: flex;
+        flex-wrap: wrap;
+
+        gap: 8px;
+    }
+}
+
+.menu-principal {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }

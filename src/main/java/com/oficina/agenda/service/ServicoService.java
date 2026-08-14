@@ -1,8 +1,9 @@
 package com.oficina.agenda.service;
 
+import com.oficina.agenda.exception.RecursoNaoEncontradoException;
+import com.oficina.agenda.exception.RegraNegocioException;
 import com.oficina.agenda.model.Servico;
 import com.oficina.agenda.repository.ServicoRepository;
-import com.oficina.agenda.exception.RecursoNaoEncontradoException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,6 +26,13 @@ public class ServicoService {
     }
 
     public Servico salvar(Servico servico) {
+
+        if (servicoRepository.existsByCodigo(servico.getCodigo())) {
+            throw new RegraNegocioException(
+                    "Já existe um serviço com esse código"
+            );
+        }
+
         return servicoRepository.save(servico);
     }
 
@@ -41,7 +49,17 @@ public class ServicoService {
 
         Servico servico = buscarPorId(id);
 
+        if (servicoRepository.existsByCodigoAndIdNot(
+                servicoAtualizado.getCodigo(),
+                id
+        )) {
+            throw new RegraNegocioException(
+                    "Já existe outro serviço com esse código"
+            );
+        }
+
         servico.atualizarDados(
+                servicoAtualizado.getCodigo(),
                 servicoAtualizado.getNome(),
                 servicoAtualizado.getDuracaoMinutos(),
                 servicoAtualizado.getAtivo()

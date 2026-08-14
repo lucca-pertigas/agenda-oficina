@@ -110,12 +110,6 @@ public class Agendamento {
 
     public void cancelar() {
 
-        if (status == StatusAgendamento.CONCLUIDO) {
-            throw new RegraNegocioException(
-                    "Agendamento concluído não pode ser cancelado"
-            );
-        }
-
         if (status == StatusAgendamento.CANCELADO) {
             throw new RegraNegocioException(
                     "Agendamento já está cancelado"

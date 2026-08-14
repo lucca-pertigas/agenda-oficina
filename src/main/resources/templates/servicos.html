@@ -43,7 +43,8 @@
       </p>
     </div>
 
-    <button type="button"
+    <button
+            type="button"
             class="btn btn-primary"
             onclick="abrirModalNovoServico()">
 
@@ -62,6 +63,7 @@
 
       <tr>
         <th>ID</th>
+        <th>Código</th>
         <th>Nome</th>
         <th>Duração</th>
         <th>Status</th>
@@ -79,26 +81,36 @@
           1
         </td>
 
+        <td th:text="${servico.codigo}">
+          101
+        </td>
+
         <td th:text="${servico.nome}">
           Troca de óleo
         </td>
 
         <td>
+
                     <span th:text="${servico.duracaoMinutos}">
                         60
                     </span>
+
           min
+
         </td>
 
         <td>
 
-                    <span class="status"
-                          th:classappend="${servico.ativo}
-                            ? ' status-ativo'
-                            : ' status-inativo'"
-                          th:text="${servico.ativo}
-                            ? 'Ativo'
-                            : 'Inativo'">
+                    <span
+                            class="status"
+
+                            th:classappend="${servico.ativo}
+                                ? ' status-ativo'
+                                : ' status-inativo'"
+
+                            th:text="${servico.ativo}
+                                ? 'Ativo'
+                                : 'Inativo'">
 
                         Ativo
 
@@ -110,14 +122,18 @@
 
           <div class="acoes">
 
-            <button type="button"
+            <button
+                    type="button"
                     class="btn btn-small btn-secondary"
+
                     th:attr="
                                     data-id=${servico.id},
+                                    data-codigo=${servico.codigo},
                                     data-nome=${servico.nome},
                                     data-duracao=${servico.duracaoMinutos},
                                     data-ativo=${servico.ativo}
                                 "
+
                     onclick="abrirModalEditarServico(this)">
 
               Editar
@@ -125,10 +141,16 @@
             </button>
 
 
-            <button type="button"
+            <button
+                    type="button"
                     class="btn btn-small btn-danger"
+
                     th:if="${servico.ativo}"
-                    th:attr="data-id=${servico.id}"
+
+                    th:attr="
+                                    data-id=${servico.id}
+                                "
+
                     onclick="desativarServico(this)">
 
               Desativar
@@ -144,8 +166,9 @@
 
       <tr th:if="${#lists.isEmpty(servicos)}">
 
-        <td colspan="5"
-            class="sem-registros">
+        <td
+                colspan="6"
+                class="sem-registros">
 
           Nenhum serviço cadastrado.
 
@@ -162,10 +185,13 @@
 </main>
 
 
+<!-- ================================ -->
 <!-- MODAL NOVO SERVIÇO -->
+<!-- ================================ -->
 
-<div id="modalNovoServico"
-     class="modal-overlay">
+<div
+        id="modalNovoServico"
+        class="modal-overlay">
 
   <div class="modal">
 
@@ -173,41 +199,60 @@
 
       <h2>Novo Serviço</h2>
 
-      <button type="button"
+      <button
+              type="button"
               onclick="fecharModalNovoServico()">
+
         ×
+
       </button>
 
     </div>
 
+
     <div class="modal-body">
+
+      <label for="novoCodigoServico">
+        Código
+      </label>
+
+      <input
+              id="novoCodigoServico"
+              type="number"
+              min="1"
+              placeholder="Ex: 101">
+
 
       <label for="novoNomeServico">
         Nome
       </label>
 
-      <input id="novoNomeServico"
-             type="text"
-             maxlength="100"
-             placeholder="Ex: Troca de óleo">
+      <input
+              id="novoNomeServico"
+              type="text"
+              maxlength="100"
+              placeholder="Ex: Troca de óleo">
 
 
       <label for="novaDuracaoServico">
         Duração em minutos
       </label>
 
-      <input id="novaDuracaoServico"
-             type="number"
-             min="1"
-             placeholder="Ex: 60">
+      <input
+              id="novaDuracaoServico"
+              type="number"
+              min="1"
+              placeholder="Ex: 60">
 
 
-      <p id="mensagemNovoServico"
-         class="mensagem">
+      <p
+              id="mensagemNovoServico"
+              class="mensagem">
       </p>
 
 
-      <button type="button"
+      <button
+              type="button"
               class="btn btn-primary"
               onclick="salvarNovoServico()">
 
@@ -222,10 +267,13 @@
 </div>
 
 
+<!-- ================================ -->
 <!-- MODAL EDITAR SERVIÇO -->
+<!-- ================================ -->
 
-<div id="modalEditarServico"
-     class="modal-overlay">
+<div
+        id="modalEditarServico"
+        class="modal-overlay">
 
   <div class="modal">
 
@@ -233,9 +281,12 @@
 
       <h2>Editar Serviço</h2>
 
-      <button type="button"
+      <button
+              type="button"
               onclick="fecharModalEditarServico()">
+
         ×
+
       </button>
 
     </div>
@@ -243,44 +294,60 @@
 
     <div class="modal-body">
 
-      <input type="hidden"
-             id="editarServicoId">
+      <input
+              type="hidden"
+              id="editarServicoId">
+
+
+      <label for="editarCodigoServico">
+        Código
+      </label>
+
+      <input
+              id="editarCodigoServico"
+              type="number"
+              min="1">
 
 
       <label for="editarNomeServico">
         Nome
       </label>
 
-      <input id="editarNomeServico"
-             type="text"
-             maxlength="100">
+      <input
+              id="editarNomeServico"
+              type="text"
+              maxlength="100">
 
 
       <label for="editarDuracaoServico">
         Duração em minutos
       </label>
 
-      <input id="editarDuracaoServico"
-             type="number"
-             min="1">
+      <input
+              id="editarDuracaoServico"
+              type="number"
+              min="1">
 
 
       <label class="checkbox-area">
 
-        <input id="editarServicoAtivo"
-               type="checkbox">
+        <input
+                id="editarServicoAtivo"
+                type="checkbox">
 
         Serviço ativo
 
       </label>
 
 
-      <p id="mensagemEditarServico"
-         class="mensagem">
+      <p
+              id="mensagemEditarServico"
+              class="mensagem">
       </p>
 
 
-      <button type="button"
+      <button
+              type="button"
               class="btn btn-primary"
               onclick="salvarEdicaoServico()">
 

@@ -20,29 +20,48 @@
 
     <div>
         <h1>Agenda da Oficina</h1>
-
-        <p>
-            Gerenciamento de agendamentos
-        </p>
+        <p>Gerenciamento de agendamentos</p>
     </div>
 
-    <button
-            class="btn btn-primary"
-            type="button"
-            onclick="abrirFormulario()">
+    <nav class="menu-principal">
 
-        + Novo Agendamento
+        <a th:href="@{/agenda}"
+           class="btn btn-secondary">
+            Agenda
+        </a>
 
-    </button>
+        <a th:href="@{/tecnicos/tela}"
+           class="btn btn-secondary">
+            Técnicos
+        </a>
+
+        <a th:href="@{/elevadores/tela}"
+           class="btn btn-secondary">
+            Elevadores
+        </a>
+
+        <a th:href="@{/servicos/tela}"
+           class="btn btn-secondary">
+            Serviços
+        </a>
+
+        <button
+                class="btn btn-primary"
+                type="button"
+                onclick="abrirFormulario()">
+
+            + Novo Agendamento
+
+        </button>
+
+    </nav>
 
 </header>
 
 
 <main>
 
-    <!-- ============================= -->
     <!-- NAVEGAÇÃO -->
-    <!-- ============================= -->
 
     <section class="navegacao-agenda">
 
@@ -68,9 +87,7 @@
     </section>
 
 
-    <!-- ============================= -->
     <!-- GRADE DA AGENDA -->
-    <!-- ============================= -->
 
     <section>
 
@@ -85,14 +102,10 @@
                     ${#lists.size(elevadores)}
                 ">
 
-            <!-- Cabeçalho horário -->
-
             <div class="agenda-cabecalho horario-coluna">
                 Horário
             </div>
 
-
-            <!-- Cabeçalhos dos elevadores -->
 
             <div
                     class="agenda-cabecalho"
@@ -107,24 +120,16 @@
             </div>
 
 
-            <!-- Horários -->
-
             <th:block th:each="horario : ${horarios}">
 
                 <div
                         class="agenda-horario"
-
-                        th:text="${#temporals.format(
-                            horario,
-                            'HH:mm'
-                        )}">
+                        th:text="${#temporals.format(horario, 'HH:mm')}">
 
                     08:00
 
                 </div>
 
-
-                <!-- Células -->
 
                 <div
                         class="agenda-celula"
@@ -133,14 +138,9 @@
 
                         th:attr="
                             data-elevador-id=${elevador.id},
-                            data-horario=${#temporals.format(
-                                horario,
-                                'HH:mm'
-                            )}
+                            data-horario=${#temporals.format(horario, 'HH:mm')}
                         ">
 
-
-                    <!-- Cards existentes -->
 
                     <div
                             class="agendamento-card"
@@ -156,9 +156,7 @@
                                 and
                                 agendamento.dataHoraInicio
                                     .toLocalTime()
-                                    .isBefore(
-                                        horario.plusMinutes(30)
-                                    )
+                                    .isBefore(horario.plusMinutes(30))
                             }"
 
                             th:classappend="${
@@ -190,49 +188,42 @@
 
                             th:style="
                                 'height:' +
-                                (${agendamento.duracaoMinutos}
-                                / 30.0 * 70)
+                                (${agendamento.duracaoMinutos} / 30.0 * 70)
                                 + 'px;' +
 
                                 'top:' +
-                                ((${agendamento.minutoInicio}
-                                % 30)
-                                / 30.0 * 70)
+                                ((${agendamento.minutoInicio} % 30) / 30.0 * 70)
                                 + 'px;'
                             "
 
                             onclick="abrirDetalhesAgendamento(this)">
 
 
-                        <strong
-                                th:text="${agendamento.servicoNome}">
+                        <strong th:text="${agendamento.servicoNome}">
                             Serviço
                         </strong>
 
 
-                        <span
-                                th:text="${agendamento.tecnicoNome}">
+                        <span th:text="${agendamento.tecnicoNome}">
                             Técnico
                         </span>
 
 
                         <small>
 
-                            <span
-                                    th:text="${#temporals.format(
-                                        agendamento.dataHoraInicio,
-                                        'HH:mm'
-                                    )}">
+                            <span th:text="${#temporals.format(
+                                    agendamento.dataHoraInicio,
+                                    'HH:mm'
+                            )}">
                                 08:00
                             </span>
 
                             -
 
-                            <span
-                                    th:text="${#temporals.format(
-                                        agendamento.dataHoraFim,
-                                        'HH:mm'
-                                    )}">
+                            <span th:text="${#temporals.format(
+                                    agendamento.dataHoraFim,
+                                    'HH:mm'
+                            )}">
                                 09:00
                             </span>
 
@@ -251,21 +242,16 @@
 </main>
 
 
-<!-- ================================================= -->
 <!-- MODAL NOVO AGENDAMENTO -->
-<!-- ================================================= -->
 
-<div
-        id="modalAgendamento"
-        class="modal-overlay">
+<div id="modalAgendamento"
+     class="modal-overlay">
 
     <div class="modal">
 
         <div class="modal-header">
 
-            <h2>
-                Novo Agendamento
-            </h2>
+            <h2>Novo Agendamento</h2>
 
             <button
                     type="button"
@@ -329,7 +315,7 @@
                 <option
                         th:each="servico : ${servicos}"
                         th:value="${servico.id}"
-                        th:text="${servico.nome}">
+                        th:text="${servico.codigo + ' - ' + servico.nome}">
                 </option>
 
             </select>
@@ -366,9 +352,7 @@
 </div>
 
 
-<!-- ================================================= -->
 <!-- MODAL DETALHES -->
-<!-- ================================================= -->
 
 <div
         id="modalDetalhes"
@@ -378,9 +362,7 @@
 
         <div class="modal-header">
 
-            <h2>
-                Detalhes do Agendamento
-            </h2>
+            <h2>Detalhes do Agendamento</h2>
 
             <button
                     type="button"
@@ -464,9 +446,7 @@
 </div>
 
 
-<!-- ================================================= -->
 <!-- MODAL EDITAR -->
-<!-- ================================================= -->
 
 <div
         id="modalEditarAgendamento"
@@ -476,9 +456,7 @@
 
         <div class="modal-header">
 
-            <h2>
-                Editar Agendamento
-            </h2>
+            <h2>Editar Agendamento</h2>
 
             <button
                     type="button"
@@ -530,7 +508,7 @@
                 <option
                         th:each="servico : ${servicos}"
                         th:value="${servico.id}"
-                        th:text="${servico.nome}">
+                        th:text="${servico.codigo + ' - ' + servico.nome}">
                 </option>
 
             </select>
@@ -566,8 +544,6 @@
 
 </div>
 
-
-<!-- STOMP -->
 
 <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js"></script>
 

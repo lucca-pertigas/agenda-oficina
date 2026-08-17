@@ -2,6 +2,7 @@ package com.oficina.agenda.controller;
 
 import com.oficina.agenda.service.AgendamentoService;
 import com.oficina.agenda.service.ElevadorService;
+import com.oficina.agenda.service.ModeloVeiculoService;
 import com.oficina.agenda.service.ServicoService;
 import com.oficina.agenda.service.TecnicoService;
 import org.springframework.stereotype.Controller;
@@ -21,18 +22,23 @@ public class AgendaViewController {
     private final AgendamentoService agendamentoService;
     private final TecnicoService tecnicoService;
     private final ServicoService servicoService;
+    private final ModeloVeiculoService modeloVeiculoService;
+
 
     public AgendaViewController(
             ElevadorService elevadorService,
             AgendamentoService agendamentoService,
             TecnicoService tecnicoService,
-            ServicoService servicoService) {
+            ServicoService servicoService,
+            ModeloVeiculoService modeloVeiculoService) {
 
         this.elevadorService = elevadorService;
         this.agendamentoService = agendamentoService;
         this.tecnicoService = tecnicoService;
         this.servicoService = servicoService;
+        this.modeloVeiculoService = modeloVeiculoService;
     }
+
 
     @GetMapping("/agenda")
     public String agenda(
@@ -43,67 +49,135 @@ public class AgendaViewController {
             data = LocalDate.now();
         }
 
+
+        // =========================================
+        // ELEVADORES
+        // =========================================
+
         model.addAttribute(
                 "elevadores",
                 elevadorService.listarAtivos()
         );
+
+
+        // =========================================
+        // TÉCNICOS
+        // =========================================
 
         model.addAttribute(
                 "tecnicos",
                 tecnicoService.listarAtivos()
         );
 
+
+        // =========================================
+        // SERVIÇOS
+        // =========================================
+
         model.addAttribute(
                 "servicos",
                 servicoService.listarAtivos()
         );
 
-        List<LocalTime> horarios = new ArrayList<>();
 
-        LocalTime horario = LocalTime.of(8, 0);
-        LocalTime fechamento = LocalTime.of(17, 0);
+        // =========================================
+        // MODELOS DE VEÍCULO
+        // =========================================
+
+        model.addAttribute(
+                "modelosVeiculo",
+                modeloVeiculoService.listarAtivos()
+        );
+
+
+        // =========================================
+        // HORÁRIOS
+        // =========================================
+
+        List<LocalTime> horarios =
+                new ArrayList<>();
+
+        LocalTime horario =
+                LocalTime.of(
+                        8,
+                        0
+                );
+
+        LocalTime fechamento =
+                LocalTime.of(
+                        17,
+                        0
+                );
+
 
         while (horario.isBefore(fechamento)) {
 
-            horarios.add(horario);
+            horarios.add(
+                    horario
+            );
 
-            horario = horario.plusMinutes(30);
+            horario =
+                    horario.plusMinutes(
+                            30
+                    );
         }
+
 
         model.addAttribute(
                 "horarios",
                 horarios
         );
 
+
+        // =========================================
+        // DATA
+        // =========================================
+
         model.addAttribute(
                 "data",
                 data
         );
 
+
         model.addAttribute(
                 "dataAnterior",
-                data.minusDays(1)
+                data.minusDays(
+                        1
+                )
         );
+
 
         model.addAttribute(
                 "dataProxima",
-                data.plusDays(1)
+                data.plusDays(
+                        1
+                )
         );
 
+
+        // =========================================
+        // AGENDAMENTOS
+        // =========================================
+
         /*
-         * Agora usamos os trechos visuais da agenda.
+         * Usa os trechos visuais da agenda.
          *
-         * Isso permite:
+         * Permite:
          *
          * - serviço continuar no dia seguinte;
          * - não contar 12:00 até 13:00;
          * - não contar após 17:00;
          * - dividir o card em manhã e tarde.
          */
+
         model.addAttribute(
                 "agendamentos",
-                agendamentoService.listarParaAgenda(data)
+                agendamentoService
+                        .listarParaAgenda(
+                                data
+                        )
         );
+
 
         return "agenda";
     }

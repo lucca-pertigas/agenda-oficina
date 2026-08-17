@@ -20,6 +20,11 @@ public class AgendamentoRequest {
     private String placaVeiculo;
 
     @NotNull(
+            message = "Modelo do veículo é obrigatório"
+    )
+    private Long modeloVeiculoId;
+
+    @NotNull(
             message = "Técnico é obrigatório"
     )
     private Long tecnicoId;
@@ -39,6 +44,7 @@ public class AgendamentoRequest {
     )
     private LocalDateTime dataHoraInicio;
 
+
     public String getNomeCliente() {
         return nomeCliente;
     }
@@ -48,6 +54,7 @@ public class AgendamentoRequest {
 
         this.nomeCliente = nomeCliente;
     }
+
 
     public String getPlacaVeiculo() {
         return placaVeiculo;
@@ -59,6 +66,19 @@ public class AgendamentoRequest {
         this.placaVeiculo = placaVeiculo;
     }
 
+
+    public Long getModeloVeiculoId() {
+        return modeloVeiculoId;
+    }
+
+    public void setModeloVeiculoId(
+            Long modeloVeiculoId) {
+
+        this.modeloVeiculoId =
+                modeloVeiculoId;
+    }
+
+
     public Long getTecnicoId() {
         return tecnicoId;
     }
@@ -68,6 +88,7 @@ public class AgendamentoRequest {
 
         this.tecnicoId = tecnicoId;
     }
+
 
     public Long getElevadorId() {
         return elevadorId;
@@ -79,6 +100,7 @@ public class AgendamentoRequest {
         this.elevadorId = elevadorId;
     }
 
+
     public List<Long> getServicosIds() {
         return servicosIds;
     }
@@ -88,6 +110,7 @@ public class AgendamentoRequest {
 
         this.servicosIds = servicosIds;
     }
+
 
     public LocalDateTime getDataHoraInicio() {
         return dataHoraInicio;

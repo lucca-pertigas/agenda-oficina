@@ -33,6 +33,24 @@ public class Agendamento {
     )
     private String placaVeiculo;
 
+
+    // =========================================
+    // MODELO DO VEÍCULO
+    // =========================================
+
+    @ManyToOne
+    @JoinColumn(
+            name = "modelo_veiculo_id",
+            nullable = false
+    )
+    @NotNull(message = "Modelo do veículo é obrigatório")
+    private ModeloVeiculo modeloVeiculo;
+
+
+    // =========================================
+    // TÉCNICO
+    // =========================================
+
     @ManyToOne
     @JoinColumn(
             name = "tecnico_id",
@@ -40,6 +58,11 @@ public class Agendamento {
     )
     @NotNull(message = "Técnico é obrigatório")
     private Tecnico tecnico;
+
+
+    // =========================================
+    // ELEVADOR
+    // =========================================
 
     @ManyToOne
     @JoinColumn(
@@ -49,6 +72,11 @@ public class Agendamento {
     @NotNull(message = "Elevador é obrigatório")
     private Elevador elevador;
 
+
+    // =========================================
+    // SERVIÇOS
+    // =========================================
+
     @OneToMany(
             mappedBy = "agendamento",
             cascade = CascadeType.ALL,
@@ -57,6 +85,11 @@ public class Agendamento {
     private List<AgendamentoServico> servicos =
             new ArrayList<>();
 
+
+    // =========================================
+    // HORÁRIOS
+    // =========================================
+
     @NotNull(
             message = "Data e hora de início são obrigatórias"
     )
@@ -64,9 +97,19 @@ public class Agendamento {
 
     private LocalDateTime dataHoraFim;
 
+
+    // =========================================
+    // STATUS
+    // =========================================
+
     @Enumerated(EnumType.STRING)
     private StatusAgendamento status =
             StatusAgendamento.AGENDADO;
+
+
+    // =========================================
+    // ID
+    // =========================================
 
     public Long getId() {
         return id;
@@ -75,6 +118,11 @@ public class Agendamento {
     public void setId(Long id) {
         this.id = id;
     }
+
+
+    // =========================================
+    // CLIENTE
+    // =========================================
 
     public String getNomeCliente() {
         return nomeCliente;
@@ -86,6 +134,11 @@ public class Agendamento {
         this.nomeCliente = nomeCliente;
     }
 
+
+    // =========================================
+    // PLACA
+    // =========================================
+
     public String getPlacaVeiculo() {
         return placaVeiculo;
     }
@@ -95,6 +148,27 @@ public class Agendamento {
 
         this.placaVeiculo = placaVeiculo;
     }
+
+
+    // =========================================
+    // MODELO DO VEÍCULO
+    // =========================================
+
+    public ModeloVeiculo getModeloVeiculo() {
+        return modeloVeiculo;
+    }
+
+    public void setModeloVeiculo(
+            ModeloVeiculo modeloVeiculo) {
+
+        this.modeloVeiculo =
+                modeloVeiculo;
+    }
+
+
+    // =========================================
+    // TÉCNICO
+    // =========================================
 
     public Tecnico getTecnico() {
         return tecnico;
@@ -106,6 +180,11 @@ public class Agendamento {
         this.tecnico = tecnico;
     }
 
+
+    // =========================================
+    // ELEVADOR
+    // =========================================
+
     public Elevador getElevador() {
         return elevador;
     }
@@ -115,6 +194,11 @@ public class Agendamento {
 
         this.elevador = elevador;
     }
+
+
+    // =========================================
+    // SERVIÇOS
+    // =========================================
 
     public List<AgendamentoServico> getServicos() {
         return servicos;
@@ -137,6 +221,44 @@ public class Agendamento {
         }
     }
 
+
+    public void adicionarServico(
+            Servico servico) {
+
+        AgendamentoServico item =
+                new AgendamentoServico();
+
+        item.setAgendamento(this);
+
+        item.setServico(servico);
+
+        servicos.add(item);
+    }
+
+
+    public void limparServicos() {
+
+        servicos.clear();
+    }
+
+
+    public int calcularDuracaoTotalMinutos() {
+
+        return servicos
+                .stream()
+                .map(
+                        AgendamentoServico::getServico
+                )
+                .mapToInt(
+                        Servico::getDuracaoMinutos
+                )
+                .sum();
+    }
+
+
+    // =========================================
+    // DATA / HORÁRIO
+    // =========================================
 
     public LocalDateTime getDataHoraInicio() {
         return dataHoraInicio;
@@ -161,6 +283,11 @@ public class Agendamento {
                 dataHoraFim;
     }
 
+
+    // =========================================
+    // STATUS
+    // =========================================
+
     public StatusAgendamento getStatus() {
         return status;
     }
@@ -172,45 +299,13 @@ public class Agendamento {
     }
 
 
-    public void adicionarServico(
-            Servico servico) {
-
-        AgendamentoServico item =
-                new AgendamentoServico();
-
-        item.setAgendamento(this);
-
-        item.setServico(servico);
-
-        servicos.add(item);
-    }
-
-
-    public void limparServicos() {
-
-        servicos.clear();
-    }
-
-    public int calcularDuracaoTotalMinutos() {
-
-        return servicos
-                .stream()
-                .map(
-                        AgendamentoServico::getServico
-                )
-                .mapToInt(
-                        Servico::getDuracaoMinutos
-                )
-                .sum();
-    }
-
+    // =========================================
+    // REGRAS
+    // =========================================
 
     public void validarPodeEditar() {
 
-        if (
-                status ==
-                        StatusAgendamento.CANCELADO
-        ) {
+        if (status == StatusAgendamento.CANCELADO) {
 
             throw new RegraNegocioException(
                     "Agendamento cancelado não pode ser editado"
@@ -218,10 +313,7 @@ public class Agendamento {
         }
 
 
-        if (
-                status ==
-                        StatusAgendamento.CONCLUIDO
-        ) {
+        if (status == StatusAgendamento.CONCLUIDO) {
 
             throw new RegraNegocioException(
                     "Agendamento concluído não pode ser editado"
@@ -229,12 +321,10 @@ public class Agendamento {
         }
     }
 
+
     public void cancelar() {
 
-        if (
-                status ==
-                        StatusAgendamento.CANCELADO
-        ) {
+        if (status == StatusAgendamento.CANCELADO) {
 
             throw new RegraNegocioException(
                     "Agendamento já está cancelado"
@@ -245,6 +335,7 @@ public class Agendamento {
         status =
                 StatusAgendamento.CANCELADO;
     }
+
 
     public void concluir() {
 

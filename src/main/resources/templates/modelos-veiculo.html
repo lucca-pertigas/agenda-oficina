@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Modelos de Veículos | Agenda da Oficina
+    </title>
+
+    <link
+            rel="stylesheet"
+            th:href="@{/css/modelos-veiculo.css}">
+
+</head>
+
+<body>
+
+
+<!-- ======================================== -->
+<!-- TOPO -->
+<!-- ======================================== -->
+
+<header class="topo">
+
+    <div>
+
+        <h1>
+            Modelos de Veículos
+        </h1>
+
+        <p>
+            Gerenciamento dos modelos de veículos
+        </p>
+
+    </div>
+
+
+    <a
+            th:href="@{/agenda}"
+            class="btn btn-secondary">
+
+        Voltar para Agenda
+
+    </a>
+
+</header>
+
+
+
+<!-- ======================================== -->
+<!-- CONTEÚDO -->
+<!-- ======================================== -->
+
+<main class="container">
+
+
+    <section class="barra-acoes">
+
+
+        <div>
+
+            <h2>
+                Modelos
+            </h2>
+
+            <p>
+                Cadastre e controle os modelos disponíveis.
+            </p>
+
+        </div>
+
+
+        <button
+                type="button"
+                class="btn btn-primary"
+                onclick="abrirModalNovoModelo()">
+
+            + Novo Modelo
+
+        </button>
+
+
+    </section>
+
+
+
+    <!-- ======================================== -->
+    <!-- TABELA -->
+    <!-- ======================================== -->
+
+    <section class="card-tabela">
+
+
+        <table>
+
+
+            <thead>
+
+            <tr>
+
+                <th>
+                    ID
+                </th>
+
+                <th>
+                    Modelo
+                </th>
+
+                <th>
+                    Status
+                </th>
+
+                <th>
+                    Ações
+                </th>
+
+            </tr>
+
+            </thead>
+
+
+
+            <tbody>
+
+
+            <tr
+                    th:each="
+                        modelo : ${modelos}
+                    ">
+
+
+                <td
+                        th:text="${modelo.id}">
+
+                    1
+
+                </td>
+
+
+                <td
+                        th:text="${modelo.nome}">
+
+                    Corolla
+
+                </td>
+
+
+                <td>
+
+
+                    <span
+                            class="status"
+
+                            th:classappend="${
+                                modelo.ativo
+                                ? ' status-ativo'
+                                : ' status-inativo'
+                            }"
+
+                            th:text="${
+                                modelo.ativo
+                                ? 'Ativo'
+                                : 'Inativo'
+                            }">
+
+                        Ativo
+
+                    </span>
+
+
+                </td>
+
+
+                <td>
+
+
+                    <div class="acoes">
+
+
+                        <button
+                                type="button"
+
+                                class="
+                                    btn
+                                    btn-small
+                                    btn-secondary
+                                "
+
+                                th:attr="
+                                    data-id=${modelo.id},
+                                    data-nome=${modelo.nome},
+                                    data-ativo=${modelo.ativo}
+                                "
+
+                                onclick="
+                                    abrirModalEditarModelo(
+                                        this
+                                    )
+                                ">
+
+                            Editar
+
+                        </button>
+
+
+
+                        <button
+                                type="button"
+
+                                class="
+                                    btn
+                                    btn-small
+                                    btn-danger
+                                "
+
+                                th:if="${modelo.ativo}"
+
+                                th:attr="
+                                    data-id=${modelo.id}
+                                "
+
+                                onclick="
+                                    desativarModelo(
+                                        this
+                                    )
+                                ">
+
+                            Desativar
+
+                        </button>
+
+
+                    </div>
+
+
+                </td>
+
+
+            </tr>
+
+
+
+            <!-- SEM REGISTROS -->
+
+            <tr
+                    th:if="${
+                        #lists.isEmpty(modelos)
+                    }">
+
+
+                <td
+                        colspan="4"
+                        class="sem-registros">
+
+                    Nenhum modelo cadastrado.
+
+                </td>
+
+
+            </tr>
+
+
+            </tbody>
+
+
+        </table>
+
+
+    </section>
+
+
+</main>
+
+
+
+<!-- ================================================== -->
+<!-- MODAL NOVO MODELO -->
+<!-- ================================================== -->
+
+<div
+        id="modalNovoModelo"
+        class="modal-overlay">
+
+
+    <div class="modal">
+
+
+        <div class="modal-header">
+
+
+            <h2>
+                Novo Modelo
+            </h2>
+
+
+            <button
+                    type="button"
+                    onclick="
+                        fecharModalNovoModelo()
+                    ">
+
+                ×
+
+            </button>
+
+
+        </div>
+
+
+
+        <div class="modal-body">
+
+
+            <label for="novoNomeModelo">
+
+                Modelo
+
+            </label>
+
+
+            <input
+                    id="novoNomeModelo"
+                    type="text"
+                    maxlength="100"
+                    placeholder="Ex: Corolla">
+
+
+            <p
+                    id="mensagemNovoModelo"
+                    class="mensagem">
+
+            </p>
+
+
+            <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="
+                        salvarNovoModelo()
+                    ">
+
+                Salvar Modelo
+
+            </button>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- ================================================== -->
+<!-- MODAL EDITAR MODELO -->
+<!-- ================================================== -->
+
+<div
+        id="modalEditarModelo"
+        class="modal-overlay">
+
+
+    <div class="modal">
+
+
+        <div class="modal-header">
+
+
+            <h2>
+                Editar Modelo
+            </h2>
+
+
+            <button
+                    type="button"
+                    onclick="
+                        fecharModalEditarModelo()
+                    ">
+
+                ×
+
+            </button>
+
+
+        </div>
+
+
+
+        <div class="modal-body">
+
+
+            <input
+                    type="hidden"
+                    id="editarModeloId">
+
+
+            <label for="editarNomeModelo">
+
+                Modelo
+
+            </label>
+
+
+            <input
+                    id="editarNomeModelo"
+                    type="text"
+                    maxlength="100">
+
+
+            <label class="checkbox-area">
+
+
+                <input
+                        id="editarModeloAtivo"
+                        type="checkbox">
+
+
+                Modelo ativo
+
+
+            </label>
+
+
+            <p
+                    id="mensagemEditarModelo"
+                    class="mensagem">
+
+            </p>
+
+
+            <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="
+                        salvarEdicaoModelo()
+                    ">
+
+                Salvar Alterações
+
+            </button>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<script
+        th:src="@{/js/modelos-veiculo.js}">
+</script>
+
+
+</body>
+
+</html> 

@@ -12,6 +12,9 @@ public class AgendamentoDiaResponse {
     private String nomeCliente;
     private String placaVeiculo;
 
+    private Long modeloVeiculoId;
+    private String modeloVeiculoNome;
+
     private Long tecnicoId;
     private String tecnicoNome;
 
@@ -41,6 +44,7 @@ public class AgendamentoDiaResponse {
         this.id = id;
     }
 
+
     public String getNomeCliente() {
         return nomeCliente;
     }
@@ -51,6 +55,7 @@ public class AgendamentoDiaResponse {
         this.nomeCliente = nomeCliente;
     }
 
+
     public String getPlacaVeiculo() {
         return placaVeiculo;
     }
@@ -60,6 +65,31 @@ public class AgendamentoDiaResponse {
 
         this.placaVeiculo = placaVeiculo;
     }
+
+
+    public Long getModeloVeiculoId() {
+        return modeloVeiculoId;
+    }
+
+    public void setModeloVeiculoId(
+            Long modeloVeiculoId) {
+
+        this.modeloVeiculoId =
+                modeloVeiculoId;
+    }
+
+
+    public String getModeloVeiculoNome() {
+        return modeloVeiculoNome;
+    }
+
+    public void setModeloVeiculoNome(
+            String modeloVeiculoNome) {
+
+        this.modeloVeiculoNome =
+                modeloVeiculoNome;
+    }
+
 
     public Long getTecnicoId() {
         return tecnicoId;
@@ -82,6 +112,7 @@ public class AgendamentoDiaResponse {
         this.tecnicoNome = tecnicoNome;
     }
 
+
     public Long getElevadorId() {
         return elevadorId;
     }
@@ -103,6 +134,7 @@ public class AgendamentoDiaResponse {
         this.elevadorNumero =
                 elevadorNumero;
     }
+
 
     public List<Long> getServicosIds() {
         return servicosIds;
@@ -138,6 +170,7 @@ public class AgendamentoDiaResponse {
                 servicosNomesTexto;
     }
 
+
     public LocalDateTime getDataHoraInicioOriginal() {
         return dataHoraInicioOriginal;
     }
@@ -160,6 +193,7 @@ public class AgendamentoDiaResponse {
         this.dataHoraFimOriginal =
                 dataHoraFimOriginal;
     }
+
 
     public LocalDateTime getInicioExibicao() {
         return inicioExibicao;
@@ -196,6 +230,7 @@ public class AgendamentoDiaResponse {
                 duracaoExibicaoMinutos;
     }
 
+
     public StatusAgendamento getStatus() {
         return status;
     }
@@ -205,6 +240,7 @@ public class AgendamentoDiaResponse {
 
         this.status = status;
     }
+
 
     public Integer getMinutoInicio() {
 

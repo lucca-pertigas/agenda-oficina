@@ -72,6 +72,14 @@
         </a>
 
 
+        <a th:href="@{/modelos-veiculo/tela}"
+           class="btn btn-secondary">
+
+            Modelos
+
+        </a>
+
+
         <button
                 type="button"
                 class="btn btn-primary"
@@ -382,6 +390,10 @@
 
                                 data-placa-veiculo=${agendamento.placaVeiculo},
 
+                                data-modelo-veiculo-id=${agendamento.modeloVeiculoId},
+
+                                data-modelo-veiculo-nome=${agendamento.modeloVeiculoNome},
+
                                 data-tecnico-id=${agendamento.tecnicoId},
 
                                 data-tecnico=${agendamento.tecnicoNome},
@@ -463,6 +475,16 @@
                             Cliente
 
                         </strong>
+
+
+                        <!-- MODELO -->
+
+                        <span
+                                th:text="${agendamento.modeloVeiculoNome}">
+
+                            Corolla
+
+                        </span>
 
 
                         <!-- PLACA -->
@@ -628,6 +650,42 @@
                     placeholder="Ex: ABC1D23"
 
                     style="text-transform: uppercase;">
+
+
+
+            <!-- ======================================== -->
+            <!-- MODELO -->
+            <!-- ======================================== -->
+
+            <label for="modeloVeiculo">
+
+                Modelo do veículo
+
+            </label>
+
+
+            <select id="modeloVeiculo">
+
+                <option value="">
+
+                    Selecione
+
+                </option>
+
+
+                <option
+                        th:each="
+                            modelo : ${modelosVeiculo}
+                        "
+
+                        th:value="${modelo.id}"
+
+                        th:text="${modelo.nome}">
+
+                </option>
+
+
+            </select>
 
 
 
@@ -917,6 +975,17 @@
             <p>
 
                 <strong>
+                    Modelo:
+                </strong>
+
+                <span id="detalheModeloVeiculo"></span>
+
+            </p>
+
+
+            <p>
+
+                <strong>
                     Placa:
                 </strong>
 
@@ -1143,6 +1212,36 @@
                     placeholder="Ex: ABC1D23"
 
                     style="text-transform: uppercase;">
+
+
+
+            <!-- ======================================== -->
+            <!-- MODELO -->
+            <!-- ======================================== -->
+
+            <label for="editarModeloVeiculo">
+
+                Modelo do veículo
+
+            </label>
+
+
+            <select id="editarModeloVeiculo">
+
+
+                <option
+                        th:each="
+                            modelo : ${modelosVeiculo}
+                        "
+
+                        th:value="${modelo.id}"
+
+                        th:text="${modelo.nome}">
+
+                </option>
+
+
+            </select>
 
 
 

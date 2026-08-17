@@ -112,6 +112,18 @@ public class AgendamentoMapper {
                 agendamento.getStatus()
         );
 
+        response.setModeloVeiculoId(
+                agendamento
+                        .getModeloVeiculo()
+                        .getId()
+        );
+
+        response.setModeloVeiculoNome(
+                agendamento
+                        .getModeloVeiculo()
+                        .getNome()
+        );
+
 
         return response;
     }

@@ -4,6 +4,7 @@ import com.oficina.agenda.dto.AgendamentoRequest;
 import com.oficina.agenda.exception.RegraNegocioException;
 import com.oficina.agenda.model.Agendamento;
 import com.oficina.agenda.model.Elevador;
+import com.oficina.agenda.model.ModeloVeiculo;
 import com.oficina.agenda.model.Servico;
 import com.oficina.agenda.model.Tecnico;
 import org.springframework.stereotype.Service;
@@ -14,16 +15,19 @@ public class AgendamentoResourceService {
     private final TecnicoService tecnicoService;
     private final ElevadorService elevadorService;
     private final ServicoService servicoService;
+    private final ModeloVeiculoService modeloVeiculoService;
 
 
     public AgendamentoResourceService(
             TecnicoService tecnicoService,
             ElevadorService elevadorService,
-            ServicoService servicoService) {
+            ServicoService servicoService,
+            ModeloVeiculoService modeloVeiculoService) {
 
         this.tecnicoService = tecnicoService;
         this.elevadorService = elevadorService;
         this.servicoService = servicoService;
+        this.modeloVeiculoService = modeloVeiculoService;
     }
 
 
@@ -53,11 +57,37 @@ public class AgendamentoResourceService {
         }
 
 
+        if (request.getModeloVeiculoId() == null) {
+
+            throw new RegraNegocioException(
+                    "Modelo do veículo é obrigatório"
+            );
+        }
+
+
         if (request.getServicosIds() == null
                 || request.getServicosIds().isEmpty()) {
 
             throw new RegraNegocioException(
                     "Selecione pelo menos um serviço"
+            );
+        }
+
+
+        // =========================================
+        // BUSCAR MODELO DO VEÍCULO
+        // =========================================
+
+        ModeloVeiculo modeloVeiculo =
+                modeloVeiculoService.buscarPorId(
+                        request.getModeloVeiculoId()
+                );
+
+
+        if (!Boolean.TRUE.equals(modeloVeiculo.getAtivo())) {
+
+            throw new RegraNegocioException(
+                    "O modelo de veículo selecionado está inativo"
             );
         }
 
@@ -114,6 +144,11 @@ public class AgendamentoResourceService {
                         .getPlacaVeiculo()
                         .trim()
                         .toUpperCase()
+        );
+
+
+        agendamento.setModeloVeiculo(
+                modeloVeiculo
         );
 
 

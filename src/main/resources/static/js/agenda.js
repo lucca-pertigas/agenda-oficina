@@ -213,6 +213,12 @@ async function salvarAgendamento() {
             .toUpperCase();
 
 
+    const modeloVeiculoId =
+        document
+            .getElementById("modeloVeiculo")
+            .value;
+
+
     const tecnicoId =
         document
             .getElementById("tecnico")
@@ -263,6 +269,15 @@ async function salvarAgendamento() {
 
         mensagem.textContent =
             "Informe a placa do veículo.";
+
+        return;
+    }
+
+
+    if (!modeloVeiculoId) {
+
+        mensagem.textContent =
+            "Selecione o modelo do veículo.";
 
         return;
     }
@@ -324,6 +339,9 @@ async function salvarAgendamento() {
 
         placaVeiculo:
         placaVeiculo,
+
+        modeloVeiculoId:
+            Number(modeloVeiculoId),
 
         tecnicoId:
             Number(tecnicoId),
@@ -408,6 +426,11 @@ function limparFormularioNovo() {
 
 
     document
+        .getElementById("modeloVeiculo")
+        .value = "";
+
+
+    document
         .getElementById("tecnico")
         .value = "";
 
@@ -458,6 +481,14 @@ function abrirDetalhesAgendamento(card) {
         )
         .textContent =
         card.dataset.nomeCliente || "";
+
+
+    document
+        .getElementById(
+            "detalheModeloVeiculo"
+        )
+        .textContent =
+        card.dataset.modeloVeiculoNome || "";
 
 
     document
@@ -575,6 +606,16 @@ function abrirEdicaoAgendamento() {
         )
         .value =
         card.dataset.placaVeiculo || "";
+
+
+    // MODELO
+
+    document
+        .getElementById(
+            "editarModeloVeiculo"
+        )
+        .value =
+        card.dataset.modeloVeiculoId || "";
 
 
     // TÉCNICO
@@ -700,6 +741,14 @@ async function salvarEdicaoAgendamento() {
             .toUpperCase();
 
 
+    const modeloVeiculoId =
+        document
+            .getElementById(
+                "editarModeloVeiculo"
+            )
+            .value;
+
+
     const tecnicoId =
         document
             .getElementById(
@@ -754,6 +803,15 @@ async function salvarEdicaoAgendamento() {
 
         mensagem.textContent =
             "Informe a placa do veículo.";
+
+        return;
+    }
+
+
+    if (!modeloVeiculoId) {
+
+        mensagem.textContent =
+            "Selecione o modelo do veículo.";
 
         return;
     }
@@ -815,6 +873,9 @@ async function salvarEdicaoAgendamento() {
 
         placaVeiculo:
         placaVeiculo,
+
+        modeloVeiculoId:
+            Number(modeloVeiculoId),
 
         tecnicoId:
             Number(tecnicoId),

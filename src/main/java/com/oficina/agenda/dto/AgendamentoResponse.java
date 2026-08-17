@@ -12,6 +12,9 @@ public class AgendamentoResponse {
     private String nomeCliente;
     private String placaVeiculo;
 
+    private Long modeloVeiculoId;
+    private String modeloVeiculoNome;
+
     private Long tecnicoId;
     private String tecnicoNome;
 
@@ -39,6 +42,7 @@ public class AgendamentoResponse {
         this.id = id;
     }
 
+
     public String getNomeCliente() {
         return nomeCliente;
     }
@@ -49,6 +53,7 @@ public class AgendamentoResponse {
         this.nomeCliente = nomeCliente;
     }
 
+
     public String getPlacaVeiculo() {
         return placaVeiculo;
     }
@@ -58,6 +63,31 @@ public class AgendamentoResponse {
 
         this.placaVeiculo = placaVeiculo;
     }
+
+
+    public Long getModeloVeiculoId() {
+        return modeloVeiculoId;
+    }
+
+    public void setModeloVeiculoId(
+            Long modeloVeiculoId) {
+
+        this.modeloVeiculoId =
+                modeloVeiculoId;
+    }
+
+
+    public String getModeloVeiculoNome() {
+        return modeloVeiculoNome;
+    }
+
+    public void setModeloVeiculoNome(
+            String modeloVeiculoNome) {
+
+        this.modeloVeiculoNome =
+                modeloVeiculoNome;
+    }
+
 
     public Long getTecnicoId() {
         return tecnicoId;
@@ -80,6 +110,7 @@ public class AgendamentoResponse {
         this.tecnicoNome = tecnicoNome;
     }
 
+
     public Long getElevadorId() {
         return elevadorId;
     }
@@ -100,6 +131,7 @@ public class AgendamentoResponse {
 
         this.elevadorNumero = elevadorNumero;
     }
+
 
     public List<Long> getServicosIds() {
         return servicosIds;
@@ -134,6 +166,7 @@ public class AgendamentoResponse {
                 servicosNomesTexto;
     }
 
+
     public LocalDateTime getDataHoraInicio() {
         return dataHoraInicio;
     }
@@ -157,6 +190,7 @@ public class AgendamentoResponse {
                 dataHoraFim;
     }
 
+
     public Integer getDuracaoMinutos() {
         return duracaoMinutos;
     }
@@ -167,6 +201,7 @@ public class AgendamentoResponse {
         this.duracaoMinutos =
                 duracaoMinutos;
     }
+
 
     public StatusAgendamento getStatus() {
         return status;

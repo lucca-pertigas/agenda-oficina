@@ -3,6 +3,7 @@
       xmlns:th="http://www.thymeleaf.org">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -12,20 +13,30 @@
 
     <link rel="stylesheet"
           th:href="@{/css/tecnicos.css}">
+
 </head>
 
 <body>
 
+
 <header class="topo">
 
     <div>
+
         <h1>Técnicos</h1>
-        <p>Gerenciamento da equipe técnica</p>
+
+        <p>
+            Gerenciamento da equipe técnica
+        </p>
+
     </div>
+
 
     <a th:href="@{/agenda}"
        class="btn btn-secondary">
+
         Voltar para Agenda
+
     </a>
 
 </header>
@@ -33,15 +44,21 @@
 
 <main class="container">
 
+
+    <!-- BARRA SUPERIOR -->
+
     <section class="barra-acoes">
 
         <div>
+
             <h2>Equipe Técnica</h2>
 
             <p>
                 Cadastre, edite e controle os técnicos disponíveis.
             </p>
+
         </div>
+
 
         <button
                 type="button"
@@ -55,6 +72,9 @@
     </section>
 
 
+
+    <!-- TABELA -->
+
     <section class="card-tabela">
 
         <table>
@@ -62,10 +82,15 @@
             <thead>
 
             <tr>
+
                 <th>ID</th>
+
                 <th>Nome</th>
+
                 <th>Status</th>
+
                 <th>Ações</th>
+
             </tr>
 
             </thead>
@@ -73,27 +98,32 @@
 
             <tbody>
 
+
             <tr th:each="tecnico : ${tecnicos}">
+
 
                 <td th:text="${tecnico.id}">
                     1
                 </td>
 
+
                 <td th:text="${tecnico.nome}">
                     Carlos
                 </td>
+
 
                 <td>
 
                     <span
                             class="status"
+
                             th:classappend="${tecnico.ativo}
-                                ? ' status-ativo'
-                                : ' status-inativo'"
+                            ? ' status-ativo'
+                            : ' status-inativo'"
 
                             th:text="${tecnico.ativo}
-                                ? 'Ativo'
-                                : 'Inativo'">
+                            ? 'Ativo'
+                            : 'Inativo'">
 
                         Ativo
 
@@ -101,12 +131,17 @@
 
                 </td>
 
+
                 <td>
 
                     <div class="acoes">
 
+
+                        <!-- EDITAR -->
+
                         <button
                                 type="button"
+
                                 class="btn btn-small btn-secondary"
 
                                 th:attr="
@@ -122,8 +157,34 @@
                         </button>
 
 
+
+                        <!-- INDISPONIBILIDADE -->
+
                         <button
                                 type="button"
+
+                                class="btn btn-small btn-warning"
+
+                                th:if="${tecnico.ativo}"
+
+                                th:attr="
+                                    data-id=${tecnico.id},
+                                    data-nome=${tecnico.nome}
+                                "
+
+                                onclick="abrirModalIndisponibilidade(this)">
+
+                            Indisponibilidades
+
+                        </button>
+
+
+
+                        <!-- DESATIVAR -->
+
+                        <button
+                                type="button"
+
                                 class="btn btn-small btn-danger"
 
                                 th:if="${tecnico.ativo}"
@@ -138,6 +199,7 @@
 
                         </button>
 
+
                     </div>
 
                 </td>
@@ -145,16 +207,19 @@
             </tr>
 
 
+
             <tr th:if="${#lists.isEmpty(tecnicos)}">
 
-                <td colspan="4"
-                    class="sem-registros">
+                <td
+                        colspan="4"
+                        class="sem-registros">
 
                     Nenhum técnico cadastrado.
 
                 </td>
 
             </tr>
+
 
             </tbody>
 
@@ -165,7 +230,10 @@
 </main>
 
 
-<!-- MODAL NOVO -->
+
+<!-- ================================================= -->
+<!-- MODAL NOVO TÉCNICO -->
+<!-- ================================================= -->
 
 <div
         id="modalNovoTecnico"
@@ -175,21 +243,30 @@
 
         <div class="modal-header">
 
-            <h2>Novo Técnico</h2>
+            <h2>
+                Novo Técnico
+            </h2>
 
             <button
                     type="button"
                     onclick="fecharModalNovoTecnico()">
+
                 ×
+
             </button>
 
         </div>
 
+
         <div class="modal-body">
 
+
             <label for="novoNomeTecnico">
+
                 Nome
+
             </label>
+
 
             <input
                     id="novoNomeTecnico"
@@ -213,6 +290,7 @@
 
             </button>
 
+
         </div>
 
     </div>
@@ -220,7 +298,10 @@
 </div>
 
 
+
+<!-- ================================================= -->
 <!-- MODAL EDITAR -->
+<!-- ================================================= -->
 
 <div
         id="modalEditarTecnico"
@@ -230,12 +311,16 @@
 
         <div class="modal-header">
 
-            <h2>Editar Técnico</h2>
+            <h2>
+                Editar Técnico
+            </h2>
 
             <button
                     type="button"
                     onclick="fecharModalEditarTecnico()">
+
                 ×
+
             </button>
 
         </div>
@@ -243,14 +328,18 @@
 
         <div class="modal-body">
 
+
             <input
                     type="hidden"
                     id="editarTecnicoId">
 
 
             <label for="editarNomeTecnico">
+
                 Nome
+
             </label>
+
 
             <input
                     id="editarNomeTecnico"
@@ -284,11 +373,165 @@
 
             </button>
 
+
         </div>
 
     </div>
 
 </div>
+
+
+
+<!-- ================================================= -->
+<!-- MODAL INDISPONIBILIDADES -->
+<!-- ================================================= -->
+
+<div
+        id="modalIndisponibilidade"
+        class="modal-overlay">
+
+    <div class="modal modal-grande">
+
+
+        <div class="modal-header">
+
+            <h2>
+                Indisponibilidades do Técnico
+            </h2>
+
+            <button
+                    type="button"
+                    onclick="fecharModalIndisponibilidade()">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+
+            <input
+                    type="hidden"
+                    id="indisponibilidadeTecnicoId">
+
+
+            <!-- TÉCNICO -->
+
+            <div class="tecnico-selecionado">
+
+                <span>
+                    Técnico
+                </span>
+
+                <strong
+                        id="indisponibilidadeTecnicoNome">
+
+                    Técnico
+
+                </strong>
+
+            </div>
+
+
+
+            <!-- NOVA INDISPONIBILIDADE -->
+
+            <h3 class="titulo-secao">
+
+                Nova indisponibilidade
+
+            </h3>
+
+
+            <label for="indisponibilidadeDataInicio">
+
+                Data inicial
+
+            </label>
+
+
+            <input
+                    id="indisponibilidadeDataInicio"
+                    type="date">
+
+
+            <label for="indisponibilidadeDataFim">
+
+                Data final
+
+            </label>
+
+
+            <input
+                    id="indisponibilidadeDataFim"
+                    type="date">
+
+
+            <label for="indisponibilidadeMotivo">
+
+                Motivo
+
+            </label>
+
+
+            <input
+                    id="indisponibilidadeMotivo"
+                    type="text"
+                    maxlength="150"
+                    placeholder="Ex: Férias, folga, treinamento...">
+
+
+            <p
+                    id="mensagemIndisponibilidade"
+                    class="mensagem">
+            </p>
+
+
+            <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="salvarIndisponibilidade()">
+
+                Salvar Indisponibilidade
+
+            </button>
+
+
+
+            <!-- LISTAGEM -->
+
+            <div class="separador"></div>
+
+
+            <h3 class="titulo-secao">
+
+                Períodos cadastrados
+
+            </h3>
+
+
+            <div
+                    id="listaIndisponibilidades"
+                    class="lista-indisponibilidades">
+
+                <p class="carregando">
+
+                    Carregando...
+
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</div>
+
 
 
 <script th:src="@{/js/tecnicos.js}"></script>

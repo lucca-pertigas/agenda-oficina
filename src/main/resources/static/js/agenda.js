@@ -16,6 +16,8 @@ function abrirFormulario() {
         .getElementById("mensagemFormulario")
         .textContent = "";
 
+    atualizarDuracaoTotalNovo();
+
     modal.classList.add("ativo");
 }
 
@@ -29,24 +31,203 @@ function fecharFormulario() {
 
 
 // ========================================
+// SERVIÇOS SELECIONADOS
+// ========================================
+
+function obterServicosSelecionados(tipo) {
+
+    let seletor;
+
+    if (tipo === "editar") {
+
+        seletor =
+            ".editar-servico-checkbox:checked";
+
+    } else {
+
+        seletor =
+            ".servico-checkbox:checked";
+    }
+
+
+    return Array.from(
+        document.querySelectorAll(seletor)
+    ).map(
+        checkbox =>
+            Number(checkbox.value)
+    );
+}
+
+
+// ========================================
+// DURAÇÃO TOTAL - NOVO
+// ========================================
+
+function atualizarDuracaoTotalNovo() {
+
+    let total = 0;
+
+
+    const checkboxes =
+        document.querySelectorAll(
+            ".servico-checkbox:checked"
+        );
+
+
+    checkboxes.forEach(
+        checkbox => {
+
+            const duracao =
+                Number(
+                    checkbox.getAttribute(
+                        "data-duracao"
+                    )
+                );
+
+
+            if (!Number.isNaN(duracao)) {
+
+                total += duracao;
+            }
+        }
+    );
+
+
+    const elemento =
+        document.getElementById(
+            "duracaoTotalNovo"
+        );
+
+
+    if (elemento) {
+
+        elemento.textContent =
+            formatarDuracao(total);
+    }
+}
+
+
+// ========================================
+// DURAÇÃO TOTAL - EDITAR
+// ========================================
+
+function atualizarDuracaoTotalEditar() {
+
+    let total = 0;
+
+
+    const checkboxes =
+        document.querySelectorAll(
+            ".editar-servico-checkbox:checked"
+        );
+
+
+    checkboxes.forEach(
+        checkbox => {
+
+            const duracao =
+                Number(
+                    checkbox.getAttribute(
+                        "data-duracao"
+                    )
+                );
+
+
+            if (!Number.isNaN(duracao)) {
+
+                total += duracao;
+            }
+        }
+    );
+
+
+    const elemento =
+        document.getElementById(
+            "duracaoTotalEditar"
+        );
+
+
+    if (elemento) {
+
+        elemento.textContent =
+            formatarDuracao(total);
+    }
+}
+
+
+// ========================================
+// FORMATAR DURAÇÃO
+// ========================================
+
+function formatarDuracao(minutos) {
+
+    if (!minutos) {
+        return "0 min";
+    }
+
+
+    if (minutos < 60) {
+
+        return minutos + " min";
+    }
+
+
+    const horas =
+        Math.floor(minutos / 60);
+
+    const restante =
+        minutos % 60;
+
+
+    if (restante === 0) {
+
+        return horas +
+            (horas === 1
+                ? " hora"
+                : " horas");
+    }
+
+
+    return horas +
+        (horas === 1
+            ? " hora e "
+            : " horas e ")
+        + restante
+        + " min";
+}
+
+
+// ========================================
 // CADASTRAR
 // ========================================
 
 async function salvarAgendamento() {
 
     const tecnicoId =
-        document.getElementById("tecnico").value;
+        document
+            .getElementById("tecnico")
+            .value;
+
 
     const elevadorId =
-        document.getElementById("elevador").value;
+        document
+            .getElementById("elevador")
+            .value;
 
-    const servicoId =
-        document.getElementById("servico").value;
+
+    const servicosIds =
+        obterServicosSelecionados(
+            "novo"
+        );
+
 
     const dataHoraInicio =
         document
-            .getElementById("dataHoraInicio")
+            .getElementById(
+                "dataHoraInicio"
+            )
             .value;
+
 
     const mensagem =
         document
@@ -55,15 +236,37 @@ async function salvarAgendamento() {
             );
 
 
-    if (
-        !tecnicoId ||
-        !elevadorId ||
-        !servicoId ||
-        !dataHoraInicio
-    ) {
+    if (!tecnicoId) {
 
         mensagem.textContent =
-            "Preencha todos os campos.";
+            "Selecione um técnico.";
+
+        return;
+    }
+
+
+    if (!elevadorId) {
+
+        mensagem.textContent =
+            "Selecione um elevador.";
+
+        return;
+    }
+
+
+    if (servicosIds.length === 0) {
+
+        mensagem.textContent =
+            "Selecione pelo menos um serviço.";
+
+        return;
+    }
+
+
+    if (!dataHoraInicio) {
+
+        mensagem.textContent =
+            "Informe a data e o horário.";
 
         return;
     }
@@ -73,6 +276,7 @@ async function salvarAgendamento() {
         dataHoraInicio,
         mensagem
     )) {
+
         return;
     }
 
@@ -85,8 +289,8 @@ async function salvarAgendamento() {
         elevadorId:
             Number(elevadorId),
 
-        servicoId:
-            Number(servicoId),
+        servicosIds:
+        servicosIds,
 
         dataHoraInicio:
         dataHoraInicio
@@ -130,17 +334,6 @@ async function salvarAgendamento() {
 
         fecharFormulario();
 
-        /*
-         * Não precisamos montar o card aqui.
-         *
-         * O backend divide corretamente:
-         * - manhã
-         * - almoço
-         * - tarde
-         * - próximo dia
-         *
-         * O WebSocket fará a atualização da tela.
-         */
 
     } catch (erro) {
 
@@ -149,11 +342,16 @@ async function salvarAgendamento() {
             erro
         );
 
+
         mensagem.textContent =
             "Erro ao comunicar com o servidor.";
     }
 }
 
+
+// ========================================
+// LIMPAR FORMULÁRIO NOVO
+// ========================================
 
 function limparFormularioNovo() {
 
@@ -161,17 +359,32 @@ function limparFormularioNovo() {
         .getElementById("tecnico")
         .value = "";
 
+
     document
         .getElementById("elevador")
         .value = "";
 
-    document
-        .getElementById("servico")
-        .value = "";
 
     document
-        .getElementById("dataHoraInicio")
+        .querySelectorAll(
+            ".servico-checkbox"
+        )
+        .forEach(
+            checkbox => {
+
+                checkbox.checked = false;
+            }
+        );
+
+
+    document
+        .getElementById(
+            "dataHoraInicio"
+        )
         .value = "";
+
+
+    atualizarDuracaoTotalNovo();
 }
 
 
@@ -188,44 +401,58 @@ function abrirDetalhesAgendamento(card) {
 
 
     document
-        .getElementById("detalheServico")
+        .getElementById(
+            "detalheServico"
+        )
         .textContent =
-        card.dataset.servico;
+        card.dataset.servicos;
 
 
     document
-        .getElementById("detalheTecnico")
+        .getElementById(
+            "detalheTecnico"
+        )
         .textContent =
         card.dataset.tecnico;
 
 
     document
-        .getElementById("detalheElevador")
+        .getElementById(
+            "detalheElevador"
+        )
         .textContent =
         "Elevador " +
         card.dataset.elevador;
 
 
     document
-        .getElementById("detalheInicio")
+        .getElementById(
+            "detalheInicio"
+        )
         .textContent =
         card.dataset.inicio;
 
 
     document
-        .getElementById("detalheFim")
+        .getElementById(
+            "detalheFim"
+        )
         .textContent =
         card.dataset.fim;
 
 
     document
-        .getElementById("detalheStatus")
+        .getElementById(
+            "detalheStatus"
+        )
         .textContent =
         card.dataset.status;
 
 
     document
-        .getElementById("modalDetalhes")
+        .getElementById(
+            "modalDetalhes"
+        )
         .classList.add("ativo");
 }
 
@@ -233,7 +460,9 @@ function abrirDetalhesAgendamento(card) {
 function fecharDetalhesAgendamento() {
 
     document
-        .getElementById("modalDetalhes")
+        .getElementById(
+            "modalDetalhes"
+        )
         .classList.remove("ativo");
 }
 
@@ -261,21 +490,52 @@ function abrirEdicaoAgendamento() {
 
 
     document
-        .getElementById("editarTecnico")
+        .getElementById(
+            "editarTecnico"
+        )
         .value =
         card.dataset.tecnicoId;
 
 
     document
-        .getElementById("editarElevador")
+        .getElementById(
+            "editarElevador"
+        )
         .value =
         card.dataset.elevadorId;
 
 
+    // SERVIÇOS DO AGENDAMENTO
+
+    const servicosIds =
+        card.dataset.servicosIds
+            ? card.dataset.servicosIds
+                .split(",")
+                .filter(
+                    id => id !== ""
+                )
+                .map(Number)
+            : [];
+
+
     document
-        .getElementById("editarServico")
-        .value =
-        card.dataset.servicoId;
+        .querySelectorAll(
+            ".editar-servico-checkbox"
+        )
+        .forEach(
+            checkbox => {
+
+                checkbox.checked =
+                    servicosIds.includes(
+                        Number(
+                            checkbox.value
+                        )
+                    );
+            }
+        );
+
+
+    atualizarDuracaoTotalEditar();
 
 
     document
@@ -289,7 +549,9 @@ function abrirEdicaoAgendamento() {
 
 
     document
-        .getElementById("mensagemEdicao")
+        .getElementById(
+            "mensagemEdicao"
+        )
         .textContent = "";
 
 
@@ -314,6 +576,10 @@ function fecharEdicaoAgendamento() {
 }
 
 
+// ========================================
+// SALVAR EDIÇÃO
+// ========================================
+
 async function salvarEdicaoAgendamento() {
 
     if (!agendamentoSelecionadoId) {
@@ -323,20 +589,24 @@ async function salvarEdicaoAgendamento() {
 
     const tecnicoId =
         document
-            .getElementById("editarTecnico")
+            .getElementById(
+                "editarTecnico"
+            )
             .value;
 
 
     const elevadorId =
         document
-            .getElementById("editarElevador")
+            .getElementById(
+                "editarElevador"
+            )
             .value;
 
 
-    const servicoId =
-        document
-            .getElementById("editarServico")
-            .value;
+    const servicosIds =
+        obterServicosSelecionados(
+            "editar"
+        );
 
 
     const dataHoraInicio =
@@ -354,15 +624,37 @@ async function salvarEdicaoAgendamento() {
             );
 
 
-    if (
-        !tecnicoId ||
-        !elevadorId ||
-        !servicoId ||
-        !dataHoraInicio
-    ) {
+    if (!tecnicoId) {
 
         mensagem.textContent =
-            "Preencha todos os campos.";
+            "Selecione um técnico.";
+
+        return;
+    }
+
+
+    if (!elevadorId) {
+
+        mensagem.textContent =
+            "Selecione um elevador.";
+
+        return;
+    }
+
+
+    if (servicosIds.length === 0) {
+
+        mensagem.textContent =
+            "Selecione pelo menos um serviço.";
+
+        return;
+    }
+
+
+    if (!dataHoraInicio) {
+
+        mensagem.textContent =
+            "Informe a data e o horário.";
 
         return;
     }
@@ -372,6 +664,7 @@ async function salvarEdicaoAgendamento() {
         dataHoraInicio,
         mensagem
     )) {
+
         return;
     }
 
@@ -384,8 +677,8 @@ async function salvarEdicaoAgendamento() {
         elevadorId:
             Number(elevadorId),
 
-        servicoId:
-            Number(servicoId),
+        servicosIds:
+        servicosIds,
 
         dataHoraInicio:
         dataHoraInicio
@@ -427,12 +720,14 @@ async function salvarEdicaoAgendamento() {
 
         fecharEdicaoAgendamento();
 
+
     } catch (erro) {
 
         console.error(
             "Erro ao editar:",
             erro
         );
+
 
         mensagem.textContent =
             "Erro ao comunicar com o servidor.";
@@ -479,12 +774,14 @@ async function concluirAgendamento() {
 
         fecharDetalhesAgendamento();
 
+
     } catch (erro) {
 
         console.error(
             "Erro ao concluir:",
             erro
         );
+
 
         alert(
             "Erro ao comunicar com o servidor."
@@ -543,12 +840,14 @@ async function cancelarAgendamento() {
 
         fecharDetalhesAgendamento();
 
+
     } catch (erro) {
 
         console.error(
             "Erro ao cancelar:",
             erro
         );
+
 
         alert(
             "Erro ao comunicar com o servidor."
@@ -646,8 +945,11 @@ function validarHorarioOficina(
 
 
     if (
-        horarioEmMinutos >= inicioAlmoco &&
-        horarioEmMinutos < fimAlmoco
+        horarioEmMinutos >=
+        inicioAlmoco
+        &&
+        horarioEmMinutos <
+        fimAlmoco
     ) {
 
         elementoMensagem.textContent =
@@ -696,6 +998,55 @@ function normalizarDataParaInput(
 
 
 // ========================================
+// EVENTOS DOS CHECKBOXES
+// ========================================
+
+document.addEventListener(
+    "change",
+    function (evento) {
+
+        if (
+            evento.target
+                .classList
+                .contains(
+                    "servico-checkbox"
+                )
+        ) {
+
+            atualizarDuracaoTotalNovo();
+        }
+
+
+        if (
+            evento.target
+                .classList
+                .contains(
+                    "editar-servico-checkbox"
+                )
+        ) {
+
+            atualizarDuracaoTotalEditar();
+        }
+    }
+);
+
+
+// ========================================
+// INICIALIZAÇÃO
+// ========================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        atualizarDuracaoTotalNovo();
+
+        atualizarDuracaoTotalEditar();
+    }
+);
+
+
+// ========================================
 // FECHAR MODAIS PELO FUNDO
 // ========================================
 
@@ -704,9 +1055,11 @@ document.addEventListener(
     function (evento) {
 
         if (
-            evento.target.classList.contains(
-                "modal-overlay"
-            )
+            evento.target
+                .classList
+                .contains(
+                    "modal-overlay"
+                )
         ) {
 
             evento.target
@@ -762,23 +1115,6 @@ const client =
                         );
 
 
-                        /*
-                         * IMPORTANTE:
-                         *
-                         * Não criamos mais o card
-                         * diretamente pelo JavaScript.
-                         *
-                         * O backend monta os trechos
-                         * corretamente considerando:
-                         *
-                         * 08:00 - 12:00
-                         * 12:00 - 13:00 almoço
-                         * 13:00 - 17:00
-                         * continuação no próximo dia
-                         *
-                         * Por isso recarregamos a agenda.
-                         */
-
                         if (
                             evento.tipo === "CRIADO" ||
                             evento.tipo === "ATUALIZADO" ||
@@ -816,6 +1152,90 @@ const client =
                 );
             }
     });
+
+function ativarNavegacaoPorLetra(containerId, itemSelector) {
+
+    const container =
+        document.getElementById(containerId);
+
+    if (!container) {
+        return;
+    }
+
+    container.setAttribute("tabindex", "0");
+
+    container.addEventListener(
+        "keydown",
+        function (evento) {
+
+            const tecla =
+                evento.key.toLowerCase();
+
+            if (
+                tecla.length !== 1 ||
+                !/[a-záàâãéèêíïóôõöúç0-9]/i.test(tecla)
+            ) {
+                return;
+            }
+
+            const itens =
+                Array.from(
+                    container.querySelectorAll(
+                        itemSelector
+                    )
+                );
+
+            const encontrado =
+                itens.find(item => {
+
+                    const texto =
+                        item
+                            .innerText
+                            .trim()
+                            .toLowerCase();
+
+                    return texto.startsWith(tecla);
+                });
+
+            if (encontrado) {
+
+                encontrado.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest"
+                });
+
+                encontrado.classList.add(
+                    "servico-destacado"
+                );
+
+                setTimeout(
+                    () => {
+                        encontrado.classList.remove(
+                            "servico-destacado"
+                        );
+                    },
+                    800
+                );
+            }
+        }
+    );
+}
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        ativarNavegacaoPorLetra(
+            "servicos",
+            ".servico-item"
+        );
+
+        ativarNavegacaoPorLetra(
+            "editarServicos",
+            ".servico-item"
+        );
+    }
+);
 
 
 client.activate();

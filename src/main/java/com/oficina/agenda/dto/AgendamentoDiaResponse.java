@@ -3,6 +3,7 @@ package com.oficina.agenda.dto;
 import com.oficina.agenda.model.StatusAgendamento;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class AgendamentoDiaResponse {
 
@@ -14,8 +15,9 @@ public class AgendamentoDiaResponse {
     private Long elevadorId;
     private Integer elevadorNumero;
 
-    private Long servicoId;
-    private String servicoNome;
+    private List<Long> servicosIds;
+    private List<String> servicosNomes;
+    private String servicosNomesTexto;
 
     private LocalDateTime dataHoraInicioOriginal;
     private LocalDateTime dataHoraFimOriginal;
@@ -27,6 +29,7 @@ public class AgendamentoDiaResponse {
 
     private StatusAgendamento status;
 
+
     public Long getId() {
         return id;
     }
@@ -34,6 +37,7 @@ public class AgendamentoDiaResponse {
     public void setId(Long id) {
         this.id = id;
     }
+
 
     public Long getTecnicoId() {
         return tecnicoId;
@@ -43,6 +47,7 @@ public class AgendamentoDiaResponse {
         this.tecnicoId = tecnicoId;
     }
 
+
     public String getTecnicoNome() {
         return tecnicoNome;
     }
@@ -50,6 +55,7 @@ public class AgendamentoDiaResponse {
     public void setTecnicoNome(String tecnicoNome) {
         this.tecnicoNome = tecnicoNome;
     }
+
 
     public Long getElevadorId() {
         return elevadorId;
@@ -59,6 +65,7 @@ public class AgendamentoDiaResponse {
         this.elevadorId = elevadorId;
     }
 
+
     public Integer getElevadorNumero() {
         return elevadorNumero;
     }
@@ -67,21 +74,40 @@ public class AgendamentoDiaResponse {
         this.elevadorNumero = elevadorNumero;
     }
 
-    public Long getServicoId() {
-        return servicoId;
+
+    public List<Long> getServicosIds() {
+        return servicosIds;
     }
 
-    public void setServicoId(Long servicoId) {
-        this.servicoId = servicoId;
+    public void setServicosIds(
+            List<Long> servicosIds) {
+
+        this.servicosIds = servicosIds;
     }
 
-    public String getServicoNome() {
-        return servicoNome;
+
+    public List<String> getServicosNomes() {
+        return servicosNomes;
     }
 
-    public void setServicoNome(String servicoNome) {
-        this.servicoNome = servicoNome;
+    public void setServicosNomes(
+            List<String> servicosNomes) {
+
+        this.servicosNomes = servicosNomes;
     }
+
+
+    public String getServicosNomesTexto() {
+        return servicosNomesTexto;
+    }
+
+    public void setServicosNomesTexto(
+            String servicosNomesTexto) {
+
+        this.servicosNomesTexto =
+                servicosNomesTexto;
+    }
+
 
     public LocalDateTime getDataHoraInicioOriginal() {
         return dataHoraInicioOriginal;
@@ -90,8 +116,10 @@ public class AgendamentoDiaResponse {
     public void setDataHoraInicioOriginal(
             LocalDateTime dataHoraInicioOriginal) {
 
-        this.dataHoraInicioOriginal = dataHoraInicioOriginal;
+        this.dataHoraInicioOriginal =
+                dataHoraInicioOriginal;
     }
+
 
     public LocalDateTime getDataHoraFimOriginal() {
         return dataHoraFimOriginal;
@@ -100,8 +128,10 @@ public class AgendamentoDiaResponse {
     public void setDataHoraFimOriginal(
             LocalDateTime dataHoraFimOriginal) {
 
-        this.dataHoraFimOriginal = dataHoraFimOriginal;
+        this.dataHoraFimOriginal =
+                dataHoraFimOriginal;
     }
+
 
     public LocalDateTime getInicioExibicao() {
         return inicioExibicao;
@@ -110,8 +140,10 @@ public class AgendamentoDiaResponse {
     public void setInicioExibicao(
             LocalDateTime inicioExibicao) {
 
-        this.inicioExibicao = inicioExibicao;
+        this.inicioExibicao =
+                inicioExibicao;
     }
+
 
     public LocalDateTime getFimExibicao() {
         return fimExibicao;
@@ -120,8 +152,10 @@ public class AgendamentoDiaResponse {
     public void setFimExibicao(
             LocalDateTime fimExibicao) {
 
-        this.fimExibicao = fimExibicao;
+        this.fimExibicao =
+                fimExibicao;
     }
+
 
     public Integer getDuracaoExibicaoMinutos() {
         return duracaoExibicaoMinutos;
@@ -134,6 +168,7 @@ public class AgendamentoDiaResponse {
                 duracaoExibicaoMinutos;
     }
 
+
     public StatusAgendamento getStatus() {
         return status;
     }
@@ -143,6 +178,7 @@ public class AgendamentoDiaResponse {
 
         this.status = status;
     }
+
 
     public Integer getMinutoInicio() {
 

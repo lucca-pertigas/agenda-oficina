@@ -38,6 +38,13 @@ body {
     font-size: 14px;
 }
 
+.menu-principal {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+}
+
 
 /* ===================================== */
 /* BOTÕES */
@@ -155,7 +162,6 @@ main {
 
     min-width: max-content;
 }
-
 
 section:has(.agenda-grid) {
     overflow-x: auto;
@@ -316,6 +322,42 @@ section:has(.agenda-grid) {
 
 
 /* ===================================== */
+/* HORÁRIO DE ALMOÇO */
+/* ===================================== */
+
+.horario-almoco {
+    background: #fef3c7;
+
+    color: #92400e;
+
+    font-weight: bold;
+}
+
+.celula-almoco {
+    background: #fffbeb;
+}
+
+.celula-almoco::after {
+    content: "Horário de almoço";
+
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    color: #92400e;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    pointer-events: none;
+}
+
+
+/* ===================================== */
 /* MODAIS */
 /* ===================================== */
 
@@ -427,6 +469,10 @@ section:has(.agenda-grid) {
     gap: 10px;
 
     padding: 20px;
+
+    max-height: 80vh;
+
+    overflow-y: auto;
 }
 
 .modal-body label {
@@ -435,8 +481,13 @@ section:has(.agenda-grid) {
     font-weight: 600;
 }
 
+
+/* ===================================== */
+/* INPUTS NORMAIS */
+/* ===================================== */
+
 .modal-body select,
-.modal-body input {
+.modal-body input:not([type="checkbox"]) {
     width: 100%;
 
     padding: 10px;
@@ -451,13 +502,207 @@ section:has(.agenda-grid) {
 }
 
 .modal-body select:focus,
-.modal-body input:focus {
+.modal-body input:not([type="checkbox"]):focus {
     outline: none;
 
     border-color: #2563eb;
 
     box-shadow:
             0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+
+/* ===================================== */
+/* LISTA DE SERVIÇOS */
+/* ===================================== */
+
+.lista-servicos {
+    width: 100%;
+
+    max-height: 180px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 6px;
+
+    background: #ffffff;
+
+    padding: 4px;
+
+    scrollbar-width: thin;
+
+    scrollbar-color:
+            #94a3b8
+            #f1f5f9;
+}
+
+
+/* ===================================== */
+/* ITEM DE SERVIÇO */
+/* ===================================== */
+
+.servico-item {
+    display: flex;
+
+    align-items: center;
+    justify-content: flex-start;
+
+    gap: 8px;
+
+    width: 100%;
+
+    padding: 8px 10px;
+
+    border-bottom: 1px solid #e5e7eb;
+
+    cursor: pointer;
+
+    font-weight: normal !important;
+}
+
+.servico-item:last-child {
+    border-bottom: none;
+}
+
+.servico-item:hover {
+    background: #f8fafc;
+}
+
+
+/* ===================================== */
+/* CHECKBOX */
+/* ===================================== */
+
+.servico-item input[type="checkbox"] {
+    width: 16px !important;
+    height: 16px !important;
+
+    min-width: 16px;
+
+    padding: 0 !important;
+
+    margin: 0;
+
+    flex-shrink: 0;
+
+    cursor: pointer;
+
+    box-shadow: none;
+}
+
+
+/* ===================================== */
+/* TEXTO DO SERVIÇO */
+/* ===================================== */
+
+.servico-item span {
+    flex: 1;
+
+    text-align: left;
+
+    font-size: 13px;
+
+    line-height: 1.4;
+
+    color: #374151;
+}
+
+
+/* ===================================== */
+/* AJUDA DO CAMPO */
+/* ===================================== */
+
+.ajuda-campo {
+    margin-top: -5px;
+
+    color: #6b7280;
+
+    font-size: 12px;
+}
+
+
+/* ===================================== */
+/* DURAÇÃO TOTAL */
+/* ===================================== */
+
+.resumo-duracao {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 10px 12px;
+
+    margin-top: 2px;
+
+    background: #f8fafc;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 6px;
+
+    font-size: 14px;
+}
+
+.resumo-duracao span {
+    color: #374151;
+
+    font-weight: 500;
+}
+
+.resumo-duracao strong {
+    color: #2563eb;
+
+    font-size: 14px;
+}
+
+
+/* ===================================== */
+/* SCROLL DOS SERVIÇOS */
+/* ===================================== */
+
+.lista-servicos::-webkit-scrollbar {
+    width: 7px;
+}
+
+.lista-servicos::-webkit-scrollbar-track {
+    background: #f1f5f9;
+
+    border-radius: 6px;
+}
+
+.lista-servicos::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+
+    border-radius: 6px;
+}
+
+.lista-servicos::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+
+/* ===================================== */
+/* SCROLL DO MODAL */
+/* ===================================== */
+
+.modal-body::-webkit-scrollbar {
+    width: 7px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+
+    border-radius: 6px;
 }
 
 
@@ -552,38 +797,21 @@ section:has(.agenda-grid) {
 
         gap: 8px;
     }
+
+    .modal {
+        max-width: 100%;
+    }
+
+    .lista-servicos {
+        max-height: 160px;
+    }
 }
 
-.menu-principal {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.lista-servicos:focus {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
 }
 
-.horario-almoco {
-    background: #fef3c7;
-    color: #92400e;
-    font-weight: bold;
-}
-
-.celula-almoco {
-    background: #fffbeb;
-}
-
-.celula-almoco::after {
-    content: "Horário de almoço";
-
-    position: absolute;
-    inset: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    color: #92400e;
-
-    font-size: 12px;
-    font-weight: 600;
-
-    pointer-events: none;
+.servico-destacado {
+    background: #dbeafe !important;
 }

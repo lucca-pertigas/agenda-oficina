@@ -26,6 +26,7 @@ public class AgendamentoService {
     private final AgendamentoValidator agendamentoValidator;
     private final AgendamentoResourceService agendamentoResourceService;
     private final AgendamentoEventoService agendamentoEventoService;
+    private final IndisponibilidadeTecnicoService indisponibilidadeTecnicoService;
 
     public AgendamentoService(
             AgendamentoRepository agendamentoRepository,
@@ -33,7 +34,8 @@ public class AgendamentoService {
             ConflitoAgendamentoService conflitoAgendamentoService,
             AgendamentoValidator agendamentoValidator,
             AgendamentoResourceService agendamentoResourceService,
-            AgendamentoEventoService agendamentoEventoService) {
+            AgendamentoEventoService agendamentoEventoService,
+            IndisponibilidadeTecnicoService indisponibilidadeTecnicoService) {
 
         this.agendamentoRepository = agendamentoRepository;
         this.agendamentoMapper = agendamentoMapper;
@@ -41,6 +43,7 @@ public class AgendamentoService {
         this.agendamentoValidator = agendamentoValidator;
         this.agendamentoResourceService = agendamentoResourceService;
         this.agendamentoEventoService = agendamentoEventoService;
+        this.indisponibilidadeTecnicoService = indisponibilidadeTecnicoService;
     }
 
     // =========================================================
@@ -96,17 +99,13 @@ public class AgendamentoService {
                         request
                 );
 
-        /*
-         * Aqui é calculado o horário final,
-         * considerando:
-         *
-         * 08:00 - 12:00 trabalho
-         * 12:00 - 13:00 almoço
-         * 13:00 - 17:00 trabalho
-         * após 17:00 continua no próximo dia
-         */
         agendamentoValidator
                 .preparar(agendamento);
+
+
+        validarDisponibilidadeTecnico(
+                agendamento
+        );
 
         conflitoAgendamentoService
                 .validar(
@@ -149,6 +148,10 @@ public class AgendamentoService {
 
         agendamentoValidator
                 .preparar(agendamento);
+
+        validarDisponibilidadeTecnico(
+                agendamento
+        );
 
         conflitoAgendamentoService
                 .validar(
@@ -469,20 +472,46 @@ public class AgendamentoService {
                         .getNumero()
         );
 
-
-        trecho.setServicoId(
+        List<Long> servicosIds =
                 agendamento
-                        .getServico()
-                        .getId()
+                        .getServicos()
+                        .stream()
+                        .map(item ->
+                                item
+                                        .getServico()
+                                        .getId()
+                        )
+                        .toList();
+
+
+        List<String> servicosNomes =
+                agendamento
+                        .getServicos()
+                        .stream()
+                        .map(item ->
+                                item
+                                        .getServico()
+                                        .getNome()
+                        )
+                        .toList();
+
+
+        trecho.setServicosIds(
+                servicosIds
         );
 
 
-        trecho.setServicoNome(
-                agendamento
-                        .getServico()
-                        .getNome()
+        trecho.setServicosNomes(
+                servicosNomes
         );
 
+
+        trecho.setServicosNomesTexto(
+                String.join(
+                        " + ",
+                        servicosNomes
+                )
+        );
 
         trecho.setDataHoraInicioOriginal(
                 agendamento
@@ -517,5 +546,33 @@ public class AgendamentoService {
 
 
         resultado.add(trecho);
+    }
+
+    private void validarDisponibilidadeTecnico(
+            Agendamento agendamento) {
+
+        Long tecnicoId =
+                agendamento
+                        .getTecnico()
+                        .getId();
+
+        LocalDate data =
+                agendamento
+                        .getDataHoraInicio()
+                        .toLocalDate();
+
+        boolean indisponivel =
+                indisponibilidadeTecnicoService
+                        .tecnicoIndisponivel(
+                                tecnicoId,
+                                data
+                        );
+
+        if (indisponivel) {
+
+            throw new com.oficina.agenda.exception.RegraNegocioException(
+                    "O técnico está indisponível nesta data"
+            );
+        }
     }
 }

@@ -3,6 +3,7 @@
       xmlns:th="http://www.thymeleaf.org">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -12,42 +13,68 @@
 
     <link rel="stylesheet"
           th:href="@{/css/agenda.css}">
+
 </head>
 
 <body>
 
+
+<!-- ======================================== -->
+<!-- TOPO -->
+<!-- ======================================== -->
+
 <header class="topo">
 
     <div>
-        <h1>Agenda da Oficina</h1>
-        <p>Gerenciamento de agendamentos</p>
+
+        <h1>
+            Agenda da Oficina
+        </h1>
+
+        <p>
+            Gerenciamento de agendamentos
+        </p>
+
     </div>
+
 
     <nav class="menu-principal">
 
         <a th:href="@{/agenda}"
            class="btn btn-secondary">
+
             Agenda
+
         </a>
+
 
         <a th:href="@{/tecnicos/tela}"
            class="btn btn-secondary">
+
             Técnicos
+
         </a>
+
 
         <a th:href="@{/elevadores/tela}"
            class="btn btn-secondary">
+
             Elevadores
+
         </a>
+
 
         <a th:href="@{/servicos/tela}"
            class="btn btn-secondary">
+
             Serviços
+
         </a>
 
+
         <button
-                class="btn btn-primary"
                 type="button"
+                class="btn btn-primary"
                 onclick="abrirFormulario()">
 
             + Novo Agendamento
@@ -59,101 +86,170 @@
 </header>
 
 
+
 <main>
 
-    <!-- NAVEGAÇÃO -->
+
+    <!-- ======================================== -->
+    <!-- NAVEGAÇÃO DA DATA -->
+    <!-- ======================================== -->
 
     <section class="navegacao-agenda">
 
-        <a class="btn btn-secondary"
-           th:href="@{/agenda(data=${dataAnterior})}">
+
+        <a
+                class="btn btn-secondary"
+
+                th:href="@{/agenda(
+                    data=${dataAnterior}
+                )}">
+
             &larr;
+
         </a>
 
-        <a class="btn btn-secondary"
-           th:href="@{/agenda}">
+
+        <a
+                class="btn btn-secondary"
+                th:href="@{/agenda}">
+
             Hoje
+
         </a>
 
-        <a class="btn btn-secondary"
-           th:href="@{/agenda(data=${dataProxima})}">
+
+        <a
+                class="btn btn-secondary"
+
+                th:href="@{/agenda(
+                    data=${dataProxima}
+                )}">
+
             &rarr;
+
         </a>
 
-        <h2 th:text="${#temporals.format(data, 'dd/MM/yyyy')}">
+
+        <h2
+                th:text="${#temporals.format(
+                    data,
+                    'dd/MM/yyyy'
+                )}">
+
             17/08/2026
+
         </h2>
+
 
     </section>
 
 
-    <!-- GRADE -->
+
+    <!-- ======================================== -->
+    <!-- GRADE DA AGENDA -->
+    <!-- ======================================== -->
 
     <section>
 
+
         <div
                 id="agendaGrid"
+
                 class="agenda-grid"
 
-                th:attr="data-data-agenda=${data}"
+                th:attr="
+                    data-data-agenda=${data}
+                "
 
                 th:style="
                     '--quantidade-elevadores:' +
                     ${#lists.size(elevadores)}
                 ">
 
+
             <!-- CABEÇALHO HORÁRIO -->
 
-            <div class="agenda-cabecalho horario-coluna">
+            <div
+                    class="agenda-cabecalho horario-coluna">
+
                 Horário
+
             </div>
 
 
-            <!-- ELEVADORES -->
+
+            <!-- CABEÇALHOS DOS ELEVADORES -->
 
             <div
                     class="agenda-cabecalho"
-                    th:each="elevador : ${elevadores}">
+
+                    th:each="
+                        elevador : ${elevadores}
+                    ">
 
                 Elevador
 
-                <span th:text="${elevador.numero}">
+                <span
+                        th:text="${elevador.numero}">
+
                     1
+
                 </span>
 
             </div>
 
 
+
+            <!-- ======================================== -->
             <!-- HORÁRIOS -->
+            <!-- ======================================== -->
 
-            <th:block th:each="horario : ${horarios}">
+            <th:block
+                    th:each="
+                        horario : ${horarios}
+                    ">
 
-                <!-- COLUNA HORÁRIO -->
+
+                <!-- COLUNA DE HORÁRIO -->
 
                 <div
                         class="agenda-horario"
 
                         th:classappend="${
                             !horario.isBefore(
-                                T(java.time.LocalTime).of(12,0)
+                                T(java.time.LocalTime).of(
+                                    12,
+                                    0
+                                )
                             )
                             and
                             horario.isBefore(
-                                T(java.time.LocalTime).of(13,0)
+                                T(java.time.LocalTime).of(
+                                    13,
+                                    0
+                                )
                             )
                             ? ' horario-almoco'
                             : ''
                         }">
 
 
+                    <!-- HORÁRIO DE ALMOÇO -->
+
                     <span
                             th:if="${
                                 !horario.isBefore(
-                                    T(java.time.LocalTime).of(12,0)
+                                    T(java.time.LocalTime).of(
+                                        12,
+                                        0
+                                    )
                                 )
                                 and
                                 horario.isBefore(
-                                    T(java.time.LocalTime).of(13,0)
+                                    T(java.time.LocalTime).of(
+                                        13,
+                                        0
+                                    )
                                 )
                             }">
 
@@ -162,14 +258,22 @@
                     </span>
 
 
+                    <!-- HORÁRIO NORMAL -->
+
                     <span
                             th:unless="${
                                 !horario.isBefore(
-                                    T(java.time.LocalTime).of(12,0)
+                                    T(java.time.LocalTime).of(
+                                        12,
+                                        0
+                                    )
                                 )
                                 and
                                 horario.isBefore(
-                                    T(java.time.LocalTime).of(13,0)
+                                    T(java.time.LocalTime).of(
+                                        13,
+                                        0
+                                    )
                                 )
                             }"
 
@@ -185,20 +289,31 @@
                 </div>
 
 
+
+                <!-- ======================================== -->
                 <!-- CÉLULAS DOS ELEVADORES -->
+                <!-- ======================================== -->
 
                 <div
                         class="agenda-celula"
 
-                        th:each="elevador : ${elevadores}"
+                        th:each="
+                            elevador : ${elevadores}
+                        "
 
                         th:classappend="${
                             !horario.isBefore(
-                                T(java.time.LocalTime).of(12,0)
+                                T(java.time.LocalTime).of(
+                                    12,
+                                    0
+                                )
                             )
                             and
                             horario.isBefore(
-                                T(java.time.LocalTime).of(13,0)
+                                T(java.time.LocalTime).of(
+                                    13,
+                                    0
+                                )
                             )
                             ? ' celula-almoco'
                             : ''
@@ -213,45 +328,70 @@
                         ">
 
 
-                    <!-- CARDS -->
+
+                    <!-- ======================================== -->
+                    <!-- CARDS DE AGENDAMENTO -->
+                    <!-- ======================================== -->
 
                     <div
                             class="agendamento-card"
 
-                            th:each="agendamento : ${agendamentos}"
+                            th:each="
+                                agendamento : ${agendamentos}
+                            "
 
                             th:if="${
-                                agendamento.elevadorId == elevador.id
+                                agendamento.elevadorId
+                                == elevador.id
+
                                 and
+
                                 !agendamento.inicioExibicao
                                     .toLocalTime()
-                                    .isBefore(horario)
+                                    .isBefore(
+                                        horario
+                                    )
+
                                 and
+
                                 agendamento.inicioExibicao
                                     .toLocalTime()
                                     .isBefore(
-                                        horario.plusMinutes(30)
+                                        horario.plusMinutes(
+                                            30
+                                        )
                                     )
                             }"
+
 
                             th:classappend="${
                                 agendamento.status.name()
                                 == 'CONCLUIDO'
+
                                 ? ' status-concluido'
+
                                 : ' status-agendado'
                             }"
 
+
                             th:attr="
+
                                 data-agendamento-id=${agendamento.id},
 
                                 data-tecnico-id=${agendamento.tecnicoId},
+
                                 data-tecnico=${agendamento.tecnicoNome},
 
                                 data-elevador-id=${agendamento.elevadorId},
+
                                 data-elevador=${agendamento.elevadorNumero},
 
-                                data-servico-id=${agendamento.servicoId},
-                                data-servico=${agendamento.servicoNome},
+                                data-servicos-ids=${#strings.listJoin(
+                                    agendamento.servicosIds,
+                                    ','
+                                )},
+
+                                data-servicos=${agendamento.servicosNomesTexto},
 
                                 data-data-hora-inicio=${agendamento.dataHoraInicioOriginal},
 
@@ -268,382 +408,838 @@
                                 data-status=${agendamento.status}
                             "
 
+
                             th:style="
+
                                 'height:' +
+
                                 (
                                     ${agendamento.duracaoExibicaoMinutos}
-                                    / 30.0 * 70
+
+                                    / 30.0
+
+                                    * 70
                                 )
-                                + 'px;' +
+
+                                + 'px;'
+
+                                +
 
                                 'top:' +
+
                                 (
                                     (
                                         ${agendamento.minutoInicio}
+
                                         % 30
                                     )
-                                    / 30.0 * 70
+
+                                    / 30.0
+
+                                    * 70
                                 )
+
                                 + 'px;'
                             "
 
-                            onclick="abrirDetalhesAgendamento(this)">
 
+                            onclick="
+                                abrirDetalhesAgendamento(
+                                    this
+                                )
+                            ">
+
+
+
+                        <!-- SERVIÇOS -->
 
                         <strong
-                                th:text="${agendamento.servicoNome}">
-                            Serviço
+                                th:text="${agendamento.servicosNomesTexto}">
+
+                            Serviços
+
                         </strong>
 
 
+
+                        <!-- TÉCNICO -->
+
                         <span
                                 th:text="${agendamento.tecnicoNome}">
+
                             Técnico
+
                         </span>
 
 
+
+                        <!-- HORÁRIO -->
+
                         <small>
+
 
                             <span
                                     th:text="${#temporals.format(
                                         agendamento.inicioExibicao,
                                         'HH:mm'
                                     )}">
+
                                 08:00
+
                             </span>
 
+
                             -
+
 
                             <span
                                     th:text="${#temporals.format(
                                         agendamento.fimExibicao,
                                         'HH:mm'
                                     )}">
+
                                 09:00
+
                             </span>
+
 
                         </small>
 
+
                     </div>
+
 
                 </div>
 
+
             </th:block>
+
 
         </div>
 
+
     </section>
+
 
 </main>
 
 
-<!-- MODAL NOVO -->
+
+<!-- ================================================== -->
+<!-- MODAL NOVO AGENDAMENTO -->
+<!-- ================================================== -->
 
 <div
         id="modalAgendamento"
         class="modal-overlay">
 
+
     <div class="modal">
+
 
         <div class="modal-header">
 
-            <h2>Novo Agendamento</h2>
+
+            <h2>
+                Novo Agendamento
+            </h2>
+
 
             <button
                     type="button"
-                    onclick="fecharFormulario()">
+                    onclick="
+                        fecharFormulario()
+                    ">
+
                 ×
+
             </button>
+
 
         </div>
 
 
+
         <div class="modal-body">
 
+
+            <!-- ======================================== -->
+            <!-- TÉCNICO -->
+            <!-- ======================================== -->
+
             <label for="tecnico">
+
                 Técnico
+
             </label>
+
 
             <select id="tecnico">
 
+
                 <option value="">
+
                     Selecione
+
                 </option>
 
+
                 <option
-                        th:each="tecnico : ${tecnicos}"
+                        th:each="
+                            tecnico : ${tecnicos}
+                        "
+
                         th:value="${tecnico.id}"
+
                         th:text="${tecnico.nome}">
+
                 </option>
+
 
             </select>
 
 
+
+            <!-- ======================================== -->
+            <!-- ELEVADOR -->
+            <!-- ======================================== -->
+
             <label for="elevador">
+
                 Elevador
+
             </label>
+
 
             <select id="elevador">
 
+
                 <option value="">
+
                     Selecione
+
                 </option>
 
+
                 <option
-                        th:each="elevador : ${elevadores}"
+                        th:each="
+                            elevador : ${elevadores}
+                        "
+
                         th:value="${elevador.id}"
-                        th:text="'Elevador ' + ${elevador.numero}">
+
+                        th:text="${
+                            'Elevador '
+                            + elevador.numero
+                        }">
+
                 </option>
+
 
             </select>
 
 
-            <label for="servico">
-                Serviço
+
+            <!-- ======================================== -->
+            <!-- SERVIÇOS -->
+            <!-- ======================================== -->
+
+            <label>
+
+                Serviços
+
             </label>
 
-            <select id="servico">
 
-                <option value="">
-                    Selecione
-                </option>
+            <small class="ajuda-campo">
 
-                <option
-                        th:each="servico : ${servicos}"
-                        th:value="${servico.id}"
-                        th:text="${servico.codigo + ' - ' + servico.nome}">
-                </option>
+                Selecione um ou mais serviços.
 
-            </select>
+            </small>
 
+
+
+            <div
+                    id="servicos"
+                    class="lista-servicos">
+
+
+                <label
+                        class="servico-item"
+
+                        th:each="
+                            servico : ${servicos}
+                        ">
+
+
+                    <input
+                            type="checkbox"
+
+                            class="servico-checkbox"
+
+                            th:value="${servico.id}"
+
+                            th:attr="
+                                data-duracao=${servico.duracaoMinutos}
+                            ">
+
+
+
+                    <span
+                            th:text="${
+                                servico.codigo
+
+                                + ' - '
+
+                                + servico.nome
+
+                                + ' ('
+
+                                + servico.duracaoMinutos
+
+                                + ' min)'
+                            }">
+
+                        Serviço
+
+                    </span>
+
+
+                </label>
+
+
+            </div>
+
+
+
+            <!-- ======================================== -->
+            <!-- DURAÇÃO TOTAL -->
+            <!-- ======================================== -->
+
+            <div class="resumo-duracao">
+
+
+                <span>
+
+                    Duração total:
+
+                </span>
+
+
+                <strong
+                        id="duracaoTotalNovo">
+
+                    0 min
+
+                </strong>
+
+
+            </div>
+
+
+
+            <!-- ======================================== -->
+            <!-- DATA E HORÁRIO -->
+            <!-- ======================================== -->
 
             <label for="dataHoraInicio">
+
                 Data e horário
+
             </label>
+
 
             <input
                     id="dataHoraInicio"
+
                     type="datetime-local">
 
 
+
+            <!-- ======================================== -->
+            <!-- BOTÃO SALVAR -->
+            <!-- ======================================== -->
+
             <button
                     class="btn btn-primary"
+
                     type="button"
-                    onclick="salvarAgendamento()">
+
+                    onclick="
+                        salvarAgendamento()
+                    ">
 
                 Salvar Agendamento
 
             </button>
 
 
+
             <p
                     id="mensagemFormulario"
+
                     class="mensagem-formulario">
+
             </p>
+
 
         </div>
 
+
     </div>
+
 
 </div>
 
 
+
+<!-- ================================================== -->
 <!-- MODAL DETALHES -->
+<!-- ================================================== -->
 
 <div
         id="modalDetalhes"
         class="modal-overlay">
 
+
     <div class="modal">
+
 
         <div class="modal-header">
 
-            <h2>Detalhes do Agendamento</h2>
+
+            <h2>
+
+                Detalhes do Agendamento
+
+            </h2>
+
 
             <button
                     type="button"
-                    onclick="fecharDetalhesAgendamento()">
+
+                    onclick="
+                        fecharDetalhesAgendamento()
+                    ">
+
                 ×
+
             </button>
+
 
         </div>
 
 
-        <div class="modal-body detalhes-agendamento">
+
+        <div
+                class="modal-body detalhes-agendamento">
+
 
             <p>
-                <strong>Serviço:</strong>
+
+                <strong>
+                    Serviços:
+                </strong>
+
                 <span id="detalheServico"></span>
+
             </p>
 
+
+
             <p>
-                <strong>Técnico:</strong>
+
+                <strong>
+                    Técnico:
+                </strong>
+
                 <span id="detalheTecnico"></span>
+
             </p>
 
+
+
             <p>
-                <strong>Elevador:</strong>
+
+                <strong>
+                    Elevador:
+                </strong>
+
                 <span id="detalheElevador"></span>
+
             </p>
 
+
+
             <p>
-                <strong>Início:</strong>
+
+                <strong>
+                    Início:
+                </strong>
+
                 <span id="detalheInicio"></span>
+
             </p>
 
+
+
             <p>
-                <strong>Fim:</strong>
+
+                <strong>
+                    Fim:
+                </strong>
+
                 <span id="detalheFim"></span>
+
             </p>
+
+
 
             <p>
-                <strong>Status:</strong>
+
+                <strong>
+                    Status:
+                </strong>
+
                 <span id="detalheStatus"></span>
+
             </p>
 
+
+
+            <!-- AÇÕES -->
 
             <div class="acoes-agendamento">
 
+
                 <button
                         class="btn btn-secondary"
+
                         type="button"
-                        onclick="abrirEdicaoAgendamento()">
+
+                        onclick="
+                            abrirEdicaoAgendamento()
+                        ">
 
                     Editar
 
                 </button>
 
 
+
                 <button
                         class="btn btn-success"
+
                         type="button"
-                        onclick="concluirAgendamento()">
+
+                        onclick="
+                            concluirAgendamento()
+                        ">
 
                     Concluir
 
                 </button>
 
 
+
                 <button
                         class="btn btn-danger"
+
                         type="button"
-                        onclick="cancelarAgendamento()">
+
+                        onclick="
+                            cancelarAgendamento()
+                        ">
 
                     Cancelar
 
                 </button>
 
+
             </div>
+
 
         </div>
 
+
     </div>
+
 
 </div>
 
 
-<!-- MODAL EDITAR -->
+
+<!-- ================================================== -->
+<!-- MODAL EDITAR AGENDAMENTO -->
+<!-- ================================================== -->
 
 <div
         id="modalEditarAgendamento"
         class="modal-overlay">
 
+
     <div class="modal">
+
 
         <div class="modal-header">
 
-            <h2>Editar Agendamento</h2>
+
+            <h2>
+
+                Editar Agendamento
+
+            </h2>
+
 
             <button
                     type="button"
-                    onclick="fecharEdicaoAgendamento()">
+
+                    onclick="
+                        fecharEdicaoAgendamento()
+                    ">
+
                 ×
+
             </button>
+
 
         </div>
 
 
+
         <div class="modal-body">
 
+
+            <!-- ======================================== -->
+            <!-- TÉCNICO -->
+            <!-- ======================================== -->
+
             <label for="editarTecnico">
+
                 Técnico
+
             </label>
+
 
             <select id="editarTecnico">
 
+
                 <option
-                        th:each="tecnico : ${tecnicos}"
+                        th:each="
+                            tecnico : ${tecnicos}
+                        "
+
                         th:value="${tecnico.id}"
+
                         th:text="${tecnico.nome}">
+
                 </option>
+
 
             </select>
 
 
+
+            <!-- ======================================== -->
+            <!-- ELEVADOR -->
+            <!-- ======================================== -->
+
             <label for="editarElevador">
+
                 Elevador
+
             </label>
+
 
             <select id="editarElevador">
 
+
                 <option
-                        th:each="elevador : ${elevadores}"
+                        th:each="
+                            elevador : ${elevadores}
+                        "
+
                         th:value="${elevador.id}"
-                        th:text="'Elevador ' + ${elevador.numero}">
+
+                        th:text="${
+                            'Elevador '
+                            + elevador.numero
+                        }">
+
                 </option>
+
 
             </select>
 
 
-            <label for="editarServico">
-                Serviço
+
+            <!-- ======================================== -->
+            <!-- SERVIÇOS -->
+            <!-- ======================================== -->
+
+            <label>
+
+                Serviços
+
             </label>
 
-            <select id="editarServico">
 
-                <option
-                        th:each="servico : ${servicos}"
-                        th:value="${servico.id}"
-                        th:text="${servico.codigo + ' - ' + servico.nome}">
-                </option>
+            <small class="ajuda-campo">
 
-            </select>
+                Selecione um ou mais serviços.
 
+            </small>
+
+
+
+            <div
+                    id="editarServicos"
+
+                    class="lista-servicos">
+
+
+                <label
+                        class="servico-item"
+
+                        th:each="
+                            servico : ${servicos}
+                        ">
+
+
+                    <input
+                            type="checkbox"
+
+                            class="editar-servico-checkbox"
+
+                            th:value="${servico.id}"
+
+                            th:attr="
+                                data-duracao=${servico.duracaoMinutos}
+                            ">
+
+
+
+                    <span
+                            th:text="${
+                                servico.codigo
+
+                                + ' - '
+
+                                + servico.nome
+
+                                + ' ('
+
+                                + servico.duracaoMinutos
+
+                                + ' min)'
+                            }">
+
+                        Serviço
+
+                    </span>
+
+
+                </label>
+
+
+            </div>
+
+
+
+            <!-- ======================================== -->
+            <!-- DURAÇÃO TOTAL -->
+            <!-- ======================================== -->
+
+            <div class="resumo-duracao">
+
+
+                <span>
+
+                    Duração total:
+
+                </span>
+
+
+                <strong
+                        id="duracaoTotalEditar">
+
+                    0 min
+
+                </strong>
+
+
+            </div>
+
+
+
+            <!-- ======================================== -->
+            <!-- DATA E HORÁRIO -->
+            <!-- ======================================== -->
 
             <label for="editarDataHoraInicio">
+
                 Data e horário
+
             </label>
+
 
             <input
                     id="editarDataHoraInicio"
+
                     type="datetime-local">
 
 
+
+            <!-- ======================================== -->
+            <!-- SALVAR -->
+            <!-- ======================================== -->
+
             <button
                     class="btn btn-primary"
+
                     type="button"
-                    onclick="salvarEdicaoAgendamento()">
+
+                    onclick="
+                        salvarEdicaoAgendamento()
+                    ">
 
                 Salvar Alterações
 
             </button>
 
 
+
             <p
                     id="mensagemEdicao"
+
                     class="mensagem-formulario">
+
             </p>
+
 
         </div>
 
+
     </div>
+
 
 </div>
 
 
-<script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js"></script>
 
-<script th:src="@{/js/agenda.js}"></script>
+<!-- ======================================== -->
+<!-- SCRIPTS -->
+<!-- ======================================== -->
+
+<script
+        src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js">
+</script>
+
+
+<script
+        th:src="@{/js/agenda.js}">
+</script>
+
 
 </body>
 

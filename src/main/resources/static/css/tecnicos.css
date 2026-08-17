@@ -373,3 +373,172 @@ tbody tr:hover {
         min-width: 650px;
     }
 }
+
+.btn-warning {
+    background: #f59e0b;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #d97706;
+}
+
+.tecnico-selecionado {
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+
+    padding: 12px;
+
+    background: #f8fafc;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+
+    margin-bottom: 5px;
+}
+
+.tecnico-selecionado span {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.tecnico-selecionado strong {
+    font-size: 15px;
+}
+
+/* ===================================== */
+/* INDISPONIBILIDADES */
+/* ===================================== */
+
+.btn-warning {
+    background: #f59e0b;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #d97706;
+}
+
+
+.modal-grande {
+    max-width: 650px;
+}
+
+
+.tecnico-selecionado {
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+
+    padding: 12px;
+
+    background: #f8fafc;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+
+    margin-bottom: 10px;
+}
+
+
+.tecnico-selecionado span {
+    color: #6b7280;
+
+    font-size: 12px;
+}
+
+
+.tecnico-selecionado strong {
+    font-size: 16px;
+}
+
+
+.titulo-secao {
+    margin-top: 10px;
+    margin-bottom: 5px;
+
+    font-size: 16px;
+}
+
+
+.separador {
+    height: 1px;
+
+    margin: 15px 0;
+
+    background: #e5e7eb;
+}
+
+
+.lista-indisponibilidades {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+
+.indisponibilidade-item {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 12px;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 7px;
+
+    background: #f8fafc;
+}
+
+
+.indisponibilidade-info {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+
+.indisponibilidade-info strong {
+    color: #1f2937;
+}
+
+
+.indisponibilidade-info span {
+    color: #6b7280;
+
+    font-size: 13px;
+}
+
+
+.nenhuma-indisponibilidade {
+    padding: 18px;
+
+    text-align: center;
+
+    color: #6b7280;
+
+    background: #f8fafc;
+
+    border-radius: 7px;
+
+    border: 1px dashed #d1d5db;
+}
+
+
+.carregando {
+    padding: 15px;
+
+    text-align: center;
+
+    color: #6b7280;
+}

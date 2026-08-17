@@ -4,59 +4,113 @@ import com.oficina.agenda.dto.AgendamentoResponse;
 import com.oficina.agenda.model.Agendamento;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class AgendamentoMapper {
 
     public AgendamentoResponse paraResponse(
             Agendamento agendamento) {
 
-        AgendamentoResponse response = new AgendamentoResponse();
+        AgendamentoResponse response =
+                new AgendamentoResponse();
 
-        response.setId(agendamento.getId());
+
+        response.setId(
+                agendamento.getId()
+        );
+
 
         response.setTecnicoId(
-                agendamento.getTecnico().getId()
+                agendamento
+                        .getTecnico()
+                        .getId()
         );
+
 
         response.setTecnicoNome(
-                agendamento.getTecnico().getNome()
+                agendamento
+                        .getTecnico()
+                        .getNome()
         );
+
 
         response.setElevadorId(
-                agendamento.getElevador().getId()
+                agendamento
+                        .getElevador()
+                        .getId()
         );
+
 
         response.setElevadorNumero(
-                agendamento.getElevador().getNumero()
+                agendamento
+                        .getElevador()
+                        .getNumero()
         );
 
-        response.setServicoId(
-                agendamento.getServico().getId()
+
+        List<Long> servicosIds =
+                agendamento
+                        .getServicos()
+                        .stream()
+                        .map(item ->
+                                item
+                                        .getServico()
+                                        .getId()
+                        )
+                        .toList();
+
+
+        List<String> servicosNomes =
+                agendamento
+                        .getServicos()
+                        .stream()
+                        .map(item ->
+                                item
+                                        .getServico()
+                                        .getNome()
+                        )
+                        .toList();
+
+
+        response.setServicosIds(
+                servicosIds
         );
 
-        response.setServicoNome(
-                agendamento.getServico().getNome()
+
+        response.setServicosNomes(
+                servicosNomes
         );
+
+
+        response.setServicosNomesTexto(
+                String.join(
+                        " + ",
+                        servicosNomes
+                )
+        );
+
 
         response.setDataHoraInicio(
                 agendamento.getDataHoraInicio()
         );
 
+
         response.setDataHoraFim(
                 agendamento.getDataHoraFim()
         );
+
+
+        response.setDuracaoMinutos(
+                agendamento
+                        .calcularDuracaoTotalMinutos()
+        );
+
 
         response.setStatus(
                 agendamento.getStatus()
         );
 
-        response.setDuracaoMinutos(
-                agendamento.getServico().getDuracaoMinutos()
-        );
-
-        response.setMinutoInicio(
-                agendamento.getDataHoraInicio().getMinute()
-        );
 
         return response;
     }

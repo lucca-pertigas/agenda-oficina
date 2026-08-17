@@ -1,5 +1,6 @@
 package com.oficina.agenda.service;
 
+import com.oficina.agenda.exception.RegraNegocioException;
 import com.oficina.agenda.model.Agendamento;
 import org.springframework.stereotype.Component;
 
@@ -8,6 +9,7 @@ public class AgendamentoValidator {
 
     private final HorarioFuncionamentoService horarioFuncionamentoService;
 
+
     public AgendamentoValidator(
             HorarioFuncionamentoService horarioFuncionamentoService) {
 
@@ -15,18 +17,28 @@ public class AgendamentoValidator {
                 horarioFuncionamentoService;
     }
 
+
     public void preparar(
             Agendamento agendamento) {
 
-        Integer duracaoMinutos =
+        if (agendamento.getServicos() == null
+                || agendamento.getServicos().isEmpty()) {
+
+            throw new RegraNegocioException(
+                    "Selecione pelo menos um serviço"
+            );
+        }
+
+
+        int duracaoTotal =
                 agendamento
-                        .getServico()
-                        .getDuracaoMinutos();
+                        .calcularDuracaoTotalMinutos();
+
 
         agendamento.setDataHoraFim(
                 horarioFuncionamentoService.calcularFim(
                         agendamento.getDataHoraInicio(),
-                        duracaoMinutos
+                        duracaoTotal
                 )
         );
     }

@@ -31,29 +31,24 @@ public class AgendamentoResourceService {
             Agendamento agendamento,
             AgendamentoRequest request) {
 
-        Tecnico tecnico =
-                tecnicoService.buscarPorId(
-                        request.getTecnicoId()
-                );
+        // =========================================
+        // VALIDAÇÕES BÁSICAS
+        // =========================================
 
-        Elevador elevador =
-                elevadorService.buscarPorId(
-                        request.getElevadorId()
-                );
-
-
-        if (!Boolean.TRUE.equals(tecnico.getAtivo())) {
+        if (request.getNomeCliente() == null
+                || request.getNomeCliente().trim().isEmpty()) {
 
             throw new RegraNegocioException(
-                    "O técnico selecionado está inativo"
+                    "Nome do cliente é obrigatório"
             );
         }
 
 
-        if (!Boolean.TRUE.equals(elevador.getAtivo())) {
+        if (request.getPlacaVeiculo() == null
+                || request.getPlacaVeiculo().trim().isEmpty()) {
 
             throw new RegraNegocioException(
-                    "O elevador selecionado está inativo"
+                    "Placa do veículo é obrigatória"
             );
         }
 
@@ -67,32 +62,109 @@ public class AgendamentoResourceService {
         }
 
 
-        agendamento.setTecnico(tecnico);
+        // =========================================
+        // BUSCAR TÉCNICO
+        // =========================================
 
-        agendamento.setElevador(elevador);
+        Tecnico tecnico =
+                tecnicoService.buscarPorId(
+                        request.getTecnicoId()
+                );
+
+
+        if (!Boolean.TRUE.equals(tecnico.getAtivo())) {
+
+            throw new RegraNegocioException(
+                    "O técnico selecionado está inativo"
+            );
+        }
+
+
+        // =========================================
+        // BUSCAR ELEVADOR
+        // =========================================
+
+        Elevador elevador =
+                elevadorService.buscarPorId(
+                        request.getElevadorId()
+                );
+
+
+        if (!Boolean.TRUE.equals(elevador.getAtivo())) {
+
+            throw new RegraNegocioException(
+                    "O elevador selecionado está inativo"
+            );
+        }
+
+
+        // =========================================
+        // DADOS DO CLIENTE / VEÍCULO
+        // =========================================
+
+        agendamento.setNomeCliente(
+                request
+                        .getNomeCliente()
+                        .trim()
+        );
+
+
+        agendamento.setPlacaVeiculo(
+                request
+                        .getPlacaVeiculo()
+                        .trim()
+                        .toUpperCase()
+        );
+
+
+        // =========================================
+        // RECURSOS DO AGENDAMENTO
+        // =========================================
+
+        agendamento.setTecnico(
+                tecnico
+        );
+
+
+        agendamento.setElevador(
+                elevador
+        );
+
 
         agendamento.setDataHoraInicio(
                 request.getDataHoraInicio()
         );
 
 
+        // =========================================
+        // SERVIÇOS
+        // =========================================
+
         /*
-         * IMPORTANTE PARA EDIÇÃO:
-         * remove serviços anteriores.
+         * Importante para edição:
+         * remove os serviços antigos antes
+         * de adicionar os novos.
          */
         agendamento.limparServicos();
 
 
+        /*
+         * distinct() evita o mesmo serviço
+         * aparecer duas vezes no agendamento.
+         */
         for (Long servicoId :
-                request.getServicosIds()
+                request
+                        .getServicosIds()
                         .stream()
                         .distinct()
                         .toList()) {
+
 
             Servico servico =
                     servicoService.buscarPorId(
                             servicoId
                     );
+
 
             if (!Boolean.TRUE.equals(servico.getAtivo())) {
 
@@ -102,6 +174,7 @@ public class AgendamentoResourceService {
                                 + " está inativo"
                 );
             }
+
 
             agendamento.adicionarServico(
                     servico

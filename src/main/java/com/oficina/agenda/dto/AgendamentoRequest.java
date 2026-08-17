@@ -1,5 +1,6 @@
 package com.oficina.agenda.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
@@ -8,10 +9,24 @@ import java.util.List;
 
 public class AgendamentoRequest {
 
-    @NotNull(message = "Técnico é obrigatório")
+    @NotBlank(
+            message = "Nome do cliente é obrigatório"
+    )
+    private String nomeCliente;
+
+    @NotBlank(
+            message = "Placa do veículo é obrigatória"
+    )
+    private String placaVeiculo;
+
+    @NotNull(
+            message = "Técnico é obrigatório"
+    )
     private Long tecnicoId;
 
-    @NotNull(message = "Elevador é obrigatório")
+    @NotNull(
+            message = "Elevador é obrigatório"
+    )
     private Long elevadorId;
 
     @NotEmpty(
@@ -24,24 +39,45 @@ public class AgendamentoRequest {
     )
     private LocalDateTime dataHoraInicio;
 
+    public String getNomeCliente() {
+        return nomeCliente;
+    }
+
+    public void setNomeCliente(
+            String nomeCliente) {
+
+        this.nomeCliente = nomeCliente;
+    }
+
+    public String getPlacaVeiculo() {
+        return placaVeiculo;
+    }
+
+    public void setPlacaVeiculo(
+            String placaVeiculo) {
+
+        this.placaVeiculo = placaVeiculo;
+    }
 
     public Long getTecnicoId() {
         return tecnicoId;
     }
 
-    public void setTecnicoId(Long tecnicoId) {
+    public void setTecnicoId(
+            Long tecnicoId) {
+
         this.tecnicoId = tecnicoId;
     }
-
 
     public Long getElevadorId() {
         return elevadorId;
     }
 
-    public void setElevadorId(Long elevadorId) {
+    public void setElevadorId(
+            Long elevadorId) {
+
         this.elevadorId = elevadorId;
     }
-
 
     public List<Long> getServicosIds() {
         return servicosIds;
@@ -53,7 +89,6 @@ public class AgendamentoRequest {
         this.servicosIds = servicosIds;
     }
 
-
     public LocalDateTime getDataHoraInicio() {
         return dataHoraInicio;
     }
@@ -61,6 +96,7 @@ public class AgendamentoRequest {
     public void setDataHoraInicio(
             LocalDateTime dataHoraInicio) {
 
-        this.dataHoraInicio = dataHoraInicio;
+        this.dataHoraInicio =
+                dataHoraInicio;
     }
 }

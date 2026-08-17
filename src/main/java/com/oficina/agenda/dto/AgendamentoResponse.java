@@ -9,6 +9,9 @@ public class AgendamentoResponse {
 
     private Long id;
 
+    private String nomeCliente;
+    private String placaVeiculo;
+
     private Long tecnicoId;
     private String tecnicoNome;
 
@@ -36,12 +39,33 @@ public class AgendamentoResponse {
         this.id = id;
     }
 
+    public String getNomeCliente() {
+        return nomeCliente;
+    }
+
+    public void setNomeCliente(
+            String nomeCliente) {
+
+        this.nomeCliente = nomeCliente;
+    }
+
+    public String getPlacaVeiculo() {
+        return placaVeiculo;
+    }
+
+    public void setPlacaVeiculo(
+            String placaVeiculo) {
+
+        this.placaVeiculo = placaVeiculo;
+    }
 
     public Long getTecnicoId() {
         return tecnicoId;
     }
 
-    public void setTecnicoId(Long tecnicoId) {
+    public void setTecnicoId(
+            Long tecnicoId) {
+
         this.tecnicoId = tecnicoId;
     }
 
@@ -56,12 +80,13 @@ public class AgendamentoResponse {
         this.tecnicoNome = tecnicoNome;
     }
 
-
     public Long getElevadorId() {
         return elevadorId;
     }
 
-    public void setElevadorId(Long elevadorId) {
+    public void setElevadorId(
+            Long elevadorId) {
+
         this.elevadorId = elevadorId;
     }
 
@@ -75,7 +100,6 @@ public class AgendamentoResponse {
 
         this.elevadorNumero = elevadorNumero;
     }
-
 
     public List<Long> getServicosIds() {
         return servicosIds;
@@ -110,7 +134,6 @@ public class AgendamentoResponse {
                 servicosNomesTexto;
     }
 
-
     public LocalDateTime getDataHoraInicio() {
         return dataHoraInicio;
     }
@@ -118,7 +141,8 @@ public class AgendamentoResponse {
     public void setDataHoraInicio(
             LocalDateTime dataHoraInicio) {
 
-        this.dataHoraInicio = dataHoraInicio;
+        this.dataHoraInicio =
+                dataHoraInicio;
     }
 
 
@@ -129,9 +153,9 @@ public class AgendamentoResponse {
     public void setDataHoraFim(
             LocalDateTime dataHoraFim) {
 
-        this.dataHoraFim = dataHoraFim;
+        this.dataHoraFim =
+                dataHoraFim;
     }
-
 
     public Integer getDuracaoMinutos() {
         return duracaoMinutos;
@@ -140,9 +164,9 @@ public class AgendamentoResponse {
     public void setDuracaoMinutos(
             Integer duracaoMinutos) {
 
-        this.duracaoMinutos = duracaoMinutos;
+        this.duracaoMinutos =
+                duracaoMinutos;
     }
-
 
     public StatusAgendamento getStatus() {
         return status;

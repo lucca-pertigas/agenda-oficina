@@ -444,6 +444,14 @@ public class AgendamentoService {
                 agendamento.getId()
         );
 
+        trecho.setNomeCliente(
+                agendamento.getNomeCliente()
+        );
+
+        trecho.setPlacaVeiculo(
+                agendamento.getPlacaVeiculo()
+        );
+
 
         trecho.setTecnicoId(
                 agendamento

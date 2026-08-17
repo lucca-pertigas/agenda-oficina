@@ -378,6 +378,10 @@
 
                                 data-agendamento-id=${agendamento.id},
 
+                                data-nome-cliente=${agendamento.nomeCliente},
+
+                                data-placa-veiculo=${agendamento.placaVeiculo},
+
                                 data-tecnico-id=${agendamento.tecnicoId},
 
                                 data-tecnico=${agendamento.tecnicoNome},
@@ -451,15 +455,34 @@
 
 
 
-                        <!-- SERVIÇOS -->
+                        <!-- CLIENTE -->
 
                         <strong
+                                th:text="${agendamento.nomeCliente}">
+
+                            Cliente
+
+                        </strong>
+
+
+                        <!-- PLACA -->
+
+                        <span
+                                th:text="${agendamento.placaVeiculo}">
+
+                            ABC1D23
+
+                        </span>
+
+
+                        <!-- SERVIÇOS -->
+
+                        <span
                                 th:text="${agendamento.servicosNomesTexto}">
 
                             Serviços
 
-                        </strong>
-
+                        </span>
 
 
                         <!-- TÉCNICO -->
@@ -470,7 +493,6 @@
                             Técnico
 
                         </span>
-
 
 
                         <!-- HORÁRIO -->
@@ -561,6 +583,52 @@
 
 
         <div class="modal-body">
+
+
+            <!-- ======================================== -->
+            <!-- CLIENTE -->
+            <!-- ======================================== -->
+
+            <label for="nomeCliente">
+
+                Cliente
+
+            </label>
+
+
+            <input
+                    id="nomeCliente"
+
+                    type="text"
+
+                    maxlength="120"
+
+                    placeholder="Digite o nome do cliente">
+
+
+
+            <!-- ======================================== -->
+            <!-- PLACA -->
+            <!-- ======================================== -->
+
+            <label for="placaVeiculo">
+
+                Placa do veículo
+
+            </label>
+
+
+            <input
+                    id="placaVeiculo"
+
+                    type="text"
+
+                    maxlength="7"
+
+                    placeholder="Ex: ABC1D23"
+
+                    style="text-transform: uppercase;">
+
 
 
             <!-- ======================================== -->
@@ -838,6 +906,28 @@
             <p>
 
                 <strong>
+                    Cliente:
+                </strong>
+
+                <span id="detalheNomeCliente"></span>
+
+            </p>
+
+
+            <p>
+
+                <strong>
+                    Placa:
+                </strong>
+
+                <span id="detalhePlacaVeiculo"></span>
+
+            </p>
+
+
+            <p>
+
+                <strong>
                     Serviços:
                 </strong>
 
@@ -1008,6 +1098,52 @@
 
 
         <div class="modal-body">
+
+
+            <!-- ======================================== -->
+            <!-- CLIENTE -->
+            <!-- ======================================== -->
+
+            <label for="editarNomeCliente">
+
+                Cliente
+
+            </label>
+
+
+            <input
+                    id="editarNomeCliente"
+
+                    type="text"
+
+                    maxlength="120"
+
+                    placeholder="Digite o nome do cliente">
+
+
+
+            <!-- ======================================== -->
+            <!-- PLACA -->
+            <!-- ======================================== -->
+
+            <label for="editarPlacaVeiculo">
+
+                Placa do veículo
+
+            </label>
+
+
+            <input
+                    id="editarPlacaVeiculo"
+
+                    type="text"
+
+                    maxlength="7"
+
+                    placeholder="Ex: ABC1D23"
+
+                    style="text-transform: uppercase;">
+
 
 
             <!-- ======================================== -->

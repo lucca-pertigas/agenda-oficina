@@ -9,6 +9,9 @@ public class AgendamentoDiaResponse {
 
     private Long id;
 
+    private String nomeCliente;
+    private String placaVeiculo;
+
     private Long tecnicoId;
     private String tecnicoNome;
 
@@ -38,12 +41,33 @@ public class AgendamentoDiaResponse {
         this.id = id;
     }
 
+    public String getNomeCliente() {
+        return nomeCliente;
+    }
+
+    public void setNomeCliente(
+            String nomeCliente) {
+
+        this.nomeCliente = nomeCliente;
+    }
+
+    public String getPlacaVeiculo() {
+        return placaVeiculo;
+    }
+
+    public void setPlacaVeiculo(
+            String placaVeiculo) {
+
+        this.placaVeiculo = placaVeiculo;
+    }
 
     public Long getTecnicoId() {
         return tecnicoId;
     }
 
-    public void setTecnicoId(Long tecnicoId) {
+    public void setTecnicoId(
+            Long tecnicoId) {
+
         this.tecnicoId = tecnicoId;
     }
 
@@ -52,16 +76,19 @@ public class AgendamentoDiaResponse {
         return tecnicoNome;
     }
 
-    public void setTecnicoNome(String tecnicoNome) {
+    public void setTecnicoNome(
+            String tecnicoNome) {
+
         this.tecnicoNome = tecnicoNome;
     }
-
 
     public Long getElevadorId() {
         return elevadorId;
     }
 
-    public void setElevadorId(Long elevadorId) {
+    public void setElevadorId(
+            Long elevadorId) {
+
         this.elevadorId = elevadorId;
     }
 
@@ -70,10 +97,12 @@ public class AgendamentoDiaResponse {
         return elevadorNumero;
     }
 
-    public void setElevadorNumero(Integer elevadorNumero) {
-        this.elevadorNumero = elevadorNumero;
-    }
+    public void setElevadorNumero(
+            Integer elevadorNumero) {
 
+        this.elevadorNumero =
+                elevadorNumero;
+    }
 
     public List<Long> getServicosIds() {
         return servicosIds;
@@ -93,7 +122,8 @@ public class AgendamentoDiaResponse {
     public void setServicosNomes(
             List<String> servicosNomes) {
 
-        this.servicosNomes = servicosNomes;
+        this.servicosNomes =
+                servicosNomes;
     }
 
 
@@ -107,7 +137,6 @@ public class AgendamentoDiaResponse {
         this.servicosNomesTexto =
                 servicosNomesTexto;
     }
-
 
     public LocalDateTime getDataHoraInicioOriginal() {
         return dataHoraInicioOriginal;
@@ -131,7 +160,6 @@ public class AgendamentoDiaResponse {
         this.dataHoraFimOriginal =
                 dataHoraFimOriginal;
     }
-
 
     public LocalDateTime getInicioExibicao() {
         return inicioExibicao;
@@ -168,7 +196,6 @@ public class AgendamentoDiaResponse {
                 duracaoExibicaoMinutos;
     }
 
-
     public StatusAgendamento getStatus() {
         return status;
     }
@@ -178,7 +205,6 @@ public class AgendamentoDiaResponse {
 
         this.status = status;
     }
-
 
     public Integer getMinutoInicio() {
 

@@ -15,11 +15,17 @@ public class AgendamentoMapper {
         AgendamentoResponse response =
                 new AgendamentoResponse();
 
-
         response.setId(
                 agendamento.getId()
         );
 
+        response.setNomeCliente(
+                agendamento.getNomeCliente()
+        );
+
+        response.setPlacaVeiculo(
+                agendamento.getPlacaVeiculo()
+        );
 
         response.setTecnicoId(
                 agendamento
@@ -34,7 +40,6 @@ public class AgendamentoMapper {
                         .getNome()
         );
 
-
         response.setElevadorId(
                 agendamento
                         .getElevador()
@@ -47,7 +52,6 @@ public class AgendamentoMapper {
                         .getElevador()
                         .getNumero()
         );
-
 
         List<Long> servicosIds =
                 agendamento
@@ -90,7 +94,6 @@ public class AgendamentoMapper {
                 )
         );
 
-
         response.setDataHoraInicio(
                 agendamento.getDataHoraInicio()
         );
@@ -100,12 +103,10 @@ public class AgendamentoMapper {
                 agendamento.getDataHoraFim()
         );
 
-
         response.setDuracaoMinutos(
                 agendamento
                         .calcularDuracaoTotalMinutos()
         );
-
 
         response.setStatus(
                 agendamento.getStatus()

@@ -67,7 +67,6 @@ function atualizarDuracaoTotalNovo() {
 
     let total = 0;
 
-
     const checkboxes =
         document.querySelectorAll(
             ".servico-checkbox:checked"
@@ -86,7 +85,6 @@ function atualizarDuracaoTotalNovo() {
 
 
             if (!Number.isNaN(duracao)) {
-
                 total += duracao;
             }
         }
@@ -115,7 +113,6 @@ function atualizarDuracaoTotalEditar() {
 
     let total = 0;
 
-
     const checkboxes =
         document.querySelectorAll(
             ".editar-servico-checkbox:checked"
@@ -134,7 +131,6 @@ function atualizarDuracaoTotalEditar() {
 
 
             if (!Number.isNaN(duracao)) {
-
                 total += duracao;
             }
         }
@@ -167,7 +163,6 @@ function formatarDuracao(minutos) {
 
 
     if (minutos < 60) {
-
         return minutos + " min";
     }
 
@@ -203,6 +198,21 @@ function formatarDuracao(minutos) {
 
 async function salvarAgendamento() {
 
+    const nomeCliente =
+        document
+            .getElementById("nomeCliente")
+            .value
+            .trim();
+
+
+    const placaVeiculo =
+        document
+            .getElementById("placaVeiculo")
+            .value
+            .trim()
+            .toUpperCase();
+
+
     const tecnicoId =
         document
             .getElementById("tecnico")
@@ -234,6 +244,28 @@ async function salvarAgendamento() {
             .getElementById(
                 "mensagemFormulario"
             );
+
+
+    // ========================================
+    // VALIDAÇÕES
+    // ========================================
+
+    if (!nomeCliente) {
+
+        mensagem.textContent =
+            "Informe o nome do cliente.";
+
+        return;
+    }
+
+
+    if (!placaVeiculo) {
+
+        mensagem.textContent =
+            "Informe a placa do veículo.";
+
+        return;
+    }
 
 
     if (!tecnicoId) {
@@ -281,7 +313,17 @@ async function salvarAgendamento() {
     }
 
 
+    // ========================================
+    // DADOS ENVIADOS AO JAVA
+    // ========================================
+
     const dados = {
+
+        nomeCliente:
+        nomeCliente,
+
+        placaVeiculo:
+        placaVeiculo,
 
         tecnicoId:
             Number(tecnicoId),
@@ -356,6 +398,16 @@ async function salvarAgendamento() {
 function limparFormularioNovo() {
 
     document
+        .getElementById("nomeCliente")
+        .value = "";
+
+
+    document
+        .getElementById("placaVeiculo")
+        .value = "";
+
+
+    document
         .getElementById("tecnico")
         .value = "";
 
@@ -398,6 +450,22 @@ function abrirDetalhesAgendamento(card) {
         Number(
             card.dataset.agendamentoId
         );
+
+
+    document
+        .getElementById(
+            "detalheNomeCliente"
+        )
+        .textContent =
+        card.dataset.nomeCliente || "";
+
+
+    document
+        .getElementById(
+            "detalhePlacaVeiculo"
+        )
+        .textContent =
+        card.dataset.placaVeiculo || "";
 
 
     document
@@ -489,6 +557,28 @@ function abrirEdicaoAgendamento() {
     }
 
 
+    // CLIENTE
+
+    document
+        .getElementById(
+            "editarNomeCliente"
+        )
+        .value =
+        card.dataset.nomeCliente || "";
+
+
+    // PLACA
+
+    document
+        .getElementById(
+            "editarPlacaVeiculo"
+        )
+        .value =
+        card.dataset.placaVeiculo || "";
+
+
+    // TÉCNICO
+
     document
         .getElementById(
             "editarTecnico"
@@ -496,6 +586,8 @@ function abrirEdicaoAgendamento() {
         .value =
         card.dataset.tecnicoId;
 
+
+    // ELEVADOR
 
     document
         .getElementById(
@@ -537,6 +629,8 @@ function abrirEdicaoAgendamento() {
 
     atualizarDuracaoTotalEditar();
 
+
+    // DATA E HORÁRIO
 
     document
         .getElementById(
@@ -587,6 +681,25 @@ async function salvarEdicaoAgendamento() {
     }
 
 
+    const nomeCliente =
+        document
+            .getElementById(
+                "editarNomeCliente"
+            )
+            .value
+            .trim();
+
+
+    const placaVeiculo =
+        document
+            .getElementById(
+                "editarPlacaVeiculo"
+            )
+            .value
+            .trim()
+            .toUpperCase();
+
+
     const tecnicoId =
         document
             .getElementById(
@@ -622,6 +735,28 @@ async function salvarEdicaoAgendamento() {
             .getElementById(
                 "mensagemEdicao"
             );
+
+
+    // ========================================
+    // VALIDAÇÕES
+    // ========================================
+
+    if (!nomeCliente) {
+
+        mensagem.textContent =
+            "Informe o nome do cliente.";
+
+        return;
+    }
+
+
+    if (!placaVeiculo) {
+
+        mensagem.textContent =
+            "Informe a placa do veículo.";
+
+        return;
+    }
 
 
     if (!tecnicoId) {
@@ -669,7 +804,17 @@ async function salvarEdicaoAgendamento() {
     }
 
 
+    // ========================================
+    // DADOS
+    // ========================================
+
     const dados = {
+
+        nomeCliente:
+        nomeCliente,
+
+        placaVeiculo:
+        placaVeiculo,
 
         tecnicoId:
             Number(tecnicoId),
@@ -1032,6 +1177,140 @@ document.addEventListener(
 
 
 // ========================================
+// PLACA SEMPRE EM MAIÚSCULO
+// ========================================
+
+document.addEventListener(
+    "input",
+    function (evento) {
+
+        if (
+            evento.target.id ===
+            "placaVeiculo"
+            ||
+            evento.target.id ===
+            "editarPlacaVeiculo"
+        ) {
+
+            evento.target.value =
+                evento.target.value
+                    .toUpperCase();
+        }
+    }
+);
+
+
+// ========================================
+// NAVEGAÇÃO POR LETRA NOS SERVIÇOS
+// ========================================
+
+function ativarNavegacaoPorLetra(
+    containerId,
+    itemSelector
+) {
+
+    const container =
+        document.getElementById(
+            containerId
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    container.setAttribute(
+        "tabindex",
+        "0"
+    );
+
+
+    container.addEventListener(
+        "keydown",
+        function (evento) {
+
+            const tecla =
+                evento.key
+                    .toLowerCase();
+
+
+            if (
+                tecla.length !== 1
+                ||
+                !/[a-záàâãéèêíïóôõöúç0-9]/i
+                    .test(tecla)
+            ) {
+
+                return;
+            }
+
+
+            const itens =
+                Array.from(
+                    container.querySelectorAll(
+                        itemSelector
+                    )
+                );
+
+
+            const encontrado =
+                itens.find(
+                    item => {
+
+                        const texto =
+                            item
+                                .innerText
+                                .trim()
+                                .toLowerCase();
+
+
+                        return texto
+                            .startsWith(
+                                tecla
+                            );
+                    }
+                );
+
+
+            if (encontrado) {
+
+                encontrado
+                    .scrollIntoView({
+                        behavior:
+                            "smooth",
+
+                        block:
+                            "nearest"
+                    });
+
+
+                encontrado
+                    .classList
+                    .add(
+                        "servico-destacado"
+                    );
+
+
+                setTimeout(
+                    () => {
+
+                        encontrado
+                            .classList
+                            .remove(
+                                "servico-destacado"
+                            );
+
+                    },
+                    800
+                );
+            }
+        }
+    );
+}
+
+
+// ========================================
 // INICIALIZAÇÃO
 // ========================================
 
@@ -1042,6 +1321,18 @@ document.addEventListener(
         atualizarDuracaoTotalNovo();
 
         atualizarDuracaoTotalEditar();
+
+
+        ativarNavegacaoPorLetra(
+            "servicos",
+            ".servico-item"
+        );
+
+
+        ativarNavegacaoPorLetra(
+            "editarServicos",
+            ".servico-item"
+        );
     }
 );
 
@@ -1116,9 +1407,12 @@ const client =
 
 
                         if (
-                            evento.tipo === "CRIADO" ||
-                            evento.tipo === "ATUALIZADO" ||
-                            evento.tipo === "CANCELADO" ||
+                            evento.tipo === "CRIADO"
+                            ||
+                            evento.tipo === "ATUALIZADO"
+                            ||
+                            evento.tipo === "CANCELADO"
+                            ||
                             evento.tipo === "CONCLUIDO"
                         ) {
 
@@ -1152,90 +1446,6 @@ const client =
                 );
             }
     });
-
-function ativarNavegacaoPorLetra(containerId, itemSelector) {
-
-    const container =
-        document.getElementById(containerId);
-
-    if (!container) {
-        return;
-    }
-
-    container.setAttribute("tabindex", "0");
-
-    container.addEventListener(
-        "keydown",
-        function (evento) {
-
-            const tecla =
-                evento.key.toLowerCase();
-
-            if (
-                tecla.length !== 1 ||
-                !/[a-záàâãéèêíïóôõöúç0-9]/i.test(tecla)
-            ) {
-                return;
-            }
-
-            const itens =
-                Array.from(
-                    container.querySelectorAll(
-                        itemSelector
-                    )
-                );
-
-            const encontrado =
-                itens.find(item => {
-
-                    const texto =
-                        item
-                            .innerText
-                            .trim()
-                            .toLowerCase();
-
-                    return texto.startsWith(tecla);
-                });
-
-            if (encontrado) {
-
-                encontrado.scrollIntoView({
-                    behavior: "smooth",
-                    block: "nearest"
-                });
-
-                encontrado.classList.add(
-                    "servico-destacado"
-                );
-
-                setTimeout(
-                    () => {
-                        encontrado.classList.remove(
-                            "servico-destacado"
-                        );
-                    },
-                    800
-                );
-            }
-        }
-    );
-}
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-        ativarNavegacaoPorLetra(
-            "servicos",
-            ".servico-item"
-        );
-
-        ativarNavegacaoPorLetra(
-            "editarServicos",
-            ".servico-item"
-        );
-    }
-);
 
 
 client.activate();

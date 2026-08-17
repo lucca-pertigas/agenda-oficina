@@ -2,6 +2,7 @@ package com.oficina.agenda.model;
 
 import com.oficina.agenda.exception.RegraNegocioException;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,22 @@ public class Agendamento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank(message = "Nome do cliente é obrigatório")
+    @Column(
+            name = "nome_cliente",
+            nullable = false,
+            length = 120
+    )
+    private String nomeCliente;
+
+    @NotBlank(message = "Placa do veículo é obrigatória")
+    @Column(
+            name = "placa_veiculo",
+            nullable = false,
+            length = 10
+    )
+    private String placaVeiculo;
 
     @ManyToOne
     @JoinColumn(
@@ -51,7 +68,6 @@ public class Agendamento {
     private StatusAgendamento status =
             StatusAgendamento.AGENDADO;
 
-
     public Long getId() {
         return id;
     }
@@ -60,24 +76,45 @@ public class Agendamento {
         this.id = id;
     }
 
+    public String getNomeCliente() {
+        return nomeCliente;
+    }
+
+    public void setNomeCliente(
+            String nomeCliente) {
+
+        this.nomeCliente = nomeCliente;
+    }
+
+    public String getPlacaVeiculo() {
+        return placaVeiculo;
+    }
+
+    public void setPlacaVeiculo(
+            String placaVeiculo) {
+
+        this.placaVeiculo = placaVeiculo;
+    }
 
     public Tecnico getTecnico() {
         return tecnico;
     }
 
-    public void setTecnico(Tecnico tecnico) {
+    public void setTecnico(
+            Tecnico tecnico) {
+
         this.tecnico = tecnico;
     }
-
 
     public Elevador getElevador() {
         return elevador;
     }
 
-    public void setElevador(Elevador elevador) {
+    public void setElevador(
+            Elevador elevador) {
+
         this.elevador = elevador;
     }
-
 
     public List<AgendamentoServico> getServicos() {
         return servicos;
@@ -108,7 +145,8 @@ public class Agendamento {
     public void setDataHoraInicio(
             LocalDateTime dataHoraInicio) {
 
-        this.dataHoraInicio = dataHoraInicio;
+        this.dataHoraInicio =
+                dataHoraInicio;
     }
 
 
@@ -119,9 +157,9 @@ public class Agendamento {
     public void setDataHoraFim(
             LocalDateTime dataHoraFim) {
 
-        this.dataHoraFim = dataHoraFim;
+        this.dataHoraFim =
+                dataHoraFim;
     }
-
 
     public StatusAgendamento getStatus() {
         return status;
@@ -141,6 +179,7 @@ public class Agendamento {
                 new AgendamentoServico();
 
         item.setAgendamento(this);
+
         item.setServico(servico);
 
         servicos.add(item);
@@ -152,27 +191,37 @@ public class Agendamento {
         servicos.clear();
     }
 
-
     public int calcularDuracaoTotalMinutos() {
 
         return servicos
                 .stream()
-                .map(AgendamentoServico::getServico)
-                .mapToInt(Servico::getDuracaoMinutos)
+                .map(
+                        AgendamentoServico::getServico
+                )
+                .mapToInt(
+                        Servico::getDuracaoMinutos
+                )
                 .sum();
     }
 
 
     public void validarPodeEditar() {
 
-        if (status == StatusAgendamento.CANCELADO) {
+        if (
+                status ==
+                        StatusAgendamento.CANCELADO
+        ) {
 
             throw new RegraNegocioException(
                     "Agendamento cancelado não pode ser editado"
             );
         }
 
-        if (status == StatusAgendamento.CONCLUIDO) {
+
+        if (
+                status ==
+                        StatusAgendamento.CONCLUIDO
+        ) {
 
             throw new RegraNegocioException(
                     "Agendamento concluído não pode ser editado"
@@ -180,24 +229,29 @@ public class Agendamento {
         }
     }
 
-
     public void cancelar() {
 
-        if (status == StatusAgendamento.CANCELADO) {
+        if (
+                status ==
+                        StatusAgendamento.CANCELADO
+        ) {
 
             throw new RegraNegocioException(
                     "Agendamento já está cancelado"
             );
         }
 
-        status = StatusAgendamento.CANCELADO;
-    }
 
+        status =
+                StatusAgendamento.CANCELADO;
+    }
 
     public void concluir() {
 
         validarPodeEditar();
 
-        status = StatusAgendamento.CONCLUIDO;
+
+        status =
+                StatusAgendamento.CONCLUIDO;
     }
 }

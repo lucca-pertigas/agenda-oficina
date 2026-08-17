@@ -81,13 +81,13 @@
         </a>
 
         <h2 th:text="${#temporals.format(data, 'dd/MM/yyyy')}">
-            13/08/2026
+            17/08/2026
         </h2>
 
     </section>
 
 
-    <!-- GRADE DA AGENDA -->
+    <!-- GRADE -->
 
     <section>
 
@@ -102,10 +102,14 @@
                     ${#lists.size(elevadores)}
                 ">
 
+            <!-- CABEÇALHO HORÁRIO -->
+
             <div class="agenda-cabecalho horario-coluna">
                 Horário
             </div>
 
+
+            <!-- ELEVADORES -->
 
             <div
                     class="agenda-cabecalho"
@@ -120,27 +124,96 @@
             </div>
 
 
+            <!-- HORÁRIOS -->
+
             <th:block th:each="horario : ${horarios}">
+
+                <!-- COLUNA HORÁRIO -->
 
                 <div
                         class="agenda-horario"
-                        th:text="${#temporals.format(horario, 'HH:mm')}">
 
-                    08:00
+                        th:classappend="${
+                            !horario.isBefore(
+                                T(java.time.LocalTime).of(12,0)
+                            )
+                            and
+                            horario.isBefore(
+                                T(java.time.LocalTime).of(13,0)
+                            )
+                            ? ' horario-almoco'
+                            : ''
+                        }">
+
+
+                    <span
+                            th:if="${
+                                !horario.isBefore(
+                                    T(java.time.LocalTime).of(12,0)
+                                )
+                                and
+                                horario.isBefore(
+                                    T(java.time.LocalTime).of(13,0)
+                                )
+                            }">
+
+                        Almoço
+
+                    </span>
+
+
+                    <span
+                            th:unless="${
+                                !horario.isBefore(
+                                    T(java.time.LocalTime).of(12,0)
+                                )
+                                and
+                                horario.isBefore(
+                                    T(java.time.LocalTime).of(13,0)
+                                )
+                            }"
+
+                            th:text="${#temporals.format(
+                                horario,
+                                'HH:mm'
+                            )}">
+
+                        08:00
+
+                    </span>
 
                 </div>
 
+
+                <!-- CÉLULAS DOS ELEVADORES -->
 
                 <div
                         class="agenda-celula"
 
                         th:each="elevador : ${elevadores}"
 
+                        th:classappend="${
+                            !horario.isBefore(
+                                T(java.time.LocalTime).of(12,0)
+                            )
+                            and
+                            horario.isBefore(
+                                T(java.time.LocalTime).of(13,0)
+                            )
+                            ? ' celula-almoco'
+                            : ''
+                        }"
+
                         th:attr="
                             data-elevador-id=${elevador.id},
-                            data-horario=${#temporals.format(horario, 'HH:mm')}
+                            data-horario=${#temporals.format(
+                                horario,
+                                'HH:mm'
+                            )}
                         ">
 
+
+                    <!-- CARDS -->
 
                     <div
                             class="agendamento-card"
@@ -150,13 +223,15 @@
                             th:if="${
                                 agendamento.elevadorId == elevador.id
                                 and
-                                !agendamento.dataHoraInicio
+                                !agendamento.inicioExibicao
                                     .toLocalTime()
                                     .isBefore(horario)
                                 and
-                                agendamento.dataHoraInicio
+                                agendamento.inicioExibicao
                                     .toLocalTime()
-                                    .isBefore(horario.plusMinutes(30))
+                                    .isBefore(
+                                        horario.plusMinutes(30)
+                                    )
                             }"
 
                             th:classappend="${
@@ -168,62 +243,82 @@
 
                             th:attr="
                                 data-agendamento-id=${agendamento.id},
+
                                 data-tecnico-id=${agendamento.tecnicoId},
                                 data-tecnico=${agendamento.tecnicoNome},
+
                                 data-elevador-id=${agendamento.elevadorId},
                                 data-elevador=${agendamento.elevadorNumero},
+
                                 data-servico-id=${agendamento.servicoId},
                                 data-servico=${agendamento.servicoNome},
-                                data-data-hora-inicio=${agendamento.dataHoraInicio},
+
+                                data-data-hora-inicio=${agendamento.dataHoraInicioOriginal},
+
                                 data-inicio=${#temporals.format(
-                                    agendamento.dataHoraInicio,
+                                    agendamento.dataHoraInicioOriginal,
                                     'dd/MM/yyyy HH:mm'
                                 )},
+
                                 data-fim=${#temporals.format(
-                                    agendamento.dataHoraFim,
+                                    agendamento.dataHoraFimOriginal,
                                     'dd/MM/yyyy HH:mm'
                                 )},
+
                                 data-status=${agendamento.status}
                             "
 
                             th:style="
                                 'height:' +
-                                (${agendamento.duracaoMinutos} / 30.0 * 70)
+                                (
+                                    ${agendamento.duracaoExibicaoMinutos}
+                                    / 30.0 * 70
+                                )
                                 + 'px;' +
 
                                 'top:' +
-                                ((${agendamento.minutoInicio} % 30) / 30.0 * 70)
+                                (
+                                    (
+                                        ${agendamento.minutoInicio}
+                                        % 30
+                                    )
+                                    / 30.0 * 70
+                                )
                                 + 'px;'
                             "
 
                             onclick="abrirDetalhesAgendamento(this)">
 
 
-                        <strong th:text="${agendamento.servicoNome}">
+                        <strong
+                                th:text="${agendamento.servicoNome}">
                             Serviço
                         </strong>
 
 
-                        <span th:text="${agendamento.tecnicoNome}">
+                        <span
+                                th:text="${agendamento.tecnicoNome}">
                             Técnico
                         </span>
 
 
                         <small>
 
-                            <span th:text="${#temporals.format(
-                                    agendamento.dataHoraInicio,
-                                    'HH:mm'
-                            )}">
+                            <span
+                                    th:text="${#temporals.format(
+                                        agendamento.inicioExibicao,
+                                        'HH:mm'
+                                    )}">
                                 08:00
                             </span>
 
                             -
 
-                            <span th:text="${#temporals.format(
-                                    agendamento.dataHoraFim,
-                                    'HH:mm'
-                            )}">
+                            <span
+                                    th:text="${#temporals.format(
+                                        agendamento.fimExibicao,
+                                        'HH:mm'
+                                    )}">
                                 09:00
                             </span>
 
@@ -242,10 +337,11 @@
 </main>
 
 
-<!-- MODAL NOVO AGENDAMENTO -->
+<!-- MODAL NOVO -->
 
-<div id="modalAgendamento"
-     class="modal-overlay">
+<div
+        id="modalAgendamento"
+        class="modal-overlay">
 
     <div class="modal">
 

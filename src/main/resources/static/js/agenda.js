@@ -69,6 +69,14 @@ async function salvarAgendamento() {
     }
 
 
+    if (!validarHorarioOficina(
+        dataHoraInicio,
+        mensagem
+    )) {
+        return;
+    }
+
+
     const dados = {
 
         tecnicoId:
@@ -122,6 +130,18 @@ async function salvarAgendamento() {
 
         fecharFormulario();
 
+        /*
+         * Não precisamos montar o card aqui.
+         *
+         * O backend divide corretamente:
+         * - manhã
+         * - almoço
+         * - tarde
+         * - próximo dia
+         *
+         * O WebSocket fará a atualização da tela.
+         */
+
     } catch (erro) {
 
         console.error(
@@ -137,10 +157,21 @@ async function salvarAgendamento() {
 
 function limparFormularioNovo() {
 
-    document.getElementById("tecnico").value = "";
-    document.getElementById("elevador").value = "";
-    document.getElementById("servico").value = "";
-    document.getElementById("dataHoraInicio").value = "";
+    document
+        .getElementById("tecnico")
+        .value = "";
+
+    document
+        .getElementById("elevador")
+        .value = "";
+
+    document
+        .getElementById("servico")
+        .value = "";
+
+    document
+        .getElementById("dataHoraInicio")
+        .value = "";
 }
 
 
@@ -220,6 +251,11 @@ function abrirEdicaoAgendamento() {
 
 
     if (!card) {
+
+        alert(
+            "Não foi possível localizar o agendamento."
+        );
+
         return;
     }
 
@@ -328,6 +364,14 @@ async function salvarEdicaoAgendamento() {
         mensagem.textContent =
             "Preencha todos os campos.";
 
+        return;
+    }
+
+
+    if (!validarHorarioOficina(
+        dataHoraInicio,
+        mensagem
+    )) {
         return;
     }
 
@@ -514,350 +558,126 @@ async function cancelarAgendamento() {
 
 
 // ========================================
-// CARD
+// VALIDAÇÃO DO HORÁRIO
 // ========================================
 
-function adicionarAgendamentoNaTela(
-    agendamento
+function validarHorarioOficina(
+    dataHoraInicio,
+    elementoMensagem
 ) {
 
-    if (!agendamentoPertenceAoDiaAtual(
-        agendamento
-    )) {
-        return;
+    const partes =
+        dataHoraInicio.split("T");
+
+
+    if (partes.length < 2) {
+
+        elementoMensagem.textContent =
+            "Data e horário inválidos.";
+
+        return false;
     }
 
 
-    removerCardAgendamento(
-        agendamento.id
-    );
+    const horario =
+        partes[1]
+            .substring(0, 5)
+            .split(":");
 
 
-    const horarioFaixa =
-        calcularFaixaHorario(
-            agendamento.dataHoraInicio
-        );
+    const hora =
+        Number(horario[0]);
+
+    const minuto =
+        Number(horario[1]);
 
 
-    const seletor =
-        `.agenda-celula` +
-        `[data-elevador-id="${agendamento.elevadorId}"]` +
-        `[data-horario="${horarioFaixa}"]`;
+    if (
+        Number.isNaN(hora) ||
+        Number.isNaN(minuto)
+    ) {
 
+        elementoMensagem.textContent =
+            "Horário inválido.";
 
-    const celula =
-        document.querySelector(seletor);
-
-
-    if (!celula) {
-
-        console.log(
-            "Célula não encontrada:",
-            seletor
-        );
-
-        return;
+        return false;
     }
 
 
-    const card =
-        document.createElement("div");
+    const horarioEmMinutos =
+        hora * 60 + minuto;
 
 
-    card.classList.add(
-        "agendamento-card"
-    );
+    const abertura =
+        8 * 60;
+
+    const inicioAlmoco =
+        12 * 60;
+
+    const fimAlmoco =
+        13 * 60;
+
+    const fechamento =
+        17 * 60;
 
 
-    adicionarClasseStatus(
-        card,
-        agendamento.status
-    );
+    if (
+        horarioEmMinutos <
+        abertura
+    ) {
 
+        elementoMensagem.textContent =
+            "A oficina abre às 08:00.";
 
-    card.dataset.agendamentoId =
-        agendamento.id;
-
-    card.dataset.tecnicoId =
-        agendamento.tecnicoId;
-
-    card.dataset.tecnico =
-        agendamento.tecnicoNome;
-
-    card.dataset.elevadorId =
-        agendamento.elevadorId;
-
-    card.dataset.elevador =
-        agendamento.elevadorNumero;
-
-    card.dataset.servicoId =
-        agendamento.servicoId;
-
-    card.dataset.servico =
-        agendamento.servicoNome;
-
-    card.dataset.dataHoraInicio =
-        agendamento.dataHoraInicio;
-
-    card.dataset.inicio =
-        formatarDataHora(
-            agendamento.dataHoraInicio
-        );
-
-    card.dataset.fim =
-        formatarDataHora(
-            agendamento.dataHoraFim
-        );
-
-    card.dataset.status =
-        agendamento.status;
-
-
-    card.onclick =
-        function () {
-
-            abrirDetalhesAgendamento(
-                card
-            );
-        };
-
-
-    const altura =
-        (
-            agendamento.duracaoMinutos
-            / 30
-        ) * 70;
-
-
-    const deslocamento =
-        (
-            agendamento.minutoInicio
-            % 30
-        )
-        / 30
-        * 70;
-
-
-    card.style.height =
-        altura + "px";
-
-    card.style.top =
-        deslocamento + "px";
-
-
-    const inicio =
-        extrairHorario(
-            agendamento.dataHoraInicio
-        );
-
-
-    const fim =
-        extrairHorario(
-            agendamento.dataHoraFim
-        );
-
-
-    card.innerHTML = `
-        <strong>
-            ${escapeHtml(
-        agendamento.servicoNome
-    )}
-        </strong>
-
-        <span>
-            ${escapeHtml(
-        agendamento.tecnicoNome
-    )}
-        </span>
-
-        <small>
-            ${inicio} - ${fim}
-        </small>
-    `;
-
-
-    celula.appendChild(card);
-}
-
-
-function atualizarAgendamentoNaTela(
-    agendamento
-) {
-
-    removerCardAgendamento(
-        agendamento.id
-    );
-
-
-    adicionarAgendamentoNaTela(
-        agendamento
-    );
-}
-
-
-function removerCardAgendamento(id) {
-
-    const card =
-        buscarCardAgendamento(id);
-
-
-    if (card) {
-        card.remove();
+        return false;
     }
+
+
+    if (
+        horarioEmMinutos >=
+        fechamento
+    ) {
+
+        elementoMensagem.textContent =
+            "A oficina fecha às 17:00.";
+
+        return false;
+    }
+
+
+    if (
+        horarioEmMinutos >= inicioAlmoco &&
+        horarioEmMinutos < fimAlmoco
+    ) {
+
+        elementoMensagem.textContent =
+            "Não é possível iniciar um serviço entre 12:00 e 13:00.";
+
+        return false;
+    }
+
+
+    elementoMensagem.textContent = "";
+
+    return true;
 }
 
+
+// ========================================
+// BUSCAR CARD
+// ========================================
 
 function buscarCardAgendamento(id) {
 
     return document.querySelector(
-        `.agendamento-card` +
-        `[data-agendamento-id="${id}"]`
+        `.agendamento-card[data-agendamento-id="${id}"]`
     );
-}
-
-
-// ========================================
-// STATUS
-// ========================================
-
-function adicionarClasseStatus(
-    card,
-    status
-) {
-
-    if (status === "AGENDADO") {
-
-        card.classList.add(
-            "status-agendado"
-        );
-    }
-
-
-    if (status === "CONCLUIDO") {
-
-        card.classList.add(
-            "status-concluido"
-        );
-    }
-
-
-    if (status === "CANCELADO") {
-
-        card.classList.add(
-            "status-cancelado"
-        );
-    }
 }
 
 
 // ========================================
 // DATA / HORÁRIO
 // ========================================
-
-function calcularFaixaHorario(
-    dataHora
-) {
-
-    const horario =
-        dataHora.substring(11, 16);
-
-
-    const partes =
-        horario.split(":");
-
-
-    const hora =
-        partes[0];
-
-
-    const minuto =
-        Number(partes[1]);
-
-
-    const minutoFaixa =
-        minuto < 30
-            ? "00"
-            : "30";
-
-
-    return (
-        hora +
-        ":" +
-        minutoFaixa
-    );
-}
-
-
-function agendamentoPertenceAoDiaAtual(
-    agendamento
-) {
-
-    const grid =
-        document
-            .getElementById(
-                "agendaGrid"
-            );
-
-
-    if (!grid) {
-        return false;
-    }
-
-
-    const dataAgenda =
-        grid.dataset.dataAgenda;
-
-
-    const dataAgendamento =
-        agendamento
-            .dataHoraInicio
-            .substring(0, 10);
-
-
-    return (
-        dataAgenda ===
-        dataAgendamento
-    );
-}
-
-
-function extrairHorario(
-    dataHora
-) {
-
-    return dataHora.substring(
-        11,
-        16
-    );
-}
-
-
-function formatarDataHora(
-    dataHora
-) {
-
-    const data =
-        dataHora.substring(0, 10);
-
-    const horario =
-        dataHora.substring(11, 16);
-
-
-    const partes =
-        data.split("-");
-
-
-    return (
-        partes[2] +
-        "/" +
-        partes[1] +
-        "/" +
-        partes[0] +
-        " " +
-        horario
-    );
-}
-
 
 function normalizarDataParaInput(
     dataHora
@@ -876,34 +696,42 @@ function normalizarDataParaInput(
 
 
 // ========================================
-// SEGURANÇA DO HTML
+// FECHAR MODAIS PELO FUNDO
 // ========================================
 
-function escapeHtml(texto) {
+document.addEventListener(
+    "click",
+    function (evento) {
 
-    const elemento =
-        document.createElement(
-            "div"
-        );
+        if (
+            evento.target.classList.contains(
+                "modal-overlay"
+            )
+        ) {
 
-
-    elemento.textContent =
-        texto ?? "";
-
-
-    return elemento.innerHTML;
-}
+            evento.target
+                .classList
+                .remove("ativo");
+        }
+    }
+);
 
 
 // ========================================
 // WEBSOCKET
 // ========================================
 
+const protocoloWebSocket =
+    window.location.protocol === "https:"
+        ? "wss"
+        : "ws";
+
+
 const client =
     new StompJs.Client({
 
         brokerURL:
-            `ws://${window.location.host}/ws`,
+            `${protocoloWebSocket}://${window.location.host}/ws`,
 
         reconnectDelay:
             5000,
@@ -934,49 +762,31 @@ const client =
                         );
 
 
-                        if (
-                            evento.tipo ===
-                            "CRIADO"
-                        ) {
-
-                            adicionarAgendamentoNaTela(
-                                evento.agendamento
-                            );
-                        }
-
-
-                        if (
-                            evento.tipo ===
-                            "ATUALIZADO"
-                        ) {
-
-                            atualizarAgendamentoNaTela(
-                                evento.agendamento
-                            );
-                        }
-
+                        /*
+                         * IMPORTANTE:
+                         *
+                         * Não criamos mais o card
+                         * diretamente pelo JavaScript.
+                         *
+                         * O backend monta os trechos
+                         * corretamente considerando:
+                         *
+                         * 08:00 - 12:00
+                         * 12:00 - 13:00 almoço
+                         * 13:00 - 17:00
+                         * continuação no próximo dia
+                         *
+                         * Por isso recarregamos a agenda.
+                         */
 
                         if (
-                            evento.tipo ===
-                            "CANCELADO"
+                            evento.tipo === "CRIADO" ||
+                            evento.tipo === "ATUALIZADO" ||
+                            evento.tipo === "CANCELADO" ||
+                            evento.tipo === "CONCLUIDO"
                         ) {
 
-                            removerCardAgendamento(
-                                evento
-                                    .agendamento
-                                    .id
-                            );
-                        }
-
-
-                        if (
-                            evento.tipo ===
-                            "CONCLUIDO"
-                        ) {
-
-                            atualizarAgendamentoNaTela(
-                                evento.agendamento
-                            );
+                            window.location.reload();
                         }
                     }
                 );
@@ -998,7 +808,11 @@ const client =
 
                 console.error(
                     "Erro STOMP:",
-                    frame
+                    frame.headers?.message
+                );
+
+                console.error(
+                    frame.body
                 );
             }
     });

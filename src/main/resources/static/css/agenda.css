@@ -559,3 +559,31 @@ section:has(.agenda-grid) {
     align-items: center;
     gap: 8px;
 }
+
+.horario-almoco {
+    background: #fef3c7;
+    color: #92400e;
+    font-weight: bold;
+}
+
+.celula-almoco {
+    background: #fffbeb;
+}
+
+.celula-almoco::after {
+    content: "Horário de almoço";
+
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #92400e;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    pointer-events: none;
+}

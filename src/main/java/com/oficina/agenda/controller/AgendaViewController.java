@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,22 +90,19 @@ public class AgendaViewController {
                 data.plusDays(1)
         );
 
-        LocalDateTime inicioDia =
-                data.atStartOfDay();
-
-        LocalDateTime fimDia =
-                data.atTime(
-                        23,
-                        59,
-                        59
-                );
-
+        /*
+         * Agora usamos os trechos visuais da agenda.
+         *
+         * Isso permite:
+         *
+         * - serviço continuar no dia seguinte;
+         * - não contar 12:00 até 13:00;
+         * - não contar após 17:00;
+         * - dividir o card em manhã e tarde.
+         */
         model.addAttribute(
                 "agendamentos",
-                agendamentoService.listarPorPeriodo(
-                        inicioDia,
-                        fimDia
-                )
+                agendamentoService.listarParaAgenda(data)
         );
 
         return "agenda";

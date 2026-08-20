@@ -4,6 +4,7 @@ import com.oficina.agenda.exception.ConflitoAgendamentoException;
 import com.oficina.agenda.model.Agendamento;
 import com.oficina.agenda.model.StatusAgendamento;
 import com.oficina.agenda.repository.AgendamentoRepository;
+import com.oficina.agenda.service.validacao.RegraAgendamento;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -13,7 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ConflitoAgendamentoService {
+public class ConflitoAgendamentoService
+        implements RegraAgendamento {
 
     private static final LocalTime ABERTURA =
             LocalTime.of(8, 0);
@@ -39,17 +41,11 @@ public class ConflitoAgendamentoService {
     }
 
 
+    @Override
     public void validar(
             Agendamento novoAgendamento,
             Long idIgnorado) {
 
-        /*
-         * Primeiro buscamos todos os agendamentos
-         * que podem cruzar o intervalo geral.
-         *
-         * Depois fazemos a validação real considerando
-         * somente os períodos produtivos.
-         */
         List<Agendamento> candidatos =
                 agendamentoRepository
                         .findByStatusNotAndDataHoraInicioLessThanAndDataHoraFimGreaterThanOrderByDataHoraInicioAsc(
@@ -67,8 +63,11 @@ public class ConflitoAgendamentoService {
             if (
                     idIgnorado != null
                             &&
-                            existente.getId().equals(idIgnorado)
+                            existente
+                                    .getId()
+                                    .equals(idIgnorado)
             ) {
+
                 continue;
             }
 
@@ -96,10 +95,15 @@ public class ConflitoAgendamentoService {
 
 
             /*
-             * Se não compartilha nem técnico
-             * nem elevador, não precisamos comparar.
+             * Não compartilha técnico
+             * nem elevador.
              */
-            if (!mesmoElevador && !mesmoTecnico) {
+            if (
+                    !mesmoElevador
+                            &&
+                            !mesmoTecnico
+            ) {
+
                 continue;
             }
 
@@ -112,6 +116,7 @@ public class ConflitoAgendamentoService {
 
 
             if (!existeConflito) {
+
                 continue;
             }
 
@@ -135,7 +140,7 @@ public class ConflitoAgendamentoService {
 
 
     /*
-     * Verifica se dois agendamentos realmente
+     * Verifica se dois agendamentos
      * se sobrepõem durante horário produtivo.
      */
     private boolean existeConflitoProdutivo(
@@ -156,9 +161,15 @@ public class ConflitoAgendamentoService {
                 );
 
 
-        for (PeriodoTrabalho periodoPrimeiro : periodosPrimeiro) {
+        for (
+                PeriodoTrabalho periodoPrimeiro :
+                periodosPrimeiro
+        ) {
 
-            for (PeriodoTrabalho periodoSegundo : periodosSegundo) {
+            for (
+                    PeriodoTrabalho periodoSegundo :
+                    periodosSegundo
+            ) {
 
                 if (
                         periodosSeSobrepoem(
@@ -178,7 +189,8 @@ public class ConflitoAgendamentoService {
 
 
     /*
-     * Divide um agendamento em períodos úteis.
+     * Divide um agendamento
+     * em períodos produtivos.
      *
      * Exemplo:
      *
@@ -188,10 +200,9 @@ public class ConflitoAgendamentoService {
      *
      * 11:00 até 12:00
      * 13:00 até 14:00
-     *
-     * O almoço não entra.
      */
-    private List<PeriodoTrabalho> criarPeriodosProdutivos(
+    private List<PeriodoTrabalho>
+    criarPeriodosProdutivos(
             LocalDateTime inicio,
             LocalDateTime fim) {
 
@@ -209,12 +220,9 @@ public class ConflitoAgendamentoService {
         while (!data.isAfter(dataFinal)) {
 
             /*
-             * ============================
              * MANHÃ
              * 08:00 → 12:00
-             * ============================
              */
-
             LocalDateTime inicioManha =
                     LocalDateTime.of(
                             data,
@@ -239,12 +247,9 @@ public class ConflitoAgendamentoService {
 
 
             /*
-             * ============================
              * TARDE
              * 13:00 → 17:00
-             * ============================
              */
-
             LocalDateTime inicioTarde =
                     LocalDateTime.of(
                             data,
@@ -278,8 +283,9 @@ public class ConflitoAgendamentoService {
 
 
     /*
-     * Adiciona somente a parte do agendamento
-     * que realmente cruza o período de trabalho.
+     * Adiciona somente a parte
+     * do agendamento que cruza
+     * o período de trabalho.
      */
     private void adicionarIntersecao(
             List<PeriodoTrabalho> periodos,
@@ -289,15 +295,21 @@ public class ConflitoAgendamentoService {
             LocalDateTime fimPeriodo) {
 
         LocalDateTime inicioReal =
-                inicioAgendamento.isAfter(inicioPeriodo)
-                        ? inicioAgendamento
-                        : inicioPeriodo;
+                inicioAgendamento
+                        .isAfter(inicioPeriodo)
+                        ?
+                        inicioAgendamento
+                        :
+                        inicioPeriodo;
 
 
         LocalDateTime fimReal =
-                fimAgendamento.isBefore(fimPeriodo)
-                        ? fimAgendamento
-                        : fimPeriodo;
+                fimAgendamento
+                        .isBefore(fimPeriodo)
+                        ?
+                        fimAgendamento
+                        :
+                        fimPeriodo;
 
 
         if (inicioReal.isBefore(fimReal)) {
@@ -313,28 +325,37 @@ public class ConflitoAgendamentoService {
 
 
     /*
-     * A sobreposição existe quando:
+     * Existe sobreposição quando:
      *
-     * inicio A < fim B
+     * início A < fim B
+     *
      * E
-     * fim A > inicio B
+     *
+     * fim A > início B
      */
     private boolean periodosSeSobrepoem(
             PeriodoTrabalho primeiro,
             PeriodoTrabalho segundo) {
 
         return
-                primeiro.inicio()
-                        .isBefore(segundo.fim())
+                primeiro
+                        .inicio()
+                        .isBefore(
+                                segundo.fim()
+                        )
                         &&
-                        primeiro.fim()
-                                .isAfter(segundo.inicio());
+                        primeiro
+                                .fim()
+                                .isAfter(
+                                        segundo.inicio()
+                                );
     }
 
 
     /*
-     * Objeto simples usado internamente
-     * para representar um período produtivo.
+     * Objeto interno usado
+     * para representar
+     * um período produtivo.
      */
     private record PeriodoTrabalho(
             LocalDateTime inicio,

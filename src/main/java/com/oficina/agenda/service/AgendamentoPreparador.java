@@ -5,12 +5,12 @@ import com.oficina.agenda.model.Agendamento;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AgendamentoValidator {
+public class AgendamentoPreparador {
 
     private final HorarioFuncionamentoService horarioFuncionamentoService;
 
 
-    public AgendamentoValidator(
+    public AgendamentoPreparador(
             HorarioFuncionamentoService horarioFuncionamentoService) {
 
         this.horarioFuncionamentoService =

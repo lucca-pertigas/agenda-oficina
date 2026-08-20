@@ -4,48 +4,67 @@ import com.oficina.agenda.dto.AgendamentoDiaResponse;
 import com.oficina.agenda.dto.AgendamentoRequest;
 import com.oficina.agenda.dto.AgendamentoResponse;
 import com.oficina.agenda.exception.RecursoNaoEncontradoException;
-import com.oficina.agenda.exception.RegraNegocioException;
 import com.oficina.agenda.mapper.AgendamentoMapper;
 import com.oficina.agenda.model.Agendamento;
 import com.oficina.agenda.model.StatusAgendamento;
 import com.oficina.agenda.repository.AgendamentoRepository;
+import com.oficina.agenda.service.agenda.AgendaDiaService;
+import com.oficina.agenda.service.evento.PublicadorEventoAgendamento;
+import com.oficina.agenda.service.validacao.ValidadorAgendamento;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class AgendamentoService {
 
     private final AgendamentoRepository agendamentoRepository;
+
     private final AgendamentoMapper agendamentoMapper;
-    private final ConflitoAgendamentoService conflitoAgendamentoService;
-    private final AgendamentoValidator agendamentoValidator;
+
+    private final AgendamentoPreparador agendamentoPreparador;
+
     private final AgendamentoResourceService agendamentoResourceService;
-    private final AgendamentoEventoService agendamentoEventoService;
-    private final IndisponibilidadeTecnicoService indisponibilidadeTecnicoService;
+
+    private final PublicadorEventoAgendamento publicadorEvento;
+
+    private final AgendaDiaService agendaDiaService;
+
+    private final ValidadorAgendamento validadorAgendamento;
 
 
     public AgendamentoService(
             AgendamentoRepository agendamentoRepository,
             AgendamentoMapper agendamentoMapper,
-            ConflitoAgendamentoService conflitoAgendamentoService,
-            AgendamentoValidator agendamentoValidator,
+            AgendamentoPreparador agendamentoPreparador,
             AgendamentoResourceService agendamentoResourceService,
-            AgendamentoEventoService agendamentoEventoService,
-            IndisponibilidadeTecnicoService indisponibilidadeTecnicoService) {
+            PublicadorEventoAgendamento publicadorEvento,
+            AgendaDiaService agendaDiaService,
+            ValidadorAgendamento validadorAgendamento) {
 
-        this.agendamentoRepository = agendamentoRepository;
-        this.agendamentoMapper = agendamentoMapper;
-        this.conflitoAgendamentoService = conflitoAgendamentoService;
-        this.agendamentoValidator = agendamentoValidator;
-        this.agendamentoResourceService = agendamentoResourceService;
-        this.agendamentoEventoService = agendamentoEventoService;
-        this.indisponibilidadeTecnicoService = indisponibilidadeTecnicoService;
+        this.agendamentoRepository =
+                agendamentoRepository;
+
+        this.agendamentoMapper =
+                agendamentoMapper;
+
+        this.agendamentoPreparador =
+                agendamentoPreparador;
+
+        this.agendamentoResourceService =
+                agendamentoResourceService;
+
+        this.publicadorEvento =
+                publicadorEvento;
+
+        this.agendaDiaService =
+                agendaDiaService;
+
+        this.validadorAgendamento =
+                validadorAgendamento;
     }
 
 
@@ -53,12 +72,15 @@ public class AgendamentoService {
     // LISTAR TODOS
     // =========================================================
 
+    @Transactional(readOnly = true)
     public List<AgendamentoResponse> listarTodos() {
 
         return agendamentoRepository
                 .findAll()
                 .stream()
-                .map(agendamentoMapper::paraResponse)
+                .map(
+                        agendamentoMapper::paraResponse
+                )
                 .toList();
     }
 
@@ -67,25 +89,31 @@ public class AgendamentoService {
     // BUSCAR POR ID
     // =========================================================
 
-    public Agendamento buscarPorId(Long id) {
+    @Transactional(readOnly = true)
+    public Agendamento buscarPorId(
+            Long id) {
 
         return agendamentoRepository
                 .findById(id)
                 .orElseThrow(
-                        () -> new RecursoNaoEncontradoException(
-                                "Agendamento não encontrado"
-                        )
+                        () ->
+                                new RecursoNaoEncontradoException(
+                                        "Agendamento não encontrado"
+                                )
                 );
     }
 
-
-    public AgendamentoResponse buscarResponsePorId(Long id) {
+    @Transactional(readOnly = true)
+    public AgendamentoResponse buscarResponsePorId(
+            Long id) {
 
         Agendamento agendamento =
                 buscarPorId(id);
 
         return agendamentoMapper
-                .paraResponse(agendamento);
+                .paraResponse(
+                        agendamento
+                );
     }
 
 
@@ -93,12 +121,17 @@ public class AgendamentoService {
     // SALVAR
     // =========================================================
 
+    @Transactional
     public AgendamentoResponse salvar(
             AgendamentoRequest request) {
 
         Agendamento agendamento =
                 new Agendamento();
 
+
+        // =========================================
+        // PREENCHE OS DADOS DO AGENDAMENTO
+        // =========================================
 
         agendamentoResourceService
                 .preencherRecursos(
@@ -107,23 +140,41 @@ public class AgendamentoService {
                 );
 
 
-        agendamentoValidator
+        // =========================================
+        // PREPARA O AGENDAMENTO
+        //
+        // Exemplo:
+        // - calcula duração
+        // - calcula data/hora final
+        // =========================================
+
+        agendamentoPreparador
                 .preparar(
                         agendamento
                 );
 
 
-        validarDisponibilidadeTecnico(
-                agendamento
-        );
+        // =========================================
+        // REGRAS DE NEGÓCIO
+        //
+        // Executa automaticamente todas as
+        // implementações de RegraAgendamento.
+        //
+        // Exemplo:
+        // - indisponibilidade do técnico
+        // - conflito de técnico/elevador
+        // =========================================
 
-
-        conflitoAgendamentoService
+        validadorAgendamento
                 .validar(
                         agendamento,
                         null
                 );
 
+
+        // =========================================
+        // SALVA
+        // =========================================
 
         Agendamento salvo =
                 agendamentoRepository
@@ -132,6 +183,10 @@ public class AgendamentoService {
                         );
 
 
+        // =========================================
+        // MONTA RESPONSE
+        // =========================================
+
         AgendamentoResponse response =
                 agendamentoMapper
                         .paraResponse(
@@ -139,7 +194,11 @@ public class AgendamentoService {
                         );
 
 
-        agendamentoEventoService
+        // =========================================
+        // PUBLICA EVENTO
+        // =========================================
+
+        publicadorEvento
                 .criado(
                         response
                 );
@@ -153,18 +212,26 @@ public class AgendamentoService {
     // ATUALIZAR
     // =========================================================
 
+    @Transactional
     public AgendamentoResponse atualizar(
             Long id,
             AgendamentoRequest request) {
 
         Agendamento agendamento =
-                buscarPorId(
-                        id
-                );
+                buscarPorId(id);
 
 
-        agendamento.validarPodeEditar();
+        // =========================================
+        // VERIFICA SE PODE EDITAR
+        // =========================================
 
+        agendamento
+                .validarPodeEditar();
+
+
+        // =========================================
+        // ATUALIZA DADOS
+        // =========================================
 
         agendamentoResourceService
                 .preencherRecursos(
@@ -173,23 +240,34 @@ public class AgendamentoService {
                 );
 
 
-        agendamentoValidator
+        // =========================================
+        // RECALCULA O AGENDAMENTO
+        // =========================================
+
+        agendamentoPreparador
                 .preparar(
                         agendamento
                 );
 
 
-        validarDisponibilidadeTecnico(
-                agendamento
-        );
+        // =========================================
+        // REGRAS DE NEGÓCIO
+        //
+        // O id é enviado para que regras de
+        // conflito consigam ignorar o próprio
+        // agendamento durante a edição.
+        // =========================================
 
-
-        conflitoAgendamentoService
+        validadorAgendamento
                 .validar(
                         agendamento,
                         id
                 );
 
+
+        // =========================================
+        // SALVA
+        // =========================================
 
         Agendamento salvo =
                 agendamentoRepository
@@ -198,6 +276,10 @@ public class AgendamentoService {
                         );
 
 
+        // =========================================
+        // RESPONSE
+        // =========================================
+
         AgendamentoResponse response =
                 agendamentoMapper
                         .paraResponse(
@@ -205,7 +287,11 @@ public class AgendamentoService {
                         );
 
 
-        agendamentoEventoService
+        // =========================================
+        // EVENTO
+        // =========================================
+
+        publicadorEvento
                 .atualizado(
                         response
                 );
@@ -219,16 +305,16 @@ public class AgendamentoService {
     // CANCELAR
     // =========================================================
 
+    @Transactional
     public AgendamentoResponse cancelar(
             Long id) {
 
         Agendamento agendamento =
-                buscarPorId(
-                        id
-                );
+                buscarPorId(id);
 
 
-        agendamento.cancelar();
+        agendamento
+                .cancelar();
 
 
         Agendamento salvo =
@@ -245,7 +331,7 @@ public class AgendamentoService {
                         );
 
 
-        agendamentoEventoService
+        publicadorEvento
                 .cancelado(
                         response
                 );
@@ -259,16 +345,16 @@ public class AgendamentoService {
     // CONCLUIR
     // =========================================================
 
+    @Transactional
     public AgendamentoResponse concluir(
             Long id) {
 
         Agendamento agendamento =
-                buscarPorId(
-                        id
-                );
+                buscarPorId(id);
 
 
-        agendamento.concluir();
+        agendamento
+                .concluir();
 
 
         Agendamento salvo =
@@ -285,7 +371,7 @@ public class AgendamentoService {
                         );
 
 
-        agendamentoEventoService
+        publicadorEvento
                 .concluido(
                         response
                 );
@@ -299,6 +385,7 @@ public class AgendamentoService {
     // LISTAR POR PERÍODO
     // =========================================================
 
+    @Transactional(readOnly = true)
     public List<AgendamentoResponse> listarPorPeriodo(
             LocalDateTime inicio,
             LocalDateTime fim) {
@@ -321,27 +408,20 @@ public class AgendamentoService {
     // LISTAR POR PERÍODO E ELEVADOR
     // =========================================================
 
+    @Transactional(readOnly = true)
     public List<AgendamentoResponse> listarPorPeriodoEElevador(
             Long elevadorId,
             LocalDateTime inicio,
             LocalDateTime fim) {
 
         return agendamentoRepository
-                .findByStatusNotAndDataHoraInicioLessThanAndDataHoraFimGreaterThanOrderByDataHoraInicioAsc(
+                .findByStatusNotAndElevadorIdAndDataHoraInicioLessThanAndDataHoraFimGreaterThanOrderByDataHoraInicioAsc(
                         StatusAgendamento.CANCELADO,
+                        elevadorId,
                         fim,
                         inicio
                 )
                 .stream()
-                .filter(
-                        agendamento ->
-                                agendamento
-                                        .getElevador()
-                                        .getId()
-                                        .equals(
-                                                elevadorId
-                                        )
-                )
                 .map(
                         agendamentoMapper::paraResponse
                 )
@@ -353,18 +433,14 @@ public class AgendamentoService {
     // LISTAR CANCELADOS
     // =========================================================
 
+    @Transactional(readOnly = true)
     public List<AgendamentoResponse> listarCancelados() {
 
         return agendamentoRepository
-                .findAll()
-                .stream()
-                .filter(
-                        agendamento ->
-                                agendamento
-                                        .getStatus()
-                                        ==
-                                        StatusAgendamento.CANCELADO
+                .findByStatusOrderByDataHoraInicioAsc(
+                        StatusAgendamento.CANCELADO
                 )
+                .stream()
                 .map(
                         agendamentoMapper::paraResponse
                 )
@@ -376,18 +452,14 @@ public class AgendamentoService {
     // LISTAR AGENDADOS
     // =========================================================
 
+    @Transactional(readOnly = true)
     public List<AgendamentoResponse> listarAgendados() {
 
         return agendamentoRepository
-                .findAll()
-                .stream()
-                .filter(
-                        agendamento ->
-                                agendamento
-                                        .getStatus()
-                                        ==
-                                        StatusAgendamento.AGENDADO
+                .findByStatusOrderByDataHoraInicioAsc(
+                        StatusAgendamento.AGENDADO
                 )
+                .stream()
                 .map(
                         agendamentoMapper::paraResponse
                 )
@@ -422,359 +494,10 @@ public class AgendamentoService {
                         );
 
 
-        List<AgendamentoDiaResponse> resultado =
-                new ArrayList<>();
-
-
-        for (Agendamento agendamento : agendamentos) {
-
-
-            // =================================================
-            // MANHÃ
-            // 08:00 até 12:00
-            // =================================================
-
-            adicionarTrechoSeExistir(
-                    resultado,
-                    agendamento,
-
-                    LocalDateTime.of(
-                            data,
-                            LocalTime.of(
-                                    8,
-                                    0
-                            )
-                    ),
-
-                    LocalDateTime.of(
-                            data,
-                            LocalTime.of(
-                                    12,
-                                    0
-                            )
-                    )
-            );
-
-
-            // =================================================
-            // TARDE
-            // 13:00 até 17:00
-            // =================================================
-
-            adicionarTrechoSeExistir(
-                    resultado,
-                    agendamento,
-
-                    LocalDateTime.of(
-                            data,
-                            LocalTime.of(
-                                    13,
-                                    0
-                            )
-                    ),
-
-                    LocalDateTime.of(
-                            data,
-                            LocalTime.of(
-                                    17,
-                                    0
-                            )
-                    )
-            );
-        }
-
-
-        return resultado;
-    }
-
-
-    // =========================================================
-    // CRIAR TRECHO VISUAL
-    // =========================================================
-
-    private void adicionarTrechoSeExistir(
-            List<AgendamentoDiaResponse> resultado,
-            Agendamento agendamento,
-            LocalDateTime inicioPeriodo,
-            LocalDateTime fimPeriodo) {
-
-
-        // =====================================================
-        // INÍCIO DA EXIBIÇÃO
-        // =====================================================
-
-        LocalDateTime inicioExibicao =
-                agendamento
-                        .getDataHoraInicio()
-                        .isAfter(
-                                inicioPeriodo
-                        )
-                        ?
-                        agendamento
-                                .getDataHoraInicio()
-                        :
-                        inicioPeriodo;
-
-
-        // =====================================================
-        // FIM DA EXIBIÇÃO
-        // =====================================================
-
-        LocalDateTime fimExibicao =
-                agendamento
-                        .getDataHoraFim()
-                        .isBefore(
-                                fimPeriodo
-                        )
-                        ?
-                        agendamento
-                                .getDataHoraFim()
-                        :
-                        fimPeriodo;
-
-
-        // =====================================================
-        // SEM INTERSEÇÃO
-        // =====================================================
-
-        if (
-                !inicioExibicao
-                        .isBefore(
-                                fimExibicao
-                        )
-        ) {
-
-            return;
-        }
-
-
-        long duracao =
-                Duration
-                        .between(
-                                inicioExibicao,
-                                fimExibicao
-                        )
-                        .toMinutes();
-
-
-        AgendamentoDiaResponse trecho =
-                new AgendamentoDiaResponse();
-
-
-        // =====================================================
-        // ID
-        // =====================================================
-
-        trecho.setId(
-                agendamento.getId()
-        );
-
-
-        // =====================================================
-        // CLIENTE
-        // =====================================================
-
-        trecho.setNomeCliente(
-                agendamento
-                        .getNomeCliente()
-        );
-
-
-        // =====================================================
-        // PLACA
-        // =====================================================
-
-        trecho.setPlacaVeiculo(
-                agendamento
-                        .getPlacaVeiculo()
-        );
-
-
-        // =====================================================
-        // MODELO DO VEÍCULO
-        // =====================================================
-
-        trecho.setModeloVeiculoId(
-                agendamento
-                        .getModeloVeiculo()
-                        .getId()
-        );
-
-
-        trecho.setModeloVeiculoNome(
-                agendamento
-                        .getModeloVeiculo()
-                        .getNome()
-        );
-
-
-        // =====================================================
-        // TÉCNICO
-        // =====================================================
-
-        trecho.setTecnicoId(
-                agendamento
-                        .getTecnico()
-                        .getId()
-        );
-
-
-        trecho.setTecnicoNome(
-                agendamento
-                        .getTecnico()
-                        .getNome()
-        );
-
-
-        // =====================================================
-        // ELEVADOR
-        // =====================================================
-
-        trecho.setElevadorId(
-                agendamento
-                        .getElevador()
-                        .getId()
-        );
-
-
-        trecho.setElevadorNumero(
-                agendamento
-                        .getElevador()
-                        .getNumero()
-        );
-
-
-        // =====================================================
-        // SERVIÇOS
-        // =====================================================
-
-        List<Long> servicosIds =
-                agendamento
-                        .getServicos()
-                        .stream()
-                        .map(
-                                item ->
-                                        item
-                                                .getServico()
-                                                .getId()
-                        )
-                        .toList();
-
-
-        List<String> servicosNomes =
-                agendamento
-                        .getServicos()
-                        .stream()
-                        .map(
-                                item ->
-                                        item
-                                                .getServico()
-                                                .getNome()
-                        )
-                        .toList();
-
-
-        trecho.setServicosIds(
-                servicosIds
-        );
-
-
-        trecho.setServicosNomes(
-                servicosNomes
-        );
-
-
-        trecho.setServicosNomesTexto(
-                String.join(
-                        " + ",
-                        servicosNomes
-                )
-        );
-
-
-        // =====================================================
-        // HORÁRIO ORIGINAL
-        // =====================================================
-
-        trecho.setDataHoraInicioOriginal(
-                agendamento
-                        .getDataHoraInicio()
-        );
-
-
-        trecho.setDataHoraFimOriginal(
-                agendamento
-                        .getDataHoraFim()
-        );
-
-
-        // =====================================================
-        // HORÁRIO DA EXIBIÇÃO
-        // =====================================================
-
-        trecho.setInicioExibicao(
-                inicioExibicao
-        );
-
-
-        trecho.setFimExibicao(
-                fimExibicao
-        );
-
-
-        trecho.setDuracaoExibicaoMinutos(
-                (int) duracao
-        );
-
-
-        // =====================================================
-        // STATUS
-        // =====================================================
-
-        trecho.setStatus(
-                agendamento
-                        .getStatus()
-        );
-
-
-        resultado.add(
-                trecho
-        );
-    }
-
-
-    // =========================================================
-    // VALIDAR DISPONIBILIDADE DO TÉCNICO
-    // =========================================================
-
-    private void validarDisponibilidadeTecnico(
-            Agendamento agendamento) {
-
-        Long tecnicoId =
-                agendamento
-                        .getTecnico()
-                        .getId();
-
-
-        LocalDate data =
-                agendamento
-                        .getDataHoraInicio()
-                        .toLocalDate();
-
-
-        boolean indisponivel =
-                indisponibilidadeTecnicoService
-                        .tecnicoIndisponivel(
-                                tecnicoId,
-                                data
-                        );
-
-
-        if (indisponivel) {
-
-            throw new RegraNegocioException(
-                    "O técnico está indisponível nesta data"
-            );
-        }
+        return agendaDiaService
+                .montar(
+                        data,
+                        agendamentos
+                );
     }
 }

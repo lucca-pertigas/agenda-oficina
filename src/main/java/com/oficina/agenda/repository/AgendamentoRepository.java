@@ -10,9 +10,37 @@ import java.util.List;
 public interface AgendamentoRepository
         extends JpaRepository<Agendamento, Long> {
 
+
+    // =========================================================
+    // LISTAR POR PERÍODO
+    // =========================================================
+
     List<Agendamento>
     findByStatusNotAndDataHoraInicioLessThanAndDataHoraFimGreaterThanOrderByDataHoraInicioAsc(
             StatusAgendamento status,
+            LocalDateTime fimPeriodo,
+            LocalDateTime inicioPeriodo
+    );
+
+
+    // =========================================================
+    // LISTAR POR STATUS
+    // =========================================================
+
+    List<Agendamento>
+    findByStatusOrderByDataHoraInicioAsc(
+            StatusAgendamento status
+    );
+
+
+    // =========================================================
+    // LISTAR POR PERÍODO E ELEVADOR
+    // =========================================================
+
+    List<Agendamento>
+    findByStatusNotAndElevadorIdAndDataHoraInicioLessThanAndDataHoraFimGreaterThanOrderByDataHoraInicioAsc(
+            StatusAgendamento status,
+            Long elevadorId,
             LocalDateTime fimPeriodo,
             LocalDateTime inicioPeriodo
     );

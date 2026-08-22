@@ -510,9 +510,11 @@
                         <!-- TÉCNICO -->
 
                         <span
-                                th:text="${agendamento.tecnicoNome}">
+                                th:text="${agendamento.tecnicoNome != null
+                                ? agendamento.tecnicoNome
+                                : 'Sem técnico'}">
 
-                            Técnico
+                                Sem técnico
 
                         </span>
 
@@ -702,25 +704,15 @@
 
             <select id="tecnico">
 
-
                 <option value="">
-
-                    Selecione
-
+                    Sem técnico definido
                 </option>
-
 
                 <option
-                        th:each="
-                            tecnico : ${tecnicos}
-                        "
-
+                        th:each="tecnico : ${tecnicos}"
                         th:value="${tecnico.id}"
-
                         th:text="${tecnico.nome}">
-
                 </option>
-
 
             </select>
 
@@ -1258,18 +1250,15 @@
 
             <select id="editarTecnico">
 
-
-                <option
-                        th:each="
-                            tecnico : ${tecnicos}
-                        "
-
-                        th:value="${tecnico.id}"
-
-                        th:text="${tecnico.nome}">
-
+                <option value="">
+                    Sem técnico definido
                 </option>
 
+                <option
+                        th:each="tecnico : ${tecnicos}"
+                        th:value="${tecnico.id}"
+                        th:text="${tecnico.nome}">
+                </option>
 
             </select>
 

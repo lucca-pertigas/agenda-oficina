@@ -27,18 +27,25 @@ public class AgendamentoMapper {
                 agendamento.getPlacaVeiculo()
         );
 
-        response.setTecnicoId(
-                agendamento
-                        .getTecnico()
-                        .getId()
-        );
+        if (agendamento.getTecnico() != null) {
 
+            response.setTecnicoId(
+                    agendamento
+                            .getTecnico()
+                            .getId()
+            );
 
-        response.setTecnicoNome(
-                agendamento
-                        .getTecnico()
-                        .getNome()
-        );
+            response.setTecnicoNome(
+                    agendamento
+                            .getTecnico()
+                            .getNome()
+            );
+
+        } else {
+
+            response.setTecnicoId(null);
+            response.setTecnicoNome(null);
+        }
 
         response.setElevadorId(
                 agendamento

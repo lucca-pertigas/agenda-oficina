@@ -37,6 +37,10 @@ public class AgendamentoResourceResolver {
 
     public Tecnico resolverTecnico(Long id) {
 
+        if (id == null) {
+            return null;
+        }
+
         Tecnico tecnico =
                 tecnicoService.buscarPorId(id);
 

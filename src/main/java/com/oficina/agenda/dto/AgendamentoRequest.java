@@ -24,9 +24,6 @@ public class AgendamentoRequest {
     )
     private Long modeloVeiculoId;
 
-    @NotNull(
-            message = "Técnico é obrigatório"
-    )
     private Long tecnicoId;
 
     @NotNull(

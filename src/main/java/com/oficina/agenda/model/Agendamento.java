@@ -54,9 +54,8 @@ public class Agendamento {
     @ManyToOne
     @JoinColumn(
             name = "tecnico_id",
-            nullable = false
+            nullable = true
     )
-    @NotNull(message = "Técnico é obrigatório")
     private Tecnico tecnico;
 
 

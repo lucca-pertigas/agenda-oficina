@@ -283,13 +283,7 @@ async function salvarAgendamento() {
     }
 
 
-    if (!tecnicoId) {
-
-        mensagem.textContent =
-            "Selecione um técnico.";
-
-        return;
-    }
+    // Técnico não é mais obrigatório.
 
 
     if (!elevadorId) {
@@ -344,7 +338,9 @@ async function salvarAgendamento() {
             Number(modeloVeiculoId),
 
         tecnicoId:
-            Number(tecnicoId),
+            tecnicoId
+                ? Number(tecnicoId)
+                : null,
 
         elevadorId:
             Number(elevadorId),
@@ -504,7 +500,7 @@ function abrirDetalhesAgendamento(card) {
             "detalheServico"
         )
         .textContent =
-        card.dataset.servicos;
+        card.dataset.servicos || "";
 
 
     document
@@ -512,7 +508,8 @@ function abrirDetalhesAgendamento(card) {
             "detalheTecnico"
         )
         .textContent =
-        card.dataset.tecnico;
+        card.dataset.tecnico ||
+        "Sem técnico definido";
 
 
     document
@@ -625,7 +622,7 @@ function abrirEdicaoAgendamento() {
             "editarTecnico"
         )
         .value =
-        card.dataset.tecnicoId;
+        card.dataset.tecnicoId || "";
 
 
     // ELEVADOR
@@ -817,13 +814,7 @@ async function salvarEdicaoAgendamento() {
     }
 
 
-    if (!tecnicoId) {
-
-        mensagem.textContent =
-            "Selecione um técnico.";
-
-        return;
-    }
+    // Técnico não é mais obrigatório.
 
 
     if (!elevadorId) {
@@ -878,7 +869,9 @@ async function salvarEdicaoAgendamento() {
             Number(modeloVeiculoId),
 
         tecnicoId:
-            Number(tecnicoId),
+            tecnicoId
+                ? Number(tecnicoId)
+                : null,
 
         elevadorId:
             Number(elevadorId),
@@ -1098,7 +1091,8 @@ function validarHorarioOficina(
 
 
     if (
-        Number.isNaN(hora) ||
+        Number.isNaN(hora)
+        ||
         Number.isNaN(minuto)
     ) {
 

@@ -29,6 +29,17 @@ public class RegraDisponibilidadeTecnico
             Agendamento agendamento,
             Long agendamentoId) {
 
+        /*
+         * Técnico não é mais obrigatório.
+         *
+         * Se o agendamento ainda não possui técnico,
+         * não existe disponibilidade para validar.
+         */
+        if (agendamento.getTecnico() == null) {
+            return;
+        }
+
+
         Long tecnicoId =
                 agendamento
                         .getTecnico()
